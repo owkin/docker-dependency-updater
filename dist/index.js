@@ -195,12 +195,12 @@ function run() {
             const dependencies_path = core.getInput('dependencies');
             const image = dockerfile.load(dockerfile_path);
             const dependencies_info = dependencies.load(dependencies_path);
-            const updated_dependencies = dependencies_info.map(function (installed_pkg) {
+            const packages_update = dependencies_info.map(function (installed_pkg) {
                 return __awaiter(this, void 0, void 0, function* () {
                     return image.get_latest_version(installed_pkg);
                 });
             });
-            const updated_packages = yield Promise.all(updated_dependencies);
+            const updated_packages = yield Promise.all(packages_update);
             dependencies.save(dependencies_path, updated_packages);
         }
         catch (error) {
