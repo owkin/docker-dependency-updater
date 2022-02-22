@@ -1,0 +1,21 @@
+{
+  "name": "docker-dependency-updater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/owkin/docker-dependency-updater.git"
+  },
+  "keywords": [
+    "action"
+  ],
+  "author": "@owkin/orca",
+  "bugs": {
+    "url": "https://github.com/owkin/docker-dependency-updater/issues"
+  },
+  "homepage": "https://github.com/owkin/docker-dependency-updater#readme"
+}
