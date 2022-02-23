@@ -19,7 +19,7 @@ function load(dependencies_path) {
 }
 exports.load = load;
 function save(dependencies_path, dependencies) {
-    const jsonContent = JSON.stringify(dependencies);
+    const jsonContent = JSON.stringify(dependencies, null, 2);
     fs_1.default.writeFileSync(dependencies_path, jsonContent);
 }
 exports.save = save;
@@ -134,9 +134,30 @@ class AlpineImage extends Image {
         });
     }
 }
+class DebImage extends Image {
+    get_latest_version(installed_package) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.docker.command(`run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package}"`);
+            let updated_version = undefined;
+            for (const info of response.raw) {
+                if (info.includes('Candidate')) {
+                    updated_version = info.split(':')[1].trim();
+                    break;
+                }
+            }
+            if (updated_version !== undefined) {
+                return new dependencies_1.Package(installed_package.name, updated_version);
+            }
+            throw Error('Unable to extract new version from package infos');
+        });
+    }
+}
 function factory(name) {
     if (name.includes('alpine')) {
         return new AlpineImage(name);
+    }
+    if (name.includes('debian')) {
+        return new DebImage(name);
     }
     throw Error('Unsupported image type');
 }

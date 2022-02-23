@@ -7,7 +7,7 @@ export function load(dependencies_path: string): Package[] {
 }
 
 export function save(dependencies_path: string, dependencies: Package[]): void {
-  const jsonContent = JSON.stringify(dependencies)
+  const jsonContent = JSON.stringify(dependencies, null, 2)
   fs.writeFileSync(dependencies_path, jsonContent)
 }
 
