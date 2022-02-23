@@ -37,9 +37,31 @@ class AlpineImage extends Image {
   }
 }
 
+class DebImage extends Image {
+  async get_latest_version(installed_package: Package): Promise<Package> {
+    const response = await this.docker.command(
+      `run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package}"`
+    )
+    let updated_version = undefined
+    for (const info of response.raw) {
+      if (info.includes('Candidate')) {
+        updated_version = info.split(':')[1].trim()
+        break
+      }
+    }
+    if (updated_version !== undefined) {
+      return new Package(installed_package.name, updated_version)
+    }
+    throw Error('Unable to extract new version from package infos')
+  }
+}
+
 export function factory(name: string): Image {
   if (name.includes('alpine')) {
     return new AlpineImage(name)
+  }
+  if (name.includes('debian')) {
+    return new DebImage(name)
   }
   throw Error('Unsupported image type')
 }
