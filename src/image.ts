@@ -40,10 +40,10 @@ export class AlpineImage extends Image {
 export class DebImage extends Image {
   async get_latest_version(installed_package: Package): Promise<Package> {
     const response = await this.docker.command(
-      `run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package}"`
+      `run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`
     )
     let updated_version = undefined
-    for (const info of response.raw) {
+    for (const info of response.raw.split('\n')) {
       if (info.includes('Candidate')) {
         updated_version = info.split(':')[1].trim()
         break
