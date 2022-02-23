@@ -109,7 +109,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.factory = exports.Image = void 0;
+exports.factory = exports.DebImage = exports.AlpineImage = exports.Image = void 0;
 const docker_cli_js_1 = __nccwpck_require__(771);
 const dependencies_1 = __nccwpck_require__(31);
 class Image {
@@ -134,6 +134,7 @@ class AlpineImage extends Image {
         });
     }
 }
+exports.AlpineImage = AlpineImage;
 class DebImage extends Image {
     get_latest_version(installed_package) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -152,6 +153,7 @@ class DebImage extends Image {
         });
     }
 }
+exports.DebImage = DebImage;
 function factory(name) {
     if (name.includes('alpine')) {
         return new AlpineImage(name);
@@ -214,6 +216,7 @@ function run() {
         try {
             const dockerfile_path = core.getInput('dockerfile');
             const dependencies_path = core.getInput('dependencies');
+            const apply = core.getBooleanInput('apply');
             const image = dockerfile.load(dockerfile_path);
             const dependencies_info = dependencies.load(dependencies_path);
             const packages_update = dependencies_info.map(function (installed_pkg) {
@@ -222,7 +225,10 @@ function run() {
                 });
             });
             const updated_packages = yield Promise.all(packages_update);
-            dependencies.save(dependencies_path, updated_packages);
+            core.exportVariable('updatedDependencies', updated_packages);
+            if (apply) {
+                dependencies.save(dependencies_path, updated_packages);
+            }
         }
         catch (error) {
             if (error instanceof Error)

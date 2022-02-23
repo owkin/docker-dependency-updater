@@ -24,7 +24,7 @@ export class Image {
   }
 }
 
-class AlpineImage extends Image {
+export class AlpineImage extends Image {
   async get_latest_version(installed_package: Package): Promise<Package> {
     const response = await this.docker.command(
       `run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
@@ -37,7 +37,7 @@ class AlpineImage extends Image {
   }
 }
 
-class DebImage extends Image {
+export class DebImage extends Image {
   async get_latest_version(installed_package: Package): Promise<Package> {
     const response = await this.docker.command(
       `run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package}"`

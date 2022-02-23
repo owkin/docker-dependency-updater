@@ -1,7 +1,7 @@
 import * as process from 'process'
 import * as cp from 'child_process'
 import * as path from 'path'
-import {test} from '@jest/globals'
+import {test, expect} from '@jest/globals'
 
 // shows how the runner will run a javascript action with env / stdout protocol
 test('test runs', () => {
@@ -11,6 +11,7 @@ test('test runs', () => {
     'data',
     'dependencies.json'
   )
+  process.env['INPUT_APPLY'] = 'false'
   const np = process.execPath
   const ip = path.join(__dirname, '..', 'lib', 'main.js')
   const options: cp.ExecFileSyncOptions = {
