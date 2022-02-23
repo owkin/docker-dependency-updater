@@ -9,6 +9,13 @@ inputs:
     description: 'dependencies.json file path'
     required: true
     default: 'dependencies.json'
+  apply:
+    description: 'apply the potential update to the local code'
+    required: true
+    default: 'false'
+outputs:
+  updatedDependencies:
+    description: "JSON representing the updated dependencies"
 runs:
   using: 'node16'
   main: 'dist/index.js'

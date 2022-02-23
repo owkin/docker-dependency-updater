@@ -6,6 +6,7 @@ async function run(): Promise<void> {
   try {
     const dockerfile_path = core.getInput('dockerfile')
     const dependencies_path = core.getInput('dependencies')
+    const apply = core.getBooleanInput('apply')
 
     const image = dockerfile.load(dockerfile_path)
     const dependencies_info = dependencies.load(dependencies_path)
@@ -16,7 +17,10 @@ async function run(): Promise<void> {
     })
 
     const updated_packages = await Promise.all(packages_update)
-    dependencies.save(dependencies_path, updated_packages)
+    core.exportVariable('updatedDependencies', updated_packages)
+    if (apply) {
+      dependencies.save(dependencies_path, updated_packages)
+    }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
