@@ -1,4 +1,3 @@
-[![Github release](https://img.shields.io/github/release/owkin/docker-dependency-updater.svg?style=flat-square)](https://github.com/owkin/docker-dependency-updater/releases/latest)
 [![build-test](https://github.com/owkin/docker-dependency-updater/actions/workflows/test.yml/badge.svg?branch=main&style=flat-square)](https://github.com/owkin/docker-dependency-updater/actions/workflows/test.yml)
 
 ## About
