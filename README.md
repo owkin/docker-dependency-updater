@@ -55,7 +55,7 @@ Note the `workflow_dispatch` trigger that will enable you to run this workflow i
 | ---            | ---    | ---         |
 | `dockerfile`   | String | Path to the Dockerfile you want to update |
 | `dependencies` | String | Path to the dependencies.json file where you keep your dependencies pinned |
-| `apply`        | Bool   | If true the action will apply chenges directly to the files checked out |
+| `apply`        | Bool   | If true the action will apply changes directly to the files checked out |
 
 ## Recommendations
 
