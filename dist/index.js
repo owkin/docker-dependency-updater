@@ -158,7 +158,7 @@ function factory(name) {
     if (name.includes('alpine')) {
         return new AlpineImage(name);
     }
-    if (name.includes('debian')) {
+    if (name.includes('debian') || name.includes('bulleye') || name.includes('buster')) {
         return new DebImage(name);
     }
     throw Error('Unsupported image type');
