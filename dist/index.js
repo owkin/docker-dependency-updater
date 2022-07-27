@@ -160,7 +160,8 @@ function factory(name) {
     }
     if (name.includes('debian') ||
         name.includes('bulleye') ||
-        name.includes('buster')) {
+        name.includes('buster') ||
+        name.includes('slim')) {
         return new DebImage(name);
     }
     throw Error('Unsupported image type');

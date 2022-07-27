@@ -63,7 +63,8 @@ export function factory(name: string): Image {
   if (
     name.includes('debian') ||
     name.includes('bulleye') ||
-    name.includes('buster')
+    name.includes('buster')||
+    name.includes('slim')
   ) {
     return new DebImage(name)
   }
