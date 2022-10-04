@@ -27,7 +27,7 @@
   "homepage": "https://github.com/owkin/docker-dependency-updater#readme",
   "dependencies": {
     "@actions/core": "^1.9.1",
-    "@actions/github": "^5.1.0",
+    "@actions/github": "^5.1.1",
     "docker-cli-js": "^2.9.0"
   },
   "devDependencies": {
