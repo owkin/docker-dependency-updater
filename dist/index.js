@@ -1976,6 +1976,10 @@ function checkBypass(reqUrl) {
     if (!reqUrl.hostname) {
         return false;
     }
+    const reqHost = reqUrl.hostname;
+    if (isLoopbackAddress(reqHost)) {
+        return true;
+    }
     const noProxy = process.env['no_proxy'] || process.env['NO_PROXY'] || '';
     if (!noProxy) {
         return false;
@@ -2001,13 +2005,24 @@ function checkBypass(reqUrl) {
         .split(',')
         .map(x => x.trim().toUpperCase())
         .filter(x => x)) {
-        if (upperReqHosts.some(x => x === upperNoProxyItem)) {
+        if (upperNoProxyItem === '*' ||
+            upperReqHosts.some(x => x === upperNoProxyItem ||
+                x.endsWith(`.${upperNoProxyItem}`) ||
+                (upperNoProxyItem.startsWith('.') &&
+                    x.endsWith(`${upperNoProxyItem}`)))) {
             return true;
         }
     }
     return false;
 }
 exports.checkBypass = checkBypass;
+function isLoopbackAddress(host) {
+    const hostLower = host.toLowerCase();
+    return (hostLower === 'localhost' ||
+        hostLower.startsWith('127.') ||
+        hostLower.startsWith('[::1]') ||
+        hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
+}
 //# sourceMappingURL=proxy.js.map
 
 /***/ }),
@@ -2056,48 +2071,24 @@ exports.cliTable2Json = cliTable2Json;
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Options = exports.Docker = exports.dockerCommand = void 0;
-const child_process = __importStar(__nccwpck_require__(81));
+const child_process = __nccwpck_require__(81);
 const cli_table_2_json_1 = __nccwpck_require__(304);
 const dockermachine_cli_js_1 = __nccwpck_require__(539);
-//import * as _ from 'lodash';
+//import * as _ from "lodash";
 const snakeCase = __nccwpck_require__(645);
-const nodeify_ts_1 = __importDefault(__nccwpck_require__(694));
+const nodeify_ts_1 = __nccwpck_require__(694);
 const exec = child_process.exec;
 const splitLines = function (input) {
-    return input.replace(/\r/g, '').split('\n');
+    return input.replace(/\r/g, "").split("\n");
 };
 const array2Oject = function (lines) {
     return lines.reduce(function (object, linep) {
@@ -2105,9 +2096,9 @@ const array2Oject = function (lines) {
         if (line.length === 0) {
             return object;
         }
-        const parts = line.split(':');
+        const parts = line.split(":");
         let key = parts[0];
-        const value = parts.slice(1).join(':');
+        const value = parts.slice(1).join(":");
         key = snakeCase(key);
         object[key] = value.trim();
         return object;
@@ -2148,7 +2139,7 @@ const extractResult = function (result) {
             re: / ps /,
             run(resultp) {
                 const lines = splitLines(resultp.raw);
-                resultp.containerList = (0, cli_table_2_json_1.cliTable2Json)(lines);
+                resultp.containerList = cli_table_2_json_1.cliTable2Json(lines);
                 return resultp;
             },
         },
@@ -2158,7 +2149,7 @@ const extractResult = function (result) {
                 const lines = splitLines(resultp.raw);
                 //const debug = require('debug')('docker-cli-js:lib/index.js extractResult images');
                 //debug(lines);
-                resultp.images = (0, cli_table_2_json_1.cliTable2Json)(lines);
+                resultp.images = cli_table_2_json_1.cliTable2Json(lines);
                 return resultp;
             },
         },
@@ -2168,7 +2159,7 @@ const extractResult = function (result) {
                 const lines = splitLines(resultp.raw);
                 //const debug = require('debug')('docker-cli-js:lib/index.js extractResult images');
                 //debug(lines);
-                resultp.network = (0, cli_table_2_json_1.cliTable2Json)(lines);
+                resultp.network = cli_table_2_json_1.cliTable2Json(lines);
                 return resultp;
             },
         },
@@ -2192,7 +2183,7 @@ const extractResult = function (result) {
             re: / search /,
             run(resultp) {
                 const lines = splitLines(resultp.raw);
-                resultp.images = (0, cli_table_2_json_1.cliTable2Json)(lines);
+                resultp.images = cli_table_2_json_1.cliTable2Json(lines);
                 return resultp;
             },
         },
@@ -2221,7 +2212,7 @@ const extractResult = function (result) {
     extracterArray.forEach(function (extracter) {
         const re = extracter.re;
         const str = result.command;
-        const m = re.exec(str + ' ');
+        const m = re.exec(str + " ");
         if (m !== null) {
             if (m.index === re.lastIndex) {
                 re.lastIndex++;
@@ -2233,14 +2224,14 @@ const extractResult = function (result) {
     });
     return result;
 };
-const dockerCommand = (command, options = {
+exports.dockerCommand = (command, options = {
     currentWorkingDirectory: undefined,
     echo: true,
     env: undefined,
     machineName: undefined,
     stdin: undefined,
-}) => __awaiter(void 0, void 0, void 0, function* () {
-    let machineconfig = '';
+}) => __awaiter(this, void 0, void 0, function* () {
+    let machineconfig = "";
     if (options.machineName) {
         machineconfig = yield new dockermachine_cli_js_1.DockerMachine()
             .command(`config ${options.machineName}`)
@@ -2249,26 +2240,25 @@ const dockerCommand = (command, options = {
     const execCommand = `docker ${machineconfig} ${command}`;
     const execOptions = {
         cwd: options.currentWorkingDirectory,
-        env: Object.assign({ DEBUG: '', HOME: process.env.HOME, PATH: process.env.PATH }, options.env),
+        env: Object.assign({ DEBUG: "", HOME: process.env.HOME, PATH: process.env.PATH, USER: process.env.USER }, options.env),
         maxBuffer: 200 * 1024 * 1024,
     };
     const raw = yield new Promise((resolve, reject) => {
-        var _a, _b, _c, _d;
         const childProcess = exec(execCommand, execOptions, (error, stdout, stderr) => {
             if (error) {
-                return reject(Object.assign(new Error(`Error: stdout ${stdout}, stderr ${stderr}`), Object.assign(Object.assign({}, error), { stdout, stderr, innerError: error })));
+                return reject(Object.assign(new Error(`Error: stdout ${stdout}, stderr ${stderr}`), Object.assign({}, error, { stdout, stderr, innerError: error })));
             }
             resolve(stdout);
         });
         if (options.stdin) {
-            (_a = childProcess.stdin) === null || _a === void 0 ? void 0 : _a.write(options.stdin);
-            (_b = childProcess.stdin) === null || _b === void 0 ? void 0 : _b.end();
+            childProcess.stdin.write(options.stdin);
+            childProcess.stdin.end();
         }
         if (options.echo) {
-            (_c = childProcess.stdout) === null || _c === void 0 ? void 0 : _c.on('data', (chunk) => {
+            childProcess.stdout.on("data", (chunk) => {
                 process.stdout.write(chunk.toString());
             });
-            (_d = childProcess.stderr) === null || _d === void 0 ? void 0 : _d.on('data', (chunk) => {
+            childProcess.stderr.on("data", (chunk) => {
                 process.stderr.write(chunk.toString());
             });
         }
@@ -2278,19 +2268,18 @@ const dockerCommand = (command, options = {
         raw,
     });
 });
-exports.dockerCommand = dockerCommand;
 class Docker {
     constructor(options = {
-        machineName: undefined,
         currentWorkingDirectory: undefined,
         echo: true,
         env: undefined,
+        machineName: undefined,
         stdin: undefined,
     }) {
         this.options = options;
     }
     command(command, callback) {
-        return (0, nodeify_ts_1.default)((0, exports.dockerCommand)(command, this.options), callback);
+        return nodeify_ts_1.default(exports.dockerCommand(command, this.options), callback);
     }
 }
 exports.Docker = Docker;
@@ -2304,7 +2293,7 @@ class Options {
     }
 }
 exports.Options = Options;
-//# sourceMappingURL=index.js.map
+
 
 /***/ }),
 
