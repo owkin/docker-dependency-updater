@@ -41,7 +41,7 @@
     "prettier": "^2.7.1",
     "tempfile": "^5.0.0",
     "tempy": "^3.0.0",
-    "ts-jest": "^29.1.0",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.1.3"
   }
 }
