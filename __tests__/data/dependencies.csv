@@ -1,0 +1,4 @@
+package,version,reason
+build-essential,12.9ubuntu3,base system
+curl,7.81.0-1ubuntu1.14,base system
+libssl3,3.0.2-0ubuntu1.12,base system

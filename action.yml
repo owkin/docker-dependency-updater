@@ -7,12 +7,16 @@ inputs:
     default: 'Dockerfile'
   dependencies:
     description: 'dependencies.json file path'
-    required: true
+    required: false
     default: 'dependencies.json'
   apply:
     description: 'apply the potential update to the local code'
     required: true
     default: 'false'
+  manifest:
+    description: 'manifest file path'
+    required: false
+    default: 'dependencies.csv'
 outputs:
   updatedDependencies:
     description: "JSON representing the updated dependencies"
