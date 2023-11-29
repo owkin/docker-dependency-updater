@@ -42,6 +42,9 @@ export class Package {
   ) {
     this.name = name
     this.version = version
+    // omit name and version from extra fields to avoid overriding
+    delete extraFields?.name
+    delete extraFields?.version
     Object.assign(this, extraFields)
   }
 }

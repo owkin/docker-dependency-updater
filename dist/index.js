@@ -38,6 +38,9 @@ class Package {
     constructor(name, version, extraFields) {
         this.name = name;
         this.version = version;
+        // omit name and version from extra fields to avoid overriding
+        extraFields === null || extraFields === void 0 ? true : delete extraFields.name;
+        extraFields === null || extraFields === void 0 ? true : delete extraFields.version;
         Object.assign(this, extraFields);
     }
 }
@@ -89,7 +92,8 @@ class AlpineImage extends Image {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.docker.command(`run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`);
             const updated_version = remove_prefix(response.raw.split(' ')[0], `${installed_package.name}-`);
-            return new dependencies_1.Package(installed_package.name, updated_version);
+            // return name and new version, with extra fields
+            return new dependencies_1.Package(installed_package.name, updated_version, Object.assign({}, installed_package));
         });
     }
 }
@@ -106,7 +110,7 @@ class DebImage extends Image {
                 }
             }
             if (updated_version !== undefined) {
-                return new dependencies_1.Package(installed_package.name, updated_version);
+                return new dependencies_1.Package(installed_package.name, updated_version, Object.assign({}, installed_package));
             }
             throw Error('Unable to extract new version from package infos');
         });
