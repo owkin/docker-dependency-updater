@@ -1,6 +1,10 @@
 name: 'Dependency updater'
 description: 'Update system dependencies of a Dockerfile'
 inputs:
+  dockerfile:
+    description: 'Dockerfile path'
+    required: true
+    default: 'Dockerfile'
   dependencies:
     description: 'dependencies.json file path'
     required: true

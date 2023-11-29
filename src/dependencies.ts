@@ -1,28 +1,13 @@
 import fs from 'fs'
-import {factory, Image} from './image'
 
-export function load(dependencies_path: string): [Image, Package[]] {
+export function load(dependencies_path: string): Package[] {
   const content = fs.readFileSync(dependencies_path).toString('utf-8')
   const jsonContent = JSON.parse(content)
-  if (!jsonContent.image || !jsonContent.dependencies) {
-    throw new Error('Invalid dependencies file')
-  }
-  return [
-    factory(jsonContent.image),
-    packages_from_dict(jsonContent.dependencies)
-  ]
+  return packages_from_dict(jsonContent)
 }
 
-export function save(
-  dependencies_path: string,
-  image: string,
-  dependencies: Package[]
-): void {
-  const jsonData = {
-    image,
-    dependencies
-  }
-  const jsonContent = JSON.stringify(jsonData, null, 2)
+export function save(dependencies_path: string, dependencies: Package[]): void {
+  const jsonContent = JSON.stringify(dependencies, null, 2)
   fs.writeFileSync(dependencies_path, jsonContent)
 }
 
