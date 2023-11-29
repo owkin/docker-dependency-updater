@@ -12,87 +12,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Package = exports.save = exports.load = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(147));
+const image_1 = __nccwpck_require__(281);
 function load(dependencies_path) {
     const content = fs_1.default.readFileSync(dependencies_path).toString('utf-8');
     const jsonContent = JSON.parse(content);
-    return packages_from_dict(jsonContent);
+    return [
+        (0, image_1.factory)(jsonContent.image),
+        packages_from_dict(jsonContent.dependencies)
+    ];
 }
 exports.load = load;
-function save(dependencies_path, dependencies) {
-    const jsonContent = JSON.stringify(dependencies, null, 2);
+function save(dependencies_path, image, dependencies) {
+    const jsonData = {
+        image,
+        dependencies
+    };
+    const jsonContent = JSON.stringify(jsonData, null, 2);
     fs_1.default.writeFileSync(dependencies_path, jsonContent);
 }
 exports.save = save;
 class Package {
-    constructor(name, version) {
+    constructor(name, version, extraFields) {
         this.name = name;
         this.version = version;
+        Object.assign(this, extraFields);
     }
 }
 exports.Package = Package;
 function packages_from_dict(dict) {
     const packages = [];
     for (const storedPackage of dict) {
-        packages.push(new Package(storedPackage.name, storedPackage.version));
+        packages.push(new Package(storedPackage.name, storedPackage.version, Object.assign({}, storedPackage)));
     }
     return packages;
-}
-
-
-/***/ }),
-
-/***/ 149:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.load = void 0;
-const image = __importStar(__nccwpck_require__(281));
-const fs_1 = __importDefault(__nccwpck_require__(147));
-function load(dockerfile) {
-    const content = fs_1.default.readFileSync(dockerfile).toString('utf-8');
-    return extract_docker_image(content);
-}
-exports.load = load;
-function extract_docker_image(dockerfile_content) {
-    let imageName = '';
-    const dockerfileLines = dockerfile_content.split('\n');
-    for (const line of dockerfileLines) {
-        if (line.includes('FROM')) {
-            imageName = line.split(' ')[1].trim();
-        }
-        if (line.includes('apk add') || line.includes('apt-get install')) {
-            return image.factory(imageName);
-        }
-    }
-    throw Error('Unable to extract image from Dockerfile');
 }
 
 
@@ -164,7 +116,8 @@ function factory(name) {
     }
     if (name.includes('debian') ||
         name.includes('bulleye') ||
-        name.includes('buster')) {
+        name.includes('buster') ||
+        name.includes('ubuntu')) {
         return new DebImage(name);
     }
     throw Error('Unsupported image type');
@@ -220,15 +173,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const dependencies = __importStar(__nccwpck_require__(31));
-const dockerfile = __importStar(__nccwpck_require__(149));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const dockerfile_path = core.getInput('dockerfile');
             const dependencies_path = core.getInput('dependencies');
             const apply = core.getBooleanInput('apply');
-            const image = dockerfile.load(dockerfile_path);
-            const dependencies_info = dependencies.load(dependencies_path);
+            const [image, dependencies_info] = dependencies.load(dependencies_path);
             const packages_update = dependencies_info.map(function (installed_pkg) {
                 return __awaiter(this, void 0, void 0, function* () {
                     return image.get_latest_version(installed_pkg);
@@ -237,7 +187,7 @@ function run() {
             const updated_packages = yield Promise.all(packages_update);
             core.exportVariable('updatedDependencies', updated_packages);
             if (apply) {
-                dependencies.save(dependencies_path, updated_packages);
+                dependencies.save(dependencies_path, image.name, updated_packages);
             }
         }
         catch (error) {
