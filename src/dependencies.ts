@@ -4,6 +4,9 @@ import {factory, Image} from './image'
 export function load(dependencies_path: string): [Image, Package[]] {
   const content = fs.readFileSync(dependencies_path).toString('utf-8')
   const jsonContent = JSON.parse(content)
+  if (!jsonContent.image || !jsonContent.dependencies) {
+    throw new Error('Invalid dependencies file')
+  }
   return [
     factory(jsonContent.image),
     packages_from_dict(jsonContent.dependencies)
