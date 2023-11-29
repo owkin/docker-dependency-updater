@@ -19,17 +19,19 @@ interface StoredJSON {
 export class Package {
   name: string
   version: string
+  [key: string]: any // Allows for dynamic additional properties
 
-  constructor(name: string, version: string) {
+  constructor(name: string, version: string, extraFields?: {[key: string]: any}) {
     this.name = name
     this.version = version
+    Object.assign(this, extraFields)
   }
 }
 
 function packages_from_dict(dict: StoredJSON[]): Package[] {
   const packages: Package[] = []
   for (const storedPackage of dict) {
-    packages.push(new Package(storedPackage.name, storedPackage.version))
+    packages.push(new Package(storedPackage.name, storedPackage.version, {...storedPackage}))
   }
   return packages
 }
