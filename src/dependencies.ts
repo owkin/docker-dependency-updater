@@ -1,25 +1,31 @@
 import fs from 'fs'
+import {factory, Image} from './image'
 
-export function load(dependencies_path: string): Package[] {
+export function load(dependencies_path: string): [Image, Package[]] {
   const content = fs.readFileSync(dependencies_path).toString('utf-8')
   const jsonContent = JSON.parse(content)
-  return packages_from_dict(jsonContent)
+  return [factory(jsonContent.image), packages_from_dict(jsonContent.dependencies)]
 }
 
-export function save(dependencies_path: string, dependencies: Package[]): void {
-  const jsonContent = JSON.stringify(dependencies, null, 2)
+export function save(dependencies_path: string, image: string, dependencies: Package[]): void {
+  const jsonData = {
+    image: image,
+    dependencies: dependencies
+  };
+  const jsonContent = JSON.stringify(jsonData, null, 2)
   fs.writeFileSync(dependencies_path, jsonContent)
 }
 
 interface StoredJSON {
   name: string
   version: string
+  [key: string]: string
 }
 
 export class Package {
   name: string
   version: string
-  [key: string]: any // Allows for dynamic additional properties
+  [key: string]: string // Allows for dynamic additional properties
 
   constructor(name: string, version: string, extraFields?: {[key: string]: any}) {
     this.name = name
