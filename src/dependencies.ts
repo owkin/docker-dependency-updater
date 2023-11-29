@@ -27,7 +27,7 @@ export class Package {
   version: string
   [key: string]: string
 
-  constructor(name: string, version: string, extraFields?: {[key: string]: any}) {
+  constructor(name: string, version: string, extraFields?: {[key: string]: string}) {
     this.name = name
     this.version = version
     Object.assign(this, extraFields)
