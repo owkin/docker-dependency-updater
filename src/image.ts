@@ -48,7 +48,8 @@ export class DebImage extends Image {
     let updated_version = undefined
     for (const info of response.raw.split('\n')) {
       if (info.includes('Candidate')) {
-        updated_version = info.split(':')[1].trim()
+        // must handle case of multiple : in the line i.e. Candidate: 1:8.9p1-3ubuntu0.4
+        updated_version = info.split(':').slice(1).join(':').trim()
         break
       }
     }
