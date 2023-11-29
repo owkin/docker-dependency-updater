@@ -25,7 +25,7 @@ interface StoredJSON {
 export class Package {
   name: string
   version: string
-  [key: string]: string // Allows for dynamic additional properties
+  [key: string]: string
 
   constructor(name: string, version: string, extraFields?: {[key: string]: any}) {
     this.name = name
