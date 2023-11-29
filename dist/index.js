@@ -16,6 +16,9 @@ const image_1 = __nccwpck_require__(281);
 function load(dependencies_path) {
     const content = fs_1.default.readFileSync(dependencies_path).toString('utf-8');
     const jsonContent = JSON.parse(content);
+    if (!jsonContent.image || !jsonContent.dependencies) {
+        throw new Error('Invalid dependencies file');
+    }
     return [
         (0, image_1.factory)(jsonContent.image),
         packages_from_dict(jsonContent.dependencies)
