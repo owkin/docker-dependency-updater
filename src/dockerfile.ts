@@ -1,9 +1,11 @@
 import * as image from './image'
 import fs from 'fs'
 
-export function load(dockerfile: string): image.Image {
+export async function load(dockerfile: string): Promise<image.Image> {
   const content = fs.readFileSync(dockerfile).toString('utf-8')
-  return extract_docker_image(content)
+  const extractedImage = extract_docker_image(content)
+  await extractedImage.init_package_manager()
+  return extractedImage
 }
 
 function extract_docker_image(dockerfile_content: string): image.Image {

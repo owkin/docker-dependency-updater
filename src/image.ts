@@ -3,6 +3,14 @@ import {Package} from './dependencies'
 
 export type PackageManager = 'apk' | 'apt-get'
 
+const packageManagers: {
+  command: string
+  name: PackageManager
+}[] = [
+  {command: 'apk --version', name: 'apk'},
+  {command: 'apt-get --version', name: 'apt-get'}
+]
+
 export class Image {
   name: string
   pkgManager: PackageManager | null
@@ -20,16 +28,19 @@ export class Image {
     )
     this.docker = new Docker(options)
   }
-
   async init_package_manager(): Promise<void> {
-    try {
-      await this.docker.command(
-        `run ${this.name} sh -c "apk --version > /dev/null"`
-      )
-      this.pkgManager = 'apk'
-    } catch (error) {
-      this.pkgManager = 'apt-get'
+    for (const manager of packageManagers) {
+      try {
+        await this.docker.command(
+          `run ${this.name} sh -c "${manager.command} > /dev/null"`
+        )
+        this.pkgManager = manager.name
+        return
+      } catch (error) {
+        // Continue to the next iteration if the current one fails
+      }
     }
+    throw Error('Unable to find supported package manager')
   }
 
   async get_latest_version(installed_package: Package): Promise<Package> {

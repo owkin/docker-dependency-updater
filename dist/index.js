@@ -54,6 +54,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -62,8 +71,12 @@ exports.load = void 0;
 const image = __importStar(__nccwpck_require__(281));
 const fs_1 = __importDefault(__nccwpck_require__(147));
 function load(dockerfile) {
-    const content = fs_1.default.readFileSync(dockerfile).toString('utf-8');
-    return extract_docker_image(content);
+    return __awaiter(this, void 0, void 0, function* () {
+        const content = fs_1.default.readFileSync(dockerfile).toString('utf-8');
+        const extractedImage = extract_docker_image(content);
+        yield extractedImage.init_package_manager();
+        return extractedImage;
+    });
 }
 exports.load = load;
 function extract_docker_image(dockerfile_content) {
@@ -100,6 +113,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Image = void 0;
 const docker_cli_js_1 = __nccwpck_require__(771);
+const packageManagers = [
+    { command: 'apk --version', name: 'apk' },
+    { command: 'apt-get --version', name: 'apt-get' }
+];
 class Image {
     constructor(name) {
         this.name = name;
@@ -109,13 +126,17 @@ class Image {
     }
     init_package_manager() {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield this.docker.command(`run ${this.name} sh -c "apk --version > /dev/null"`);
-                this.pkgManager = 'apk';
+            for (const manager of packageManagers) {
+                try {
+                    yield this.docker.command(`run ${this.name} sh -c "${manager.command} > /dev/null"`);
+                    this.pkgManager = manager.name;
+                    return;
+                }
+                catch (error) {
+                    // Continue to the next iteration if the current one fails
+                }
             }
-            catch (error) {
-                this.pkgManager = 'apt-get';
-            }
+            throw Error('Unable to find supported package manager');
         });
     }
     get_latest_version(installed_package) {
@@ -213,8 +234,7 @@ function run() {
             const dockerfile_path = core.getInput('dockerfile');
             const dependencies_path = core.getInput('dependencies');
             const apply = core.getBooleanInput('apply');
-            const image = dockerfile.load(dockerfile_path);
-            yield image.init_package_manager();
+            const image = yield dockerfile.load(dockerfile_path);
             const dependencies_info = dependencies.load(dependencies_path);
             const packages_update = dependencies_info.map(function (installed_pkg) {
                 return __awaiter(this, void 0, void 0, function* () {
