@@ -1,8 +1,7 @@
 [
   {
     "name": "git",
-    "version": "2.34.1-r0",
-    "license": "GPL-2.0-or-later"
+    "version": "2.34.1-r0"
   },
   {
     "name": "make",
