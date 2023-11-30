@@ -23,18 +23,20 @@ export class Image {
 
   async init_package_manager(): Promise<void> {
     try {
-      await this.docker.command(`run ${this.name} sh -c "apk --version > /dev/null"`)
-      this.pkgManager = "apk"
+      await this.docker.command(
+        `run ${this.name} sh -c "apk --version > /dev/null"`
+      )
+      this.pkgManager = 'apk'
     } catch (error) {
-      this.pkgManager = "apt-get"
+      this.pkgManager = 'apt-get'
     }
   }
 
   async get_latest_version(installed_package: Package): Promise<Package> {
     switch (this.pkgManager) {
-      case "apk":
+      case 'apk':
         return this.get_latest_version_apk(installed_package)
-      case "apt-get":
+      case 'apt-get':
         return this.get_latest_version_apt(installed_package)
       default:
         throw Error('Unable to get package manager')
@@ -42,14 +44,14 @@ export class Image {
   }
 
   async get_latest_version_apk(installed_package: Package): Promise<Package> {
-      const response = await this.docker.command(
-        `run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
-      )
-      const updated_version = remove_prefix(
-        response.raw.split(' ')[0],
-        `${installed_package.name}-`
-      )
-      return {...installed_package, version: updated_version}
+    const response = await this.docker.command(
+      `run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
+    )
+    const updated_version = remove_prefix(
+      response.raw.split(' ')[0],
+      `${installed_package.name}-`
+    )
+    return {...installed_package, version: updated_version}
   }
 
   async get_latest_version_apt(installed_package: Package): Promise<Package> {
@@ -70,7 +72,6 @@ export class Image {
     throw Error('Unable to extract new version from package infos')
   }
 }
-
 
 function remove_prefix(text: string, prefix: string): string {
   if (text.startsWith(prefix)) {

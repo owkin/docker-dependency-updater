@@ -74,7 +74,7 @@ function extract_docker_image(dockerfile_content) {
             imageName = line.split(' ')[1].trim();
         }
         if (line.includes('apk add') || line.includes('apt-get install')) {
-            return image.factory(imageName);
+            return new image.Image(imageName);
         }
     }
     throw Error('Unable to extract image from Dockerfile');
@@ -98,33 +98,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.factory = exports.DebImage = exports.AlpineImage = exports.Image = void 0;
+exports.Image = void 0;
 const docker_cli_js_1 = __nccwpck_require__(771);
 class Image {
     constructor(name) {
         this.name = name;
+        this.pkgManager = null;
         const options = new docker_cli_js_1.Options(undefined, undefined, false, undefined, undefined);
         this.docker = new docker_cli_js_1.Docker(options);
     }
-    get_latest_version(installed_package) {
+    init_package_manager() {
         return __awaiter(this, void 0, void 0, function* () {
-            throw Error(`Not implemented can't get latest version of ${installed_package}`);
+            try {
+                yield this.docker.command(`run ${this.name} sh -c "apk --version > /dev/null"`);
+                this.pkgManager = "apk";
+            }
+            catch (error) {
+                this.pkgManager = "apt-get";
+            }
         });
     }
-}
-exports.Image = Image;
-class AlpineImage extends Image {
     get_latest_version(installed_package) {
+        return __awaiter(this, void 0, void 0, function* () {
+            switch (this.pkgManager) {
+                case "apk":
+                    return this.get_latest_version_apk(installed_package);
+                case "apt-get":
+                    return this.get_latest_version_apt(installed_package);
+                default:
+                    throw Error('Unable to get package manager');
+            }
+        });
+    }
+    get_latest_version_apk(installed_package) {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.docker.command(`run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`);
             const updated_version = remove_prefix(response.raw.split(' ')[0], `${installed_package.name}-`);
             return Object.assign(Object.assign({}, installed_package), { version: updated_version });
         });
     }
-}
-exports.AlpineImage = AlpineImage;
-class DebImage extends Image {
-    get_latest_version(installed_package) {
+    get_latest_version_apt(installed_package) {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.docker.command(`run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`);
             let updated_version = undefined;
@@ -142,20 +155,7 @@ class DebImage extends Image {
         });
     }
 }
-exports.DebImage = DebImage;
-function factory(name) {
-    if (name.includes('alpine')) {
-        return new AlpineImage(name);
-    }
-    if (name.includes('debian') ||
-        name.includes('bulleye') ||
-        name.includes('buster') ||
-        name.includes('ubuntu')) {
-        return new DebImage(name);
-    }
-    throw Error('Unsupported image type');
-}
-exports.factory = factory;
+exports.Image = Image;
 function remove_prefix(text, prefix) {
     if (text.startsWith(prefix)) {
         return text.substring(prefix.length);
@@ -214,6 +214,7 @@ function run() {
             const dependencies_path = core.getInput('dependencies');
             const apply = core.getBooleanInput('apply');
             const image = dockerfile.load(dockerfile_path);
+            yield image.init_package_manager();
             const dependencies_info = dependencies.load(dependencies_path);
             const packages_update = dependencies_info.map(function (installed_pkg) {
                 return __awaiter(this, void 0, void 0, function* () {
