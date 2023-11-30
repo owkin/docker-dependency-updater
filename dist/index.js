@@ -27,10 +27,13 @@ class Package {
     constructor(name, version, extraFields) {
         this.name = name;
         this.version = version;
-        // omit name and version from extra fields to avoid overriding
-        extraFields === null || extraFields === void 0 ? true : delete extraFields.name;
-        extraFields === null || extraFields === void 0 ? true : delete extraFields.version;
-        Object.assign(this, extraFields);
+        if (extraFields) {
+            for (const [key, value] of Object.entries(extraFields)) {
+                if (key !== 'name' && key !== 'version') {
+                    Object.assign(this, { [key]: value });
+                }
+            }
+        }
     }
 }
 exports.Package = Package;

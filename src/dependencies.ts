@@ -27,10 +27,13 @@ export class Package {
   ) {
     this.name = name
     this.version = version
-    // omit name and version from extra fields to avoid overriding
-    delete extraFields?.name
-    delete extraFields?.version
-    Object.assign(this, extraFields)
+    if (extraFields) {
+      for (const [key, value] of Object.entries(extraFields)) {
+        if (key !== 'name' && key !== 'version') {
+          Object.assign(this, {[key]: value})
+        }
+      }
+    }
   }
 }
 
