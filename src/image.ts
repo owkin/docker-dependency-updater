@@ -33,10 +33,7 @@ export class AlpineImage extends Image {
       response.raw.split(' ')[0],
       `${installed_package.name}-`
     )
-    // return name and new version, with extra fields
-    return new Package(installed_package.name, updated_version, {
-      ...installed_package
-    })
+    return {...installed_package, version: updated_version}
   }
 }
 
@@ -54,9 +51,7 @@ export class DebImage extends Image {
       }
     }
     if (updated_version !== undefined) {
-      return new Package(installed_package.name, updated_version, {
-        ...installed_package
-      })
+      return {...installed_package, version: updated_version}
     }
     throw Error('Unable to extract new version from package infos')
   }

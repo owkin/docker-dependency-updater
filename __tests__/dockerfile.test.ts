@@ -25,7 +25,7 @@ test('load debian dockerfile', () => {
   expect(dockerfile.name).toBe('debian:bullseye-slim')
 })
 
-test ('load cuda dockerfile', () => {
+test('load cuda dockerfile', () => {
   const dockerfilePath = path.join(__dirname, 'data', 'cudaDockerfile')
   const dockerfile = load(dockerfilePath)
   expect(dockerfile).toBeInstanceOf(DebImage)

@@ -10,12 +10,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Package = exports.save = exports.load = void 0;
+exports.save = exports.load = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(147));
 function load(dependencies_path) {
     const content = fs_1.default.readFileSync(dependencies_path).toString('utf-8');
-    const jsonContent = JSON.parse(content);
-    return packages_from_dict(jsonContent);
+    return JSON.parse(content);
 }
 exports.load = load;
 function save(dependencies_path, dependencies) {
@@ -23,27 +22,6 @@ function save(dependencies_path, dependencies) {
     fs_1.default.writeFileSync(dependencies_path, jsonContent);
 }
 exports.save = save;
-class Package {
-    constructor(name, version, extraFields) {
-        this.name = name;
-        this.version = version;
-        if (extraFields) {
-            for (const [key, value] of Object.entries(extraFields)) {
-                if (key !== 'name' && key !== 'version') {
-                    Object.assign(this, { [key]: value });
-                }
-            }
-        }
-    }
-}
-exports.Package = Package;
-function packages_from_dict(dict) {
-    const packages = [];
-    for (const storedPackage of dict) {
-        packages.push(new Package(storedPackage.name, storedPackage.version, Object.assign({}, storedPackage)));
-    }
-    return packages;
-}
 
 
 /***/ }),
@@ -122,7 +100,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.factory = exports.DebImage = exports.AlpineImage = exports.Image = void 0;
 const docker_cli_js_1 = __nccwpck_require__(771);
-const dependencies_1 = __nccwpck_require__(31);
 class Image {
     constructor(name) {
         this.name = name;
@@ -141,8 +118,7 @@ class AlpineImage extends Image {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.docker.command(`run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`);
             const updated_version = remove_prefix(response.raw.split(' ')[0], `${installed_package.name}-`);
-            // return name and new version, with extra fields
-            return new dependencies_1.Package(installed_package.name, updated_version, Object.assign({}, installed_package));
+            return Object.assign(Object.assign({}, installed_package), { version: updated_version });
         });
     }
 }
@@ -160,7 +136,7 @@ class DebImage extends Image {
                 }
             }
             if (updated_version !== undefined) {
-                return new dependencies_1.Package(installed_package.name, updated_version, Object.assign({}, installed_package));
+                return Object.assign(Object.assign({}, installed_package), { version: updated_version });
             }
             throw Error('Unable to extract new version from package infos');
         });
