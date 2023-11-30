@@ -111,19 +111,19 @@ class Image {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.docker.command(`run ${this.name} sh -c "apk --version > /dev/null"`);
-                this.pkgManager = "apk";
+                this.pkgManager = 'apk';
             }
             catch (error) {
-                this.pkgManager = "apt-get";
+                this.pkgManager = 'apt-get';
             }
         });
     }
     get_latest_version(installed_package) {
         return __awaiter(this, void 0, void 0, function* () {
             switch (this.pkgManager) {
-                case "apk":
+                case 'apk':
                     return this.get_latest_version_apk(installed_package);
-                case "apt-get":
+                case 'apt-get':
                     return this.get_latest_version_apt(installed_package);
                 default:
                     throw Error('Unable to get package manager');
