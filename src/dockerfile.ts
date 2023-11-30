@@ -14,7 +14,7 @@ function extract_docker_image(dockerfile_content: string): image.Image {
       imageName = line.split(' ')[1].trim()
     }
     if (line.includes('apk add') || line.includes('apt-get install')) {
-      return image.factory(imageName)
+      return new image.Image(imageName)
     }
   }
   throw Error('Unable to extract image from Dockerfile')
