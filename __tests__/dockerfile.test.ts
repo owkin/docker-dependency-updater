@@ -5,7 +5,7 @@ import {load} from '../src/dockerfile'
 test('load invalid dockerfile', async () => {
   let dockerfilePath = path.join(__dirname, 'data', 'InvalidDockerfile')
   await expect(load(dockerfilePath)).rejects.toThrow(
-    'Unable to extract image from Dockerfile'
+    'Unable to find supported package manager'
   )
 })
 

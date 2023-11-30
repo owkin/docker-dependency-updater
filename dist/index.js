@@ -74,7 +74,12 @@ function load(dockerfile) {
     return __awaiter(this, void 0, void 0, function* () {
         const content = fs_1.default.readFileSync(dockerfile).toString('utf-8');
         const extractedImage = extract_docker_image(content);
-        yield extractedImage.init_package_manager();
+        try {
+            yield extractedImage.init_package_manager();
+        }
+        catch (error) {
+            return Promise.reject(error);
+        }
         return extractedImage;
     });
 }
@@ -86,11 +91,8 @@ function extract_docker_image(dockerfile_content) {
         if (line.includes('FROM')) {
             imageName = line.split(' ')[1].trim();
         }
-        if (line.includes('apk add') || line.includes('apt-get install')) {
-            return new image.Image(imageName);
-        }
     }
-    throw Error('Unable to extract image from Dockerfile');
+    return new image.Image(imageName);
 }
 
 
