@@ -7,3 +7,10 @@ test('load alpine dockerfile', async () => {
   const dockerfile = await load(dockerfilePath)
   expect(dockerfile.name).toBe('alpine:latest')
 })
+
+test('load dockerfile with unsupported package manager', async () => {
+  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile.unsupported')
+  await expect(load(dockerfilePath)).rejects.toThrow(
+    'Unable to find supported package manager'
+  )
+}, 10000)
