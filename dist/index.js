@@ -117,7 +117,7 @@ exports.Image = void 0;
 const docker_cli_js_1 = __nccwpck_require__(771);
 const packageManagers = [
     { command: 'apk --version', name: 'apk' },
-    { command: 'apt-get --version', name: 'apt-get' }
+    { command: 'apt-get --version', name: 'apt' }
 ];
 class Image {
     constructor(name) {
@@ -146,7 +146,7 @@ class Image {
             switch (this.pkgManager) {
                 case 'apk':
                     return this.get_latest_version_apk(installed_package);
-                case 'apt-get':
+                case 'apt':
                     return this.get_latest_version_apt(installed_package);
                 default:
                     throw Error('Unable to get package manager');

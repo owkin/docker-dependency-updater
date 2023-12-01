@@ -1,14 +1,14 @@
 import {Docker, Options} from 'docker-cli-js'
 import {Package} from './dependencies'
 
-export type PackageManager = 'apk' | 'apt-get'
+export type PackageManager = 'apk' | 'apt'
 
 const packageManagers: {
   command: string
   name: PackageManager
 }[] = [
   {command: 'apk --version', name: 'apk'},
-  {command: 'apt-get --version', name: 'apt-get'}
+  {command: 'apt-get --version', name: 'apt'}
 ]
 
 export class Image {
@@ -47,7 +47,7 @@ export class Image {
     switch (this.pkgManager) {
       case 'apk':
         return this.get_latest_version_apk(installed_package)
-      case 'apt-get':
+      case 'apt':
         return this.get_latest_version_apt(installed_package)
       default:
         throw Error('Unable to get package manager')

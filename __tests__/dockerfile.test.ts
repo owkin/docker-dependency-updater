@@ -3,9 +3,17 @@ import * as path from 'path'
 import {load} from '../src/dockerfile'
 
 test('load alpine dockerfile', async () => {
-  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile')
+  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile.apk')
   const dockerfile = await load(dockerfilePath)
+  expect(dockerfile.pkgManager).toBe('apk')
   expect(dockerfile.name).toBe('alpine:latest')
+})
+
+test('load ubuntu dockerfile', async () => {
+  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile.apt')
+  const dockerfile = await load(dockerfilePath)
+  expect(dockerfile.pkgManager).toBe('apt')
+  expect(dockerfile.name).toBe('ubuntu:latest')
 })
 
 test('load dockerfile with unsupported package manager', async () => {

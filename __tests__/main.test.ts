@@ -5,7 +5,11 @@ import {test} from '@jest/globals'
 
 // shows how the runner will run a javascript action with env / stdout protocol
 test('test runs', () => {
-  process.env['INPUT_DOCKERFILE'] = path.join(__dirname, 'data', 'Dockerfile')
+  process.env['INPUT_DOCKERFILE'] = path.join(
+    __dirname,
+    'data',
+    'Dockerfile.apk'
+  )
   process.env['INPUT_DEPENDENCIES'] = path.join(
     __dirname,
     'data',
