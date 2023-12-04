@@ -10,12 +10,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Package = exports.save = exports.load = void 0;
+exports.save = exports.load = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(147));
 function load(dependencies_path) {
     const content = fs_1.default.readFileSync(dependencies_path).toString('utf-8');
-    const jsonContent = JSON.parse(content);
-    return packages_from_dict(jsonContent);
+    return JSON.parse(content);
 }
 exports.load = load;
 function save(dependencies_path, dependencies) {
@@ -23,20 +22,6 @@ function save(dependencies_path, dependencies) {
     fs_1.default.writeFileSync(dependencies_path, jsonContent);
 }
 exports.save = save;
-class Package {
-    constructor(name, version) {
-        this.name = name;
-        this.version = version;
-    }
-}
-exports.Package = Package;
-function packages_from_dict(dict) {
-    const packages = [];
-    for (const storedPackage of dict) {
-        packages.push(new Package(storedPackage.name, storedPackage.version));
-    }
-    return packages;
-}
 
 
 /***/ }),
@@ -69,6 +54,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -77,8 +71,17 @@ exports.load = void 0;
 const image = __importStar(__nccwpck_require__(281));
 const fs_1 = __importDefault(__nccwpck_require__(147));
 function load(dockerfile) {
-    const content = fs_1.default.readFileSync(dockerfile).toString('utf-8');
-    return extract_docker_image(content);
+    return __awaiter(this, void 0, void 0, function* () {
+        const content = fs_1.default.readFileSync(dockerfile).toString('utf-8');
+        const extractedImage = extract_docker_image(content);
+        try {
+            yield extractedImage.init_package_manager();
+        }
+        catch (error) {
+            return Promise.reject(error);
+        }
+        return extractedImage;
+    });
 }
 exports.load = load;
 function extract_docker_image(dockerfile_content) {
@@ -88,11 +91,8 @@ function extract_docker_image(dockerfile_content) {
         if (line.includes('FROM')) {
             imageName = line.split(' ')[1].trim();
         }
-        if (line.includes('apk add') || line.includes('apt-get install')) {
-            return image.factory(imageName);
-        }
     }
-    throw Error('Unable to extract image from Dockerfile');
+    return new image.Image(imageName);
 }
 
 
@@ -113,63 +113,72 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.factory = exports.DebImage = exports.AlpineImage = exports.Image = void 0;
+exports.Image = void 0;
 const docker_cli_js_1 = __nccwpck_require__(771);
-const dependencies_1 = __nccwpck_require__(31);
+const packageManagers = [
+    { command: 'apk --version', name: 'apk' },
+    { command: 'apt-get --version', name: 'apt' }
+];
 class Image {
     constructor(name) {
         this.name = name;
+        this.pkgManager = null;
         const options = new docker_cli_js_1.Options(undefined, undefined, false, undefined, undefined);
         this.docker = new docker_cli_js_1.Docker(options);
     }
-    get_latest_version(installed_package) {
+    init_package_manager() {
         return __awaiter(this, void 0, void 0, function* () {
-            throw Error(`Not implemented can't get latest version of ${installed_package}`);
+            for (const manager of packageManagers) {
+                try {
+                    yield this.docker.command(`run ${this.name} sh -c "${manager.command} > /dev/null"`);
+                    this.pkgManager = manager.name;
+                    return;
+                }
+                catch (error) {
+                    // Continue to the next iteration if the current one fails
+                }
+            }
+            throw Error('Unable to find supported package manager');
         });
     }
-}
-exports.Image = Image;
-class AlpineImage extends Image {
     get_latest_version(installed_package) {
+        return __awaiter(this, void 0, void 0, function* () {
+            switch (this.pkgManager) {
+                case 'apk':
+                    return this.get_latest_version_apk(installed_package);
+                case 'apt':
+                    return this.get_latest_version_apt(installed_package);
+                default:
+                    throw Error('Unable to get package manager');
+            }
+        });
+    }
+    get_latest_version_apk(installed_package) {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.docker.command(`run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`);
             const updated_version = remove_prefix(response.raw.split(' ')[0], `${installed_package.name}-`);
-            return new dependencies_1.Package(installed_package.name, updated_version);
+            return Object.assign(Object.assign({}, installed_package), { version: updated_version });
         });
     }
-}
-exports.AlpineImage = AlpineImage;
-class DebImage extends Image {
-    get_latest_version(installed_package) {
+    get_latest_version_apt(installed_package) {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.docker.command(`run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`);
             let updated_version = undefined;
             for (const info of response.raw.split('\n')) {
                 if (info.includes('Candidate')) {
-                    updated_version = info.split(':')[1].trim();
+                    // must handle case of multiple : in the line i.e. Candidate: 1:8.9p1-3ubuntu0.4
+                    updated_version = info.split(':').slice(1).join(':').trim();
                     break;
                 }
             }
             if (updated_version !== undefined) {
-                return new dependencies_1.Package(installed_package.name, updated_version);
+                return Object.assign(Object.assign({}, installed_package), { version: updated_version });
             }
             throw Error('Unable to extract new version from package infos');
         });
     }
 }
-exports.DebImage = DebImage;
-function factory(name) {
-    if (name.includes('alpine')) {
-        return new AlpineImage(name);
-    }
-    if (name.includes('debian') ||
-        name.includes('bulleye') ||
-        name.includes('buster')) {
-        return new DebImage(name);
-    }
-    throw Error('Unsupported image type');
-}
-exports.factory = factory;
+exports.Image = Image;
 function remove_prefix(text, prefix) {
     if (text.startsWith(prefix)) {
         return text.substring(prefix.length);
@@ -227,7 +236,7 @@ function run() {
             const dockerfile_path = core.getInput('dockerfile');
             const dependencies_path = core.getInput('dependencies');
             const apply = core.getBooleanInput('apply');
-            const image = dockerfile.load(dockerfile_path);
+            const image = yield dockerfile.load(dockerfile_path);
             const dependencies_info = dependencies.load(dependencies_path);
             const packages_update = dependencies_info.map(function (installed_pkg) {
                 return __awaiter(this, void 0, void 0, function* () {

@@ -1,9 +1,15 @@
 import * as image from './image'
 import fs from 'fs'
 
-export function load(dockerfile: string): image.Image {
+export async function load(dockerfile: string): Promise<image.Image> {
   const content = fs.readFileSync(dockerfile).toString('utf-8')
-  return extract_docker_image(content)
+  const extractedImage = extract_docker_image(content)
+  try {
+    await extractedImage.init_package_manager()
+  } catch (error) {
+    return Promise.reject(error)
+  }
+  return extractedImage
 }
 
 function extract_docker_image(dockerfile_content: string): image.Image {
@@ -13,9 +19,6 @@ function extract_docker_image(dockerfile_content: string): image.Image {
     if (line.includes('FROM')) {
       imageName = line.split(' ')[1].trim()
     }
-    if (line.includes('apk add') || line.includes('apt-get install')) {
-      return image.factory(imageName)
-    }
   }
-  throw Error('Unable to extract image from Dockerfile')
+  return new image.Image(imageName)
 }

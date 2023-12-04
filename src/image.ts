@@ -1,12 +1,24 @@
 import {Docker, Options} from 'docker-cli-js'
 import {Package} from './dependencies'
 
+export type PackageManager = 'apk' | 'apt'
+
+const packageManagers: {
+  command: string
+  name: PackageManager
+}[] = [
+  {command: 'apk --version', name: 'apk'},
+  {command: 'apt-get --version', name: 'apt'}
+]
+
 export class Image {
   name: string
+  pkgManager: PackageManager | null
   docker: Docker
 
   constructor(name: string) {
     this.name = name
+    this.pkgManager = null
     const options = new Options(
       undefined,
       undefined,
@@ -16,16 +28,33 @@ export class Image {
     )
     this.docker = new Docker(options)
   }
-
-  async get_latest_version(installed_package: Package): Promise<Package> {
-    throw Error(
-      `Not implemented can't get latest version of ${installed_package}`
-    )
+  async init_package_manager(): Promise<void> {
+    for (const manager of packageManagers) {
+      try {
+        await this.docker.command(
+          `run ${this.name} sh -c "${manager.command} > /dev/null"`
+        )
+        this.pkgManager = manager.name
+        return
+      } catch (error) {
+        // Continue to the next iteration if the current one fails
+      }
+    }
+    throw Error('Unable to find supported package manager')
   }
-}
 
-export class AlpineImage extends Image {
   async get_latest_version(installed_package: Package): Promise<Package> {
+    switch (this.pkgManager) {
+      case 'apk':
+        return this.get_latest_version_apk(installed_package)
+      case 'apt':
+        return this.get_latest_version_apt(installed_package)
+      default:
+        throw Error('Unable to get package manager')
+    }
+  }
+
+  async get_latest_version_apk(installed_package: Package): Promise<Package> {
     const response = await this.docker.command(
       `run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
     )
@@ -33,41 +62,26 @@ export class AlpineImage extends Image {
       response.raw.split(' ')[0],
       `${installed_package.name}-`
     )
-    return new Package(installed_package.name, updated_version)
+    return {...installed_package, version: updated_version}
   }
-}
 
-export class DebImage extends Image {
-  async get_latest_version(installed_package: Package): Promise<Package> {
+  async get_latest_version_apt(installed_package: Package): Promise<Package> {
     const response = await this.docker.command(
       `run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`
     )
     let updated_version = undefined
     for (const info of response.raw.split('\n')) {
       if (info.includes('Candidate')) {
-        updated_version = info.split(':')[1].trim()
+        // must handle case of multiple : in the line i.e. Candidate: 1:8.9p1-3ubuntu0.4
+        updated_version = info.split(':').slice(1).join(':').trim()
         break
       }
     }
     if (updated_version !== undefined) {
-      return new Package(installed_package.name, updated_version)
+      return {...installed_package, version: updated_version}
     }
     throw Error('Unable to extract new version from package infos')
   }
-}
-
-export function factory(name: string): Image {
-  if (name.includes('alpine')) {
-    return new AlpineImage(name)
-  }
-  if (
-    name.includes('debian') ||
-    name.includes('bulleye') ||
-    name.includes('buster')
-  ) {
-    return new DebImage(name)
-  }
-  throw Error('Unsupported image type')
 }
 
 function remove_prefix(text: string, prefix: string): string {

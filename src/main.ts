@@ -8,7 +8,7 @@ async function run(): Promise<void> {
     const dependencies_path = core.getInput('dependencies')
     const apply = core.getBooleanInput('apply')
 
-    const image = dockerfile.load(dockerfile_path)
+    const image = await dockerfile.load(dockerfile_path)
     const dependencies_info = dependencies.load(dependencies_path)
     const packages_update = dependencies_info.map(async function (
       installed_pkg

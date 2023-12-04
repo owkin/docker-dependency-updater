@@ -1,26 +1,24 @@
 import {test, expect} from '@jest/globals'
 import * as path from 'path'
 import {load} from '../src/dockerfile'
-import {AlpineImage, DebImage} from '../src/image'
 
-test('load invalid dockerfile', () => {
-  let dockerfilePath = path.join(__dirname, 'data', 'InvalidDockerfile')
-  function loadInvalid() {
-    load(dockerfilePath)
-  }
-  expect(loadInvalid).toThrowError('Unable to extract image from Dockerfile')
-})
-
-test('load alpine dockerfile', () => {
-  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile')
-  const dockerfile = load(dockerfilePath)
-  expect(dockerfile).toBeInstanceOf(AlpineImage)
+test('load alpine dockerfile', async () => {
+  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile.apk')
+  const dockerfile = await load(dockerfilePath)
+  expect(dockerfile.pkgManager).toBe('apk')
   expect(dockerfile.name).toBe('alpine:latest')
 })
 
-test('load debian dockerfile', () => {
-  const dockerfilePath = path.join(__dirname, 'data', 'debianDockerfile')
-  const dockerfile = load(dockerfilePath)
-  expect(dockerfile).toBeInstanceOf(DebImage)
-  expect(dockerfile.name).toBe('debian:bullseye-slim')
+test('load ubuntu dockerfile', async () => {
+  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile.apt')
+  const dockerfile = await load(dockerfilePath)
+  expect(dockerfile.pkgManager).toBe('apt')
+  expect(dockerfile.name).toBe('ubuntu:latest')
 })
+
+test('load dockerfile with unsupported package manager', async () => {
+  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile.unsupported')
+  await expect(load(dockerfilePath)).rejects.toThrow(
+    'Unable to find supported package manager'
+  )
+}, 10000)
