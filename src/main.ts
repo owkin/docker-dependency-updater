@@ -10,11 +10,11 @@ async function run(): Promise<void> {
 
     const image = await dockerfile.load(dockerfile_path)
     const dependencies_info = dependencies.load(dependencies_path)
-    const packages_update = dependencies_info.map(async function (
-      installed_pkg
-    ) {
-      return image.get_latest_version(installed_pkg)
-    })
+    const packages_update = dependencies_info.map(
+      async function (installed_pkg) {
+        return image.get_latest_version(installed_pkg)
+      }
+    )
 
     const updated_packages = await Promise.all(packages_update)
     core.exportVariable('updatedDependencies', updated_packages)
