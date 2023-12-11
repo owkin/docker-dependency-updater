@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: owkin/docker-dependency-updater@v2
+      - uses: owkin/docker-dependency-updater@v2.0.0
         with:
           dockerfile: ./docker/Dockerfile
           dependencies: ./docker/dependencies.json
