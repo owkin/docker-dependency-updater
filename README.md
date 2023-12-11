@@ -3,7 +3,7 @@
 ## About
 
 GitHub action to update system dependencies installed in a Dockerfile.
-This action currently supports [alpine](https://hub.docker.com/_/alpine) and [debian](https://hub.docker.com/_/debian) images.
+This action currently supports apk and apt based images.
 
 ## Usage
 
