@@ -90,6 +90,7 @@ function extract_docker_image(dockerfile_content) {
     for (const line of dockerfileLines) {
         if (line.includes('FROM')) {
             imageName = line.split(' ')[1].trim();
+            break;
         }
     }
     return new image.Image(imageName);
