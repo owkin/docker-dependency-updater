@@ -1,5 +1,3 @@
-# We refer to the base image in the FROM instruction
 FROM ubuntu:latest
 
-# We ignore subsequent FROM instructions
 FROM alpine:latest
