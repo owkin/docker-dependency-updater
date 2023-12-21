@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2023-12-21
+
+### Fixed
+
+- detect package manager from first step (in multisteps dockerfiles)
+
+## [2.0.0] - 2023-12-05
+
+### Changed
+
+- support any image name: auto detect package manager
+- upgrade node runtime to 20.x
+
 ## [1.0.1] - 2022-07-27
 
 ### Added
