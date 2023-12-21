@@ -22,3 +22,10 @@ test('load dockerfile with unsupported package manager', async () => {
     'Unable to find supported package manager'
   )
 }, 10000)
+
+test('load multi stage dockerfile', async () => {
+  const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile.multi')
+  const dockerfile = await load(dockerfilePath)
+  expect(dockerfile.pkgManager).toBe('apt')
+  expect(dockerfile.name).toBe('ubuntu:latest')
+})
