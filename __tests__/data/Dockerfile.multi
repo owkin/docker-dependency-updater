@@ -1,3 +1,5 @@
+# We refer to the base image in the first instruction
 FROM ubuntu:latest
 
+# We ignore subsequent instructions
 FROM alpine:latest
