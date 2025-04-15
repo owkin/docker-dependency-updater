@@ -36,7 +36,7 @@ export class Image {
         )
         this.pkgManager = manager.name
         return
-      } catch (error) {
+      } catch {
         // Continue to the next iteration if the current one fails
       }
     }
