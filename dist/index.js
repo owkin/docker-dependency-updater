@@ -143,7 +143,7 @@ class Image {
                     this.pkgManager = manager.name;
                     return;
                 }
-                catch (error) {
+                catch (_a) {
                     // Continue to the next iteration if the current one fails
                 }
             }
