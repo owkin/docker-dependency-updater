@@ -139,7 +139,7 @@ class Image {
         return __awaiter(this, void 0, void 0, function* () {
             for (const manager of packageManagers) {
                 try {
-                    yield this.docker.command(`run ${this.name} sh -c "${manager.command} > /dev/null"`);
+                    yield this.docker.command(`run --user root ${this.name} sh -c "${manager.command} > /dev/null"`);
                     this.pkgManager = manager.name;
                     return;
                 }
@@ -164,14 +164,14 @@ class Image {
     }
     get_latest_version_apk(installed_package) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.docker.command(`run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`);
+            const response = yield this.docker.command(`run --user root ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`);
             const updated_version = remove_prefix(response.raw.split(' ')[0], `${installed_package.name}-`);
             return Object.assign(Object.assign({}, installed_package), { version: updated_version });
         });
     }
     get_latest_version_apt(installed_package) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.docker.command(`run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`);
+            const response = yield this.docker.command(`run --user root ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`);
             let updated_version = undefined;
             for (const info of response.raw.split('\n')) {
                 if (info.includes('Candidate')) {

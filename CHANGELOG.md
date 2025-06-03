@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.0.5] - 2024-06-03
+
+### Fixed
+
+- launch run command as root
+
 ## [2.0.1] - 2023-12-21
 
 ### Fixed
