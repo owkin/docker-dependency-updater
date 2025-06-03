@@ -32,7 +32,7 @@ export class Image {
     for (const manager of packageManagers) {
       try {
         await this.docker.command(
-          `run ${this.name} sh -c "${manager.command} > /dev/null"`
+          `run --user root ${this.name} sh -c "${manager.command} > /dev/null"`
         )
         this.pkgManager = manager.name
         return
@@ -56,7 +56,7 @@ export class Image {
 
   async get_latest_version_apk(installed_package: Package): Promise<Package> {
     const response = await this.docker.command(
-      `run ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
+      `run --user root ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
     )
     const updated_version = remove_prefix(
       response.raw.split(' ')[0],
@@ -67,7 +67,7 @@ export class Image {
 
   async get_latest_version_apt(installed_package: Package): Promise<Package> {
     const response = await this.docker.command(
-      `run ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`
+      `run --user root ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`
     )
     let updated_version = undefined
     for (const info of response.raw.split('\n')) {
