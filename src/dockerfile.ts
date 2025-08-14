@@ -1,14 +1,12 @@
 import * as image from './image'
-import fs from 'fs'
+import fs from 'fs' // eslint-disable-line import/no-nodejs-modules
 
 export async function load(dockerfile: string): Promise<image.Image> {
   const content = fs.readFileSync(dockerfile).toString('utf-8')
   const extractedImage = extract_docker_image(content)
-  try {
-    await extractedImage.init_package_manager()
-  } catch (error) {
-    return Promise.reject(error)
-  }
+
+  await extractedImage.init_package_manager()
+
   return extractedImage
 }
 

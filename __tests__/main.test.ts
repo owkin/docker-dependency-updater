@@ -21,5 +21,5 @@ test('test runs', () => {
   const options: cp.ExecFileSyncOptions = {
     env: process.env
   }
-  console.log(cp.execFileSync(np, [ip], options).toString())
+  cp.execFileSync(np, [ip], options)
 })

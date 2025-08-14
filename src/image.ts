@@ -1,19 +1,26 @@
 import {Docker, Options} from 'docker-cli-js'
 import {Package} from './dependencies'
+import {z} from 'zod'
 
-export type PackageManager = 'apk' | 'apt'
+export type PackageManagerName = 'apk' | 'apt'
 
-const packageManagers: {
+interface PackageManager {
+  name: PackageManagerName
   command: string
-  name: PackageManager
-}[] = [
+}
+
+const DockerResponse = z.object({
+  raw: z.string()
+})
+
+const packageManagers: PackageManager[] = [
   {command: 'apk --version', name: 'apk'},
   {command: 'apt-get --version', name: 'apt'}
 ]
 
 export class Image {
   name: string
-  pkgManager: PackageManager | null
+  pkgManager: PackageManagerName | null
   docker: Docker
 
   constructor(name: string) {
@@ -55,8 +62,10 @@ export class Image {
   }
 
   async get_latest_version_apk(installed_package: Package): Promise<Package> {
-    const response = await this.docker.command(
-      `run --user root ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
+    const response = DockerResponse.parse(
+      await this.docker.command(
+        `run --user root ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
+      )
     )
     const updated_version = remove_prefix(
       response.raw.split(' ')[0],
@@ -66,8 +75,10 @@ export class Image {
   }
 
   async get_latest_version_apt(installed_package: Package): Promise<Package> {
-    const response = await this.docker.command(
-      `run --user root ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`
+    const response = DockerResponse.parse(
+      await this.docker.command(
+        `run --user root ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`
+      )
     )
     let updated_version = undefined
     for (const info of response.raw.split('\n')) {

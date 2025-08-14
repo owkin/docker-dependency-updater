@@ -1,4 +1,4 @@
-import {save, Package, load} from '../src/dependencies'
+import {save, load} from '../src/dependencies'
 import {test, expect} from '@jest/globals'
 import fs from 'fs'
 import os from 'os'
