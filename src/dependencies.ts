@@ -1,9 +1,10 @@
 import fs from 'fs' // eslint-disable-line import/no-nodejs-modules
-import { z } from 'zod'
+import {z} from 'zod'
 
 const PackageSchema = z.object({
   name: z.string(),
-  version: z.string()
+  version: z.string(),
+  extra: z.string().optional()
 })
 
 const PackagesSchema = z.array(PackageSchema)
