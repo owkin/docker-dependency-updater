@@ -1,8 +1,9 @@
 import * as process from 'process'
 import * as cp from 'child_process'
 import * as path from 'path'
-import {test} from '@jest/globals'
+import {test, expect, describe, beforeEach, afterEach} from '@jest/globals'
 import {fileURLToPath} from 'url'
+import {sanitizePath} from '../src/path-utils.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -25,4 +26,30 @@ test('test runs', () => {
     env: process.env
   }
   cp.execFileSync(np, [ip], options)
+})
+
+describe('sanitizePath', () => {
+  const originalEnv = process.env.GITHUB_WORKSPACE
+
+  beforeEach(() => {
+    process.env.GITHUB_WORKSPACE = '/workspace'
+  })
+
+  afterEach(() => {
+    process.env.GITHUB_WORKSPACE = originalEnv
+  })
+
+  test('accepts a path inside the workspace', () => {
+    expect(() => sanitizePath('/workspace/Dockerfile')).not.toThrow()
+  })
+
+  test('rejects a path outside the workspace via traversal', () => {
+    expect(() => sanitizePath('/workspace/../etc/passwd')).toThrow(
+      'traversal sequences'
+    )
+  })
+
+  test('rejects an absolute path outside the workspace', () => {
+    expect(() => sanitizePath('/etc/passwd')).toThrow('outside the workspace')
+  })
 })
