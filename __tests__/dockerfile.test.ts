@@ -1,6 +1,6 @@
 import {test, expect} from '@jest/globals'
 import * as path from 'path'
-import { fileURLToPath } from 'url'
+import {fileURLToPath} from 'url'
 import {load} from '../src/dockerfile.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

@@ -2,7 +2,7 @@ import * as process from 'process'
 import * as cp from 'child_process'
 import * as path from 'path'
 import {test} from '@jest/globals'
-import { fileURLToPath } from 'url'
+import {fileURLToPath} from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
