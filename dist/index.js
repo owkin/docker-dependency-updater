@@ -45940,7 +45940,7 @@ exports["default"] = z;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.toUpperCase = exports.toLowerCase = exports.trim = exports.normalize = exports.overwrite = exports.mime = exports.property = exports.endsWith = exports.startsWith = exports.includes = exports.uppercase = exports.lowercase = exports.regex = exports.length = exports.minLength = exports.maxLength = exports.size = exports.minSize = exports.maxSize = exports.multipleOf = exports.nonnegative = exports.nonpositive = exports.negative = exports.positive = exports.gte = exports.gt = exports.lte = exports.lt = void 0;
+exports.slugify = exports.toUpperCase = exports.toLowerCase = exports.trim = exports.normalize = exports.overwrite = exports.mime = exports.property = exports.endsWith = exports.startsWith = exports.includes = exports.uppercase = exports.lowercase = exports.regex = exports.length = exports.minLength = exports.maxLength = exports.size = exports.minSize = exports.maxSize = exports.multipleOf = exports.nonnegative = exports.nonpositive = exports.negative = exports.positive = exports.gte = exports.gt = exports.lte = exports.lt = void 0;
 var index_js_1 = __nccwpck_require__(8117);
 Object.defineProperty(exports, "lt", ({ enumerable: true, get: function () { return index_js_1._lt; } }));
 Object.defineProperty(exports, "lte", ({ enumerable: true, get: function () { return index_js_1._lte; } }));
@@ -45970,6 +45970,7 @@ Object.defineProperty(exports, "normalize", ({ enumerable: true, get: function (
 Object.defineProperty(exports, "trim", ({ enumerable: true, get: function () { return index_js_1._trim; } }));
 Object.defineProperty(exports, "toLowerCase", ({ enumerable: true, get: function () { return index_js_1._toLowerCase; } }));
 Object.defineProperty(exports, "toUpperCase", ({ enumerable: true, get: function () { return index_js_1._toUpperCase; } }));
+Object.defineProperty(exports, "slugify", ({ enumerable: true, get: function () { return index_js_1._slugify; } }));
 
 
 /***/ }),
@@ -46215,7 +46216,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.coerce = exports.iso = exports.ZodISODuration = exports.ZodISOTime = exports.ZodISODate = exports.ZodISODateTime = exports.locales = exports.NEVER = exports.TimePrecision = exports.toJSONSchema = exports.flattenError = exports.formatError = exports.prettifyError = exports.treeifyError = exports.regexes = exports.clone = exports.$brand = exports.$input = exports.$output = exports["function"] = exports.config = exports.registry = exports.globalRegistry = exports.core = void 0;
+exports.coerce = exports.iso = exports.ZodISODuration = exports.ZodISOTime = exports.ZodISODate = exports.ZodISODateTime = exports.locales = exports.fromJSONSchema = exports.toJSONSchema = exports.NEVER = exports.util = exports.TimePrecision = exports.flattenError = exports.formatError = exports.prettifyError = exports.treeifyError = exports.regexes = exports.clone = exports.$brand = exports.$input = exports.$output = exports.config = exports.registry = exports.globalRegistry = exports.core = void 0;
 exports.core = __importStar(__nccwpck_require__(8117));
 __exportStar(__nccwpck_require__(5622), exports);
 __exportStar(__nccwpck_require__(4937), exports);
@@ -46230,7 +46231,6 @@ var index_js_2 = __nccwpck_require__(8117);
 Object.defineProperty(exports, "globalRegistry", ({ enumerable: true, get: function () { return index_js_2.globalRegistry; } }));
 Object.defineProperty(exports, "registry", ({ enumerable: true, get: function () { return index_js_2.registry; } }));
 Object.defineProperty(exports, "config", ({ enumerable: true, get: function () { return index_js_2.config; } }));
-Object.defineProperty(exports, "function", ({ enumerable: true, get: function () { return index_js_2.function; } }));
 Object.defineProperty(exports, "$output", ({ enumerable: true, get: function () { return index_js_2.$output; } }));
 Object.defineProperty(exports, "$input", ({ enumerable: true, get: function () { return index_js_2.$input; } }));
 Object.defineProperty(exports, "$brand", ({ enumerable: true, get: function () { return index_js_2.$brand; } }));
@@ -46240,9 +46240,13 @@ Object.defineProperty(exports, "treeifyError", ({ enumerable: true, get: functio
 Object.defineProperty(exports, "prettifyError", ({ enumerable: true, get: function () { return index_js_2.prettifyError; } }));
 Object.defineProperty(exports, "formatError", ({ enumerable: true, get: function () { return index_js_2.formatError; } }));
 Object.defineProperty(exports, "flattenError", ({ enumerable: true, get: function () { return index_js_2.flattenError; } }));
-Object.defineProperty(exports, "toJSONSchema", ({ enumerable: true, get: function () { return index_js_2.toJSONSchema; } }));
 Object.defineProperty(exports, "TimePrecision", ({ enumerable: true, get: function () { return index_js_2.TimePrecision; } }));
+Object.defineProperty(exports, "util", ({ enumerable: true, get: function () { return index_js_2.util; } }));
 Object.defineProperty(exports, "NEVER", ({ enumerable: true, get: function () { return index_js_2.NEVER; } }));
+var json_schema_processors_js_1 = __nccwpck_require__(9339);
+Object.defineProperty(exports, "toJSONSchema", ({ enumerable: true, get: function () { return json_schema_processors_js_1.toJSONSchema; } }));
+var from_json_schema_js_1 = __nccwpck_require__(2283);
+Object.defineProperty(exports, "fromJSONSchema", ({ enumerable: true, get: function () { return from_json_schema_js_1.fromJSONSchema; } }));
 exports.locales = __importStar(__nccwpck_require__(995));
 // iso
 // must be exported from top-level
@@ -46254,6 +46258,624 @@ Object.defineProperty(exports, "ZodISOTime", ({ enumerable: true, get: function 
 Object.defineProperty(exports, "ZodISODuration", ({ enumerable: true, get: function () { return iso_js_1.ZodISODuration; } }));
 exports.iso = __importStar(__nccwpck_require__(2081));
 exports.coerce = __importStar(__nccwpck_require__(4133));
+
+
+/***/ }),
+
+/***/ 2283:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.fromJSONSchema = fromJSONSchema;
+const registries_js_1 = __nccwpck_require__(1446);
+const _checks = __importStar(__nccwpck_require__(4937));
+const _iso = __importStar(__nccwpck_require__(2081));
+const _schemas = __importStar(__nccwpck_require__(5622));
+// Local z object to avoid circular dependency with ../index.js
+const z = {
+    ..._schemas,
+    ..._checks,
+    iso: _iso,
+};
+// Keys that are recognized and handled by the conversion logic
+const RECOGNIZED_KEYS = new Set([
+    // Schema identification
+    "$schema",
+    "$ref",
+    "$defs",
+    "definitions",
+    // Core schema keywords
+    "$id",
+    "id",
+    "$comment",
+    "$anchor",
+    "$vocabulary",
+    "$dynamicRef",
+    "$dynamicAnchor",
+    // Type
+    "type",
+    "enum",
+    "const",
+    // Composition
+    "anyOf",
+    "oneOf",
+    "allOf",
+    "not",
+    // Object
+    "properties",
+    "required",
+    "additionalProperties",
+    "patternProperties",
+    "propertyNames",
+    "minProperties",
+    "maxProperties",
+    // Array
+    "items",
+    "prefixItems",
+    "additionalItems",
+    "minItems",
+    "maxItems",
+    "uniqueItems",
+    "contains",
+    "minContains",
+    "maxContains",
+    // String
+    "minLength",
+    "maxLength",
+    "pattern",
+    "format",
+    // Number
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "multipleOf",
+    // Already handled metadata
+    "description",
+    "default",
+    // Content
+    "contentEncoding",
+    "contentMediaType",
+    "contentSchema",
+    // Unsupported (error-throwing)
+    "unevaluatedItems",
+    "unevaluatedProperties",
+    "if",
+    "then",
+    "else",
+    "dependentSchemas",
+    "dependentRequired",
+    // OpenAPI
+    "nullable",
+    "readOnly",
+]);
+function detectVersion(schema, defaultTarget) {
+    const $schema = schema.$schema;
+    if ($schema === "https://json-schema.org/draft/2020-12/schema") {
+        return "draft-2020-12";
+    }
+    if ($schema === "http://json-schema.org/draft-07/schema#") {
+        return "draft-7";
+    }
+    if ($schema === "http://json-schema.org/draft-04/schema#") {
+        return "draft-4";
+    }
+    // Use defaultTarget if provided, otherwise default to draft-2020-12
+    return defaultTarget ?? "draft-2020-12";
+}
+function resolveRef(ref, ctx) {
+    if (!ref.startsWith("#")) {
+        throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
+    }
+    const path = ref.slice(1).split("/").filter(Boolean);
+    // Handle root reference "#"
+    if (path.length === 0) {
+        return ctx.rootSchema;
+    }
+    const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
+    if (path[0] === defsKey) {
+        const key = path[1];
+        if (!key || !ctx.defs[key]) {
+            throw new Error(`Reference not found: ${ref}`);
+        }
+        return ctx.defs[key];
+    }
+    throw new Error(`Reference not found: ${ref}`);
+}
+function convertBaseSchema(schema, ctx) {
+    // Handle unsupported features
+    if (schema.not !== undefined) {
+        // Special case: { not: {} } represents never
+        if (typeof schema.not === "object" && Object.keys(schema.not).length === 0) {
+            return z.never();
+        }
+        throw new Error("not is not supported in Zod (except { not: {} } for never)");
+    }
+    if (schema.unevaluatedItems !== undefined) {
+        throw new Error("unevaluatedItems is not supported");
+    }
+    if (schema.unevaluatedProperties !== undefined) {
+        throw new Error("unevaluatedProperties is not supported");
+    }
+    if (schema.if !== undefined || schema.then !== undefined || schema.else !== undefined) {
+        throw new Error("Conditional schemas (if/then/else) are not supported");
+    }
+    if (schema.dependentSchemas !== undefined || schema.dependentRequired !== undefined) {
+        throw new Error("dependentSchemas and dependentRequired are not supported");
+    }
+    // Handle $ref
+    if (schema.$ref) {
+        const refPath = schema.$ref;
+        if (ctx.refs.has(refPath)) {
+            return ctx.refs.get(refPath);
+        }
+        if (ctx.processing.has(refPath)) {
+            // Circular reference - use lazy
+            return z.lazy(() => {
+                if (!ctx.refs.has(refPath)) {
+                    throw new Error(`Circular reference not resolved: ${refPath}`);
+                }
+                return ctx.refs.get(refPath);
+            });
+        }
+        ctx.processing.add(refPath);
+        const resolved = resolveRef(refPath, ctx);
+        const zodSchema = convertSchema(resolved, ctx);
+        ctx.refs.set(refPath, zodSchema);
+        ctx.processing.delete(refPath);
+        return zodSchema;
+    }
+    // Handle enum
+    if (schema.enum !== undefined) {
+        const enumValues = schema.enum;
+        // Special case: OpenAPI 3.0 null representation { type: "string", nullable: true, enum: [null] }
+        if (ctx.version === "openapi-3.0" &&
+            schema.nullable === true &&
+            enumValues.length === 1 &&
+            enumValues[0] === null) {
+            return z.null();
+        }
+        if (enumValues.length === 0) {
+            return z.never();
+        }
+        if (enumValues.length === 1) {
+            return z.literal(enumValues[0]);
+        }
+        // Check if all values are strings
+        if (enumValues.every((v) => typeof v === "string")) {
+            return z.enum(enumValues);
+        }
+        // Mixed types - use union of literals
+        const literalSchemas = enumValues.map((v) => z.literal(v));
+        if (literalSchemas.length < 2) {
+            return literalSchemas[0];
+        }
+        return z.union([literalSchemas[0], literalSchemas[1], ...literalSchemas.slice(2)]);
+    }
+    // Handle const
+    if (schema.const !== undefined) {
+        return z.literal(schema.const);
+    }
+    // Handle type
+    const type = schema.type;
+    if (Array.isArray(type)) {
+        // Expand type array into anyOf union
+        const typeSchemas = type.map((t) => {
+            const typeSchema = { ...schema, type: t };
+            return convertBaseSchema(typeSchema, ctx);
+        });
+        if (typeSchemas.length === 0) {
+            return z.never();
+        }
+        if (typeSchemas.length === 1) {
+            return typeSchemas[0];
+        }
+        return z.union(typeSchemas);
+    }
+    if (!type) {
+        // No type specified - empty schema (any)
+        return z.any();
+    }
+    let zodSchema;
+    switch (type) {
+        case "string": {
+            let stringSchema = z.string();
+            // Apply format using .check() with Zod format functions
+            if (schema.format) {
+                const format = schema.format;
+                // Map common formats to Zod check functions
+                if (format === "email") {
+                    stringSchema = stringSchema.check(z.email());
+                }
+                else if (format === "uri" || format === "uri-reference") {
+                    stringSchema = stringSchema.check(z.url());
+                }
+                else if (format === "uuid" || format === "guid") {
+                    stringSchema = stringSchema.check(z.uuid());
+                }
+                else if (format === "date-time") {
+                    stringSchema = stringSchema.check(z.iso.datetime());
+                }
+                else if (format === "date") {
+                    stringSchema = stringSchema.check(z.iso.date());
+                }
+                else if (format === "time") {
+                    stringSchema = stringSchema.check(z.iso.time());
+                }
+                else if (format === "duration") {
+                    stringSchema = stringSchema.check(z.iso.duration());
+                }
+                else if (format === "ipv4") {
+                    stringSchema = stringSchema.check(z.ipv4());
+                }
+                else if (format === "ipv6") {
+                    stringSchema = stringSchema.check(z.ipv6());
+                }
+                else if (format === "mac") {
+                    stringSchema = stringSchema.check(z.mac());
+                }
+                else if (format === "cidr") {
+                    stringSchema = stringSchema.check(z.cidrv4());
+                }
+                else if (format === "cidr-v6") {
+                    stringSchema = stringSchema.check(z.cidrv6());
+                }
+                else if (format === "base64") {
+                    stringSchema = stringSchema.check(z.base64());
+                }
+                else if (format === "base64url") {
+                    stringSchema = stringSchema.check(z.base64url());
+                }
+                else if (format === "e164") {
+                    stringSchema = stringSchema.check(z.e164());
+                }
+                else if (format === "jwt") {
+                    stringSchema = stringSchema.check(z.jwt());
+                }
+                else if (format === "emoji") {
+                    stringSchema = stringSchema.check(z.emoji());
+                }
+                else if (format === "nanoid") {
+                    stringSchema = stringSchema.check(z.nanoid());
+                }
+                else if (format === "cuid") {
+                    stringSchema = stringSchema.check(z.cuid());
+                }
+                else if (format === "cuid2") {
+                    stringSchema = stringSchema.check(z.cuid2());
+                }
+                else if (format === "ulid") {
+                    stringSchema = stringSchema.check(z.ulid());
+                }
+                else if (format === "xid") {
+                    stringSchema = stringSchema.check(z.xid());
+                }
+                else if (format === "ksuid") {
+                    stringSchema = stringSchema.check(z.ksuid());
+                }
+                // Note: json-string format is not currently supported by Zod
+                // Custom formats are ignored - keep as plain string
+            }
+            // Apply constraints
+            if (typeof schema.minLength === "number") {
+                stringSchema = stringSchema.min(schema.minLength);
+            }
+            if (typeof schema.maxLength === "number") {
+                stringSchema = stringSchema.max(schema.maxLength);
+            }
+            if (schema.pattern) {
+                // JSON Schema patterns are not implicitly anchored (match anywhere in string)
+                stringSchema = stringSchema.regex(new RegExp(schema.pattern));
+            }
+            zodSchema = stringSchema;
+            break;
+        }
+        case "number":
+        case "integer": {
+            let numberSchema = type === "integer" ? z.number().int() : z.number();
+            // Apply constraints
+            if (typeof schema.minimum === "number") {
+                numberSchema = numberSchema.min(schema.minimum);
+            }
+            if (typeof schema.maximum === "number") {
+                numberSchema = numberSchema.max(schema.maximum);
+            }
+            if (typeof schema.exclusiveMinimum === "number") {
+                numberSchema = numberSchema.gt(schema.exclusiveMinimum);
+            }
+            else if (schema.exclusiveMinimum === true && typeof schema.minimum === "number") {
+                numberSchema = numberSchema.gt(schema.minimum);
+            }
+            if (typeof schema.exclusiveMaximum === "number") {
+                numberSchema = numberSchema.lt(schema.exclusiveMaximum);
+            }
+            else if (schema.exclusiveMaximum === true && typeof schema.maximum === "number") {
+                numberSchema = numberSchema.lt(schema.maximum);
+            }
+            if (typeof schema.multipleOf === "number") {
+                numberSchema = numberSchema.multipleOf(schema.multipleOf);
+            }
+            zodSchema = numberSchema;
+            break;
+        }
+        case "boolean": {
+            zodSchema = z.boolean();
+            break;
+        }
+        case "null": {
+            zodSchema = z.null();
+            break;
+        }
+        case "object": {
+            const shape = {};
+            const properties = schema.properties || {};
+            const requiredSet = new Set(schema.required || []);
+            // Convert properties - mark optional ones
+            for (const [key, propSchema] of Object.entries(properties)) {
+                const propZodSchema = convertSchema(propSchema, ctx);
+                // If not in required array, make it optional
+                shape[key] = requiredSet.has(key) ? propZodSchema : propZodSchema.optional();
+            }
+            // Handle propertyNames
+            if (schema.propertyNames) {
+                const keySchema = convertSchema(schema.propertyNames, ctx);
+                const valueSchema = schema.additionalProperties && typeof schema.additionalProperties === "object"
+                    ? convertSchema(schema.additionalProperties, ctx)
+                    : z.any();
+                // Case A: No properties (pure record)
+                if (Object.keys(shape).length === 0) {
+                    zodSchema = z.record(keySchema, valueSchema);
+                    break;
+                }
+                // Case B: With properties (intersection of object and looseRecord)
+                const objectSchema = z.object(shape).passthrough();
+                const recordSchema = z.looseRecord(keySchema, valueSchema);
+                zodSchema = z.intersection(objectSchema, recordSchema);
+                break;
+            }
+            // Handle patternProperties
+            if (schema.patternProperties) {
+                // patternProperties: keys matching pattern must satisfy corresponding schema
+                // Use loose records so non-matching keys pass through
+                const patternProps = schema.patternProperties;
+                const patternKeys = Object.keys(patternProps);
+                const looseRecords = [];
+                for (const pattern of patternKeys) {
+                    const patternValue = convertSchema(patternProps[pattern], ctx);
+                    const keySchema = z.string().regex(new RegExp(pattern));
+                    looseRecords.push(z.looseRecord(keySchema, patternValue));
+                }
+                // Build intersection: object schema + all pattern property records
+                const schemasToIntersect = [];
+                if (Object.keys(shape).length > 0) {
+                    // Use passthrough so patternProperties can validate additional keys
+                    schemasToIntersect.push(z.object(shape).passthrough());
+                }
+                schemasToIntersect.push(...looseRecords);
+                if (schemasToIntersect.length === 0) {
+                    zodSchema = z.object({}).passthrough();
+                }
+                else if (schemasToIntersect.length === 1) {
+                    zodSchema = schemasToIntersect[0];
+                }
+                else {
+                    // Chain intersections: (A & B) & C & D ...
+                    let result = z.intersection(schemasToIntersect[0], schemasToIntersect[1]);
+                    for (let i = 2; i < schemasToIntersect.length; i++) {
+                        result = z.intersection(result, schemasToIntersect[i]);
+                    }
+                    zodSchema = result;
+                }
+                break;
+            }
+            // Handle additionalProperties
+            // In JSON Schema, additionalProperties defaults to true (allow any extra properties)
+            // In Zod, objects strip unknown keys by default, so we need to handle this explicitly
+            const objectSchema = z.object(shape);
+            if (schema.additionalProperties === false) {
+                // Strict mode - no extra properties allowed
+                zodSchema = objectSchema.strict();
+            }
+            else if (typeof schema.additionalProperties === "object") {
+                // Extra properties must match the specified schema
+                zodSchema = objectSchema.catchall(convertSchema(schema.additionalProperties, ctx));
+            }
+            else {
+                // additionalProperties is true or undefined - allow any extra properties (passthrough)
+                zodSchema = objectSchema.passthrough();
+            }
+            break;
+        }
+        case "array": {
+            // TODO: uniqueItems is not supported
+            // TODO: contains/minContains/maxContains are not supported
+            // Check if this is a tuple (prefixItems or items as array)
+            const prefixItems = schema.prefixItems;
+            const items = schema.items;
+            if (prefixItems && Array.isArray(prefixItems)) {
+                // Tuple with prefixItems (draft-2020-12)
+                const tupleItems = prefixItems.map((item) => convertSchema(item, ctx));
+                const rest = items && typeof items === "object" && !Array.isArray(items)
+                    ? convertSchema(items, ctx)
+                    : undefined;
+                if (rest) {
+                    zodSchema = z.tuple(tupleItems).rest(rest);
+                }
+                else {
+                    zodSchema = z.tuple(tupleItems);
+                }
+                // Apply minItems/maxItems constraints to tuples
+                if (typeof schema.minItems === "number") {
+                    zodSchema = zodSchema.check(z.minLength(schema.minItems));
+                }
+                if (typeof schema.maxItems === "number") {
+                    zodSchema = zodSchema.check(z.maxLength(schema.maxItems));
+                }
+            }
+            else if (Array.isArray(items)) {
+                // Tuple with items array (draft-7)
+                const tupleItems = items.map((item) => convertSchema(item, ctx));
+                const rest = schema.additionalItems && typeof schema.additionalItems === "object"
+                    ? convertSchema(schema.additionalItems, ctx)
+                    : undefined; // additionalItems: false means no rest, handled by default tuple behavior
+                if (rest) {
+                    zodSchema = z.tuple(tupleItems).rest(rest);
+                }
+                else {
+                    zodSchema = z.tuple(tupleItems);
+                }
+                // Apply minItems/maxItems constraints to tuples
+                if (typeof schema.minItems === "number") {
+                    zodSchema = zodSchema.check(z.minLength(schema.minItems));
+                }
+                if (typeof schema.maxItems === "number") {
+                    zodSchema = zodSchema.check(z.maxLength(schema.maxItems));
+                }
+            }
+            else if (items !== undefined) {
+                // Regular array
+                const element = convertSchema(items, ctx);
+                let arraySchema = z.array(element);
+                // Apply constraints
+                if (typeof schema.minItems === "number") {
+                    arraySchema = arraySchema.min(schema.minItems);
+                }
+                if (typeof schema.maxItems === "number") {
+                    arraySchema = arraySchema.max(schema.maxItems);
+                }
+                zodSchema = arraySchema;
+            }
+            else {
+                // No items specified - array of any
+                zodSchema = z.array(z.any());
+            }
+            break;
+        }
+        default:
+            throw new Error(`Unsupported type: ${type}`);
+    }
+    // Apply metadata
+    if (schema.description) {
+        zodSchema = zodSchema.describe(schema.description);
+    }
+    if (schema.default !== undefined) {
+        zodSchema = zodSchema.default(schema.default);
+    }
+    return zodSchema;
+}
+function convertSchema(schema, ctx) {
+    if (typeof schema === "boolean") {
+        return schema ? z.any() : z.never();
+    }
+    // Convert base schema first (ignoring composition keywords)
+    let baseSchema = convertBaseSchema(schema, ctx);
+    const hasExplicitType = schema.type || schema.enum !== undefined || schema.const !== undefined;
+    // Process composition keywords LAST (they can appear together)
+    // Handle anyOf - wrap base schema with union
+    if (schema.anyOf && Array.isArray(schema.anyOf)) {
+        const options = schema.anyOf.map((s) => convertSchema(s, ctx));
+        const anyOfUnion = z.union(options);
+        baseSchema = hasExplicitType ? z.intersection(baseSchema, anyOfUnion) : anyOfUnion;
+    }
+    // Handle oneOf - exclusive union (exactly one must match)
+    if (schema.oneOf && Array.isArray(schema.oneOf)) {
+        const options = schema.oneOf.map((s) => convertSchema(s, ctx));
+        const oneOfUnion = z.xor(options);
+        baseSchema = hasExplicitType ? z.intersection(baseSchema, oneOfUnion) : oneOfUnion;
+    }
+    // Handle allOf - wrap base schema with intersection
+    if (schema.allOf && Array.isArray(schema.allOf)) {
+        if (schema.allOf.length === 0) {
+            baseSchema = hasExplicitType ? baseSchema : z.any();
+        }
+        else {
+            let result = hasExplicitType ? baseSchema : convertSchema(schema.allOf[0], ctx);
+            const startIdx = hasExplicitType ? 0 : 1;
+            for (let i = startIdx; i < schema.allOf.length; i++) {
+                result = z.intersection(result, convertSchema(schema.allOf[i], ctx));
+            }
+            baseSchema = result;
+        }
+    }
+    // Handle nullable (OpenAPI 3.0)
+    if (schema.nullable === true && ctx.version === "openapi-3.0") {
+        baseSchema = z.nullable(baseSchema);
+    }
+    // Handle readOnly
+    if (schema.readOnly === true) {
+        baseSchema = z.readonly(baseSchema);
+    }
+    // Collect metadata: core schema keywords and unrecognized keys
+    const extraMeta = {};
+    // Core schema keywords that should be captured as metadata
+    const coreMetadataKeys = ["$id", "id", "$comment", "$anchor", "$vocabulary", "$dynamicRef", "$dynamicAnchor"];
+    for (const key of coreMetadataKeys) {
+        if (key in schema) {
+            extraMeta[key] = schema[key];
+        }
+    }
+    // Content keywords - store as metadata
+    const contentMetadataKeys = ["contentEncoding", "contentMediaType", "contentSchema"];
+    for (const key of contentMetadataKeys) {
+        if (key in schema) {
+            extraMeta[key] = schema[key];
+        }
+    }
+    // Unrecognized keys (custom metadata)
+    for (const key of Object.keys(schema)) {
+        if (!RECOGNIZED_KEYS.has(key)) {
+            extraMeta[key] = schema[key];
+        }
+    }
+    if (Object.keys(extraMeta).length > 0) {
+        ctx.registry.add(baseSchema, extraMeta);
+    }
+    return baseSchema;
+}
+/**
+ * Converts a JSON Schema to a Zod schema. This function should be considered semi-experimental. It's behavior is liable to change. */
+function fromJSONSchema(schema, params) {
+    // Handle boolean schemas
+    if (typeof schema === "boolean") {
+        return schema ? z.any() : z.never();
+    }
+    const version = detectVersion(schema, params?.defaultTarget);
+    const defs = (schema.$defs || schema.definitions || {});
+    const ctx = {
+        version,
+        defs,
+        refs: new Map(),
+        processing: new Set(),
+        rootSchema: schema,
+        registry: params?.registry ?? registries_js_1.globalRegistry,
+    };
+    return convertSchema(schema, ctx);
+}
 
 
 /***/ }),
@@ -46355,13 +46977,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.safeParseAsync = exports.safeParse = exports.parseAsync = exports.parse = void 0;
+exports.safeDecodeAsync = exports.safeEncodeAsync = exports.safeDecode = exports.safeEncode = exports.decodeAsync = exports.encodeAsync = exports.decode = exports.encode = exports.safeParseAsync = exports.safeParse = exports.parseAsync = exports.parse = void 0;
 const core = __importStar(__nccwpck_require__(8117));
 const errors_js_1 = __nccwpck_require__(9295);
 exports.parse = core._parse(errors_js_1.ZodRealError);
 exports.parseAsync = core._parseAsync(errors_js_1.ZodRealError);
 exports.safeParse = core._safeParse(errors_js_1.ZodRealError);
 exports.safeParseAsync = core._safeParseAsync(errors_js_1.ZodRealError);
+// Codec functions
+exports.encode = core._encode(errors_js_1.ZodRealError);
+exports.decode = core._decode(errors_js_1.ZodRealError);
+exports.encodeAsync = core._encodeAsync(errors_js_1.ZodRealError);
+exports.decodeAsync = core._decodeAsync(errors_js_1.ZodRealError);
+exports.safeEncode = core._safeEncode(errors_js_1.ZodRealError);
+exports.safeDecode = core._safeDecode(errors_js_1.ZodRealError);
+exports.safeEncodeAsync = core._safeEncodeAsync(errors_js_1.ZodRealError);
+exports.safeDecodeAsync = core._safeDecodeAsync(errors_js_1.ZodRealError);
 
 
 /***/ }),
@@ -46395,8 +47026,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ZodTransform = exports.ZodFile = exports.ZodLiteral = exports.ZodEnum = exports.ZodSet = exports.ZodMap = exports.ZodRecord = exports.ZodTuple = exports.ZodIntersection = exports.ZodDiscriminatedUnion = exports.ZodUnion = exports.ZodObject = exports.ZodArray = exports.ZodDate = exports.ZodVoid = exports.ZodNever = exports.ZodUnknown = exports.ZodAny = exports.ZodNull = exports.ZodUndefined = exports.ZodSymbol = exports.ZodBigIntFormat = exports.ZodBigInt = exports.ZodBoolean = exports.ZodNumberFormat = exports.ZodNumber = exports.ZodCustomStringFormat = exports.ZodJWT = exports.ZodE164 = exports.ZodBase64URL = exports.ZodBase64 = exports.ZodCIDRv6 = exports.ZodCIDRv4 = exports.ZodIPv6 = exports.ZodIPv4 = exports.ZodKSUID = exports.ZodXID = exports.ZodULID = exports.ZodCUID2 = exports.ZodCUID = exports.ZodNanoID = exports.ZodEmoji = exports.ZodURL = exports.ZodUUID = exports.ZodGUID = exports.ZodEmail = exports.ZodStringFormat = exports.ZodString = exports._ZodString = exports.ZodType = void 0;
-exports.stringbool = exports.ZodCustom = exports.ZodPromise = exports.ZodLazy = exports.ZodTemplateLiteral = exports.ZodReadonly = exports.ZodPipe = exports.ZodNaN = exports.ZodCatch = exports.ZodSuccess = exports.ZodNonOptional = exports.ZodPrefault = exports.ZodDefault = exports.ZodNullable = exports.ZodOptional = void 0;
+exports.ZodLiteral = exports.ZodEnum = exports.ZodSet = exports.ZodMap = exports.ZodRecord = exports.ZodTuple = exports.ZodIntersection = exports.ZodDiscriminatedUnion = exports.ZodXor = exports.ZodUnion = exports.ZodObject = exports.ZodArray = exports.ZodDate = exports.ZodVoid = exports.ZodNever = exports.ZodUnknown = exports.ZodAny = exports.ZodNull = exports.ZodUndefined = exports.ZodSymbol = exports.ZodBigIntFormat = exports.ZodBigInt = exports.ZodBoolean = exports.ZodNumberFormat = exports.ZodNumber = exports.ZodCustomStringFormat = exports.ZodJWT = exports.ZodE164 = exports.ZodBase64URL = exports.ZodBase64 = exports.ZodCIDRv6 = exports.ZodCIDRv4 = exports.ZodIPv6 = exports.ZodMAC = exports.ZodIPv4 = exports.ZodKSUID = exports.ZodXID = exports.ZodULID = exports.ZodCUID2 = exports.ZodCUID = exports.ZodNanoID = exports.ZodEmoji = exports.ZodURL = exports.ZodUUID = exports.ZodGUID = exports.ZodEmail = exports.ZodStringFormat = exports.ZodString = exports._ZodString = exports.ZodType = void 0;
+exports.stringbool = exports.meta = exports.describe = exports.ZodCustom = exports.ZodFunction = exports.ZodPromise = exports.ZodLazy = exports.ZodTemplateLiteral = exports.ZodReadonly = exports.ZodCodec = exports.ZodPipe = exports.ZodNaN = exports.ZodCatch = exports.ZodSuccess = exports.ZodNonOptional = exports.ZodPrefault = exports.ZodDefault = exports.ZodNullable = exports.ZodExactOptional = exports.ZodOptional = exports.ZodTransform = exports.ZodFile = void 0;
 exports.string = string;
 exports.email = email;
 exports.guid = guid;
@@ -46405,6 +47036,7 @@ exports.uuidv4 = uuidv4;
 exports.uuidv6 = uuidv6;
 exports.uuidv7 = uuidv7;
 exports.url = url;
+exports.httpUrl = httpUrl;
 exports.emoji = emoji;
 exports.nanoid = nanoid;
 exports.cuid = cuid;
@@ -46413,6 +47045,7 @@ exports.ulid = ulid;
 exports.xid = xid;
 exports.ksuid = ksuid;
 exports.ipv4 = ipv4;
+exports.mac = mac;
 exports.ipv6 = ipv6;
 exports.cidrv4 = cidrv4;
 exports.cidrv6 = cidrv6;
@@ -46422,6 +47055,8 @@ exports.e164 = e164;
 exports.jwt = jwt;
 exports.stringFormat = stringFormat;
 exports.hostname = hostname;
+exports.hex = hex;
+exports.hash = hash;
 exports.number = number;
 exports.int = int;
 exports.float32 = float32;
@@ -46446,11 +47081,13 @@ exports.object = object;
 exports.strictObject = strictObject;
 exports.looseObject = looseObject;
 exports.union = union;
+exports.xor = xor;
 exports.discriminatedUnion = discriminatedUnion;
 exports.intersection = intersection;
 exports.tuple = tuple;
 exports.record = record;
 exports.partialRecord = partialRecord;
+exports.looseRecord = looseRecord;
 exports.map = map;
 exports.set = set;
 exports["enum"] = _enum;
@@ -46459,6 +47096,7 @@ exports.literal = literal;
 exports.file = file;
 exports.transform = transform;
 exports.optional = optional;
+exports.exactOptional = exactOptional;
 exports.nullable = nullable;
 exports.nullish = nullish;
 exports._default = _default;
@@ -46468,10 +47106,15 @@ exports.success = success;
 exports["catch"] = _catch;
 exports.nan = nan;
 exports.pipe = pipe;
+exports.codec = codec;
 exports.readonly = readonly;
 exports.templateLiteral = templateLiteral;
 exports.lazy = lazy;
 exports.promise = promise;
+exports._function = _function;
+exports["function"] = _function;
+exports._function = _function;
+exports["function"] = _function;
 exports.check = check;
 exports.custom = custom;
 exports.refine = refine;
@@ -46481,25 +47124,35 @@ exports.json = json;
 exports.preprocess = preprocess;
 const core = __importStar(__nccwpck_require__(8117));
 const index_js_1 = __nccwpck_require__(8117);
+const processors = __importStar(__nccwpck_require__(9339));
+const to_json_schema_js_1 = __nccwpck_require__(7633);
 const checks = __importStar(__nccwpck_require__(4937));
 const iso = __importStar(__nccwpck_require__(2081));
 const parse = __importStar(__nccwpck_require__(2463));
 exports.ZodType = core.$constructor("ZodType", (inst, def) => {
     core.$ZodType.init(inst, def);
+    Object.assign(inst["~standard"], {
+        jsonSchema: {
+            input: (0, to_json_schema_js_1.createStandardJSONSchemaMethod)(inst, "input"),
+            output: (0, to_json_schema_js_1.createStandardJSONSchemaMethod)(inst, "output"),
+        },
+    });
+    inst.toJSONSchema = (0, to_json_schema_js_1.createToJSONSchemaMethod)(inst, {});
     inst.def = def;
+    inst.type = def.type;
     Object.defineProperty(inst, "_def", { value: def });
     // base methods
     inst.check = (...checks) => {
-        return inst.clone({
-            ...def,
+        return inst.clone(index_js_1.util.mergeDefs(def, {
             checks: [
                 ...(def.checks ?? []),
                 ...checks.map((ch) => typeof ch === "function" ? { _zod: { check: ch, def: { check: "custom" }, onattach: [] } } : ch),
             ],
-        }
-        // { parent: true }
-        );
+        }), {
+            parent: true,
+        });
     };
+    inst.with = inst.check;
     inst.clone = (def, params) => core.clone(inst, def, params);
     inst.brand = () => inst;
     inst.register = ((reg, meta) => {
@@ -46512,12 +47165,22 @@ exports.ZodType = core.$constructor("ZodType", (inst, def) => {
     inst.parseAsync = async (data, params) => parse.parseAsync(inst, data, params, { callee: inst.parseAsync });
     inst.safeParseAsync = async (data, params) => parse.safeParseAsync(inst, data, params);
     inst.spa = inst.safeParseAsync;
+    // encoding/decoding
+    inst.encode = (data, params) => parse.encode(inst, data, params);
+    inst.decode = (data, params) => parse.decode(inst, data, params);
+    inst.encodeAsync = async (data, params) => parse.encodeAsync(inst, data, params);
+    inst.decodeAsync = async (data, params) => parse.decodeAsync(inst, data, params);
+    inst.safeEncode = (data, params) => parse.safeEncode(inst, data, params);
+    inst.safeDecode = (data, params) => parse.safeDecode(inst, data, params);
+    inst.safeEncodeAsync = async (data, params) => parse.safeEncodeAsync(inst, data, params);
+    inst.safeDecodeAsync = async (data, params) => parse.safeDecodeAsync(inst, data, params);
     // refinements
     inst.refine = (check, params) => inst.check(refine(check, params));
     inst.superRefine = (refinement) => inst.check(superRefine(refinement));
     inst.overwrite = (fn) => inst.check(checks.overwrite(fn));
     // wrappers
     inst.optional = () => optional(inst);
+    inst.exactOptional = () => exactOptional(inst);
     inst.nullable = () => nullable(inst);
     inst.nullish = () => optional(nullable(inst));
     inst.nonoptional = (params) => nonoptional(inst, params);
@@ -46554,12 +47217,14 @@ exports.ZodType = core.$constructor("ZodType", (inst, def) => {
     // helpers
     inst.isOptional = () => inst.safeParse(undefined).success;
     inst.isNullable = () => inst.safeParse(null).success;
+    inst.apply = (fn) => fn(inst);
     return inst;
 });
 /** @internal */
 exports._ZodString = core.$constructor("_ZodString", (inst, def) => {
     core.$ZodString.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.stringProcessor(inst, ctx, json, params);
     const bag = inst._zod.bag;
     inst.format = bag.format ?? null;
     inst.minLength = bag.minimum ?? null;
@@ -46580,6 +47245,7 @@ exports._ZodString = core.$constructor("_ZodString", (inst, def) => {
     inst.normalize = (...args) => inst.check(checks.normalize(...args));
     inst.toLowerCase = () => inst.check(checks.toLowerCase());
     inst.toUpperCase = () => inst.check(checks.toUpperCase());
+    inst.slugify = () => inst.check(checks.slugify());
 });
 exports.ZodString = core.$constructor("ZodString", (inst, def) => {
     core.$ZodString.init(inst, def);
@@ -46663,6 +47329,13 @@ exports.ZodURL = core.$constructor("ZodURL", (inst, def) => {
 function url(params) {
     return core._url(exports.ZodURL, params);
 }
+function httpUrl(params) {
+    return core._url(exports.ZodURL, {
+        protocol: /^https?$/,
+        hostname: core.regexes.domain,
+        ...index_js_1.util.normalizeParams(params),
+    });
+}
 exports.ZodEmoji = core.$constructor("ZodEmoji", (inst, def) => {
     // ZodStringFormat.init(inst, def);
     core.$ZodEmoji.init(inst, def);
@@ -46726,6 +47399,14 @@ exports.ZodIPv4 = core.$constructor("ZodIPv4", (inst, def) => {
 });
 function ipv4(params) {
     return core._ipv4(exports.ZodIPv4, params);
+}
+exports.ZodMAC = core.$constructor("ZodMAC", (inst, def) => {
+    // ZodStringFormat.init(inst, def);
+    core.$ZodMAC.init(inst, def);
+    exports.ZodStringFormat.init(inst, def);
+});
+function mac(params) {
+    return core._mac(exports.ZodMAC, params);
 }
 exports.ZodIPv6 = core.$constructor("ZodIPv6", (inst, def) => {
     // ZodStringFormat.init(inst, def);
@@ -46792,9 +47473,21 @@ function stringFormat(format, fnOrRegex, _params = {}) {
 function hostname(_params) {
     return core._stringFormat(exports.ZodCustomStringFormat, "hostname", core.regexes.hostname, _params);
 }
+function hex(_params) {
+    return core._stringFormat(exports.ZodCustomStringFormat, "hex", core.regexes.hex, _params);
+}
+function hash(alg, params) {
+    const enc = params?.enc ?? "hex";
+    const format = `${alg}_${enc}`;
+    const regex = core.regexes[format];
+    if (!regex)
+        throw new Error(`Unrecognized hash format: ${format}`);
+    return core._stringFormat(exports.ZodCustomStringFormat, format, regex, params);
+}
 exports.ZodNumber = core.$constructor("ZodNumber", (inst, def) => {
     core.$ZodNumber.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.numberProcessor(inst, ctx, json, params);
     inst.gt = (value, params) => inst.check(checks.gt(value, params));
     inst.gte = (value, params) => inst.check(checks.gte(value, params));
     inst.min = (value, params) => inst.check(checks.gte(value, params));
@@ -46845,6 +47538,7 @@ function uint32(params) {
 exports.ZodBoolean = core.$constructor("ZodBoolean", (inst, def) => {
     core.$ZodBoolean.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.booleanProcessor(inst, ctx, json, params);
 });
 function boolean(params) {
     return core._boolean(exports.ZodBoolean, params);
@@ -46852,6 +47546,7 @@ function boolean(params) {
 exports.ZodBigInt = core.$constructor("ZodBigInt", (inst, def) => {
     core.$ZodBigInt.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.bigintProcessor(inst, ctx, json, params);
     inst.gte = (value, params) => inst.check(checks.gte(value, params));
     inst.min = (value, params) => inst.check(checks.gte(value, params));
     inst.gt = (value, params) => inst.check(checks.gt(value, params));
@@ -46888,6 +47583,7 @@ function uint64(params) {
 exports.ZodSymbol = core.$constructor("ZodSymbol", (inst, def) => {
     core.$ZodSymbol.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.symbolProcessor(inst, ctx, json, params);
 });
 function symbol(params) {
     return core._symbol(exports.ZodSymbol, params);
@@ -46895,6 +47591,7 @@ function symbol(params) {
 exports.ZodUndefined = core.$constructor("ZodUndefined", (inst, def) => {
     core.$ZodUndefined.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.undefinedProcessor(inst, ctx, json, params);
 });
 function _undefined(params) {
     return core._undefined(exports.ZodUndefined, params);
@@ -46902,6 +47599,7 @@ function _undefined(params) {
 exports.ZodNull = core.$constructor("ZodNull", (inst, def) => {
     core.$ZodNull.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.nullProcessor(inst, ctx, json, params);
 });
 function _null(params) {
     return core._null(exports.ZodNull, params);
@@ -46909,6 +47607,7 @@ function _null(params) {
 exports.ZodAny = core.$constructor("ZodAny", (inst, def) => {
     core.$ZodAny.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.anyProcessor(inst, ctx, json, params);
 });
 function any() {
     return core._any(exports.ZodAny);
@@ -46916,6 +47615,7 @@ function any() {
 exports.ZodUnknown = core.$constructor("ZodUnknown", (inst, def) => {
     core.$ZodUnknown.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.unknownProcessor(inst, ctx, json, params);
 });
 function unknown() {
     return core._unknown(exports.ZodUnknown);
@@ -46923,6 +47623,7 @@ function unknown() {
 exports.ZodNever = core.$constructor("ZodNever", (inst, def) => {
     core.$ZodNever.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.neverProcessor(inst, ctx, json, params);
 });
 function never(params) {
     return core._never(exports.ZodNever, params);
@@ -46930,6 +47631,7 @@ function never(params) {
 exports.ZodVoid = core.$constructor("ZodVoid", (inst, def) => {
     core.$ZodVoid.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.voidProcessor(inst, ctx, json, params);
 });
 function _void(params) {
     return core._void(exports.ZodVoid, params);
@@ -46937,6 +47639,7 @@ function _void(params) {
 exports.ZodDate = core.$constructor("ZodDate", (inst, def) => {
     core.$ZodDate.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.dateProcessor(inst, ctx, json, params);
     inst.min = (value, params) => inst.check(checks.gte(value, params));
     inst.max = (value, params) => inst.check(checks.lte(value, params));
     const c = inst._zod.bag;
@@ -46949,6 +47652,7 @@ function date(params) {
 exports.ZodArray = core.$constructor("ZodArray", (inst, def) => {
     core.$ZodArray.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.arrayProcessor(inst, ctx, json, params);
     inst.element = def.element;
     inst.min = (minLength, params) => inst.check(checks.minLength(minLength, params));
     inst.nonempty = (params) => inst.check(checks.minLength(1, params));
@@ -46965,9 +47669,12 @@ function keyof(schema) {
     return _enum(Object.keys(shape));
 }
 exports.ZodObject = core.$constructor("ZodObject", (inst, def) => {
-    core.$ZodObject.init(inst, def);
+    core.$ZodObjectJIT.init(inst, def);
     exports.ZodType.init(inst, def);
-    index_js_1.util.defineLazy(inst, "shape", () => def.shape);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.objectProcessor(inst, ctx, json, params);
+    index_js_1.util.defineLazy(inst, "shape", () => {
+        return def.shape;
+    });
     inst.keyof = () => _enum(Object.keys(inst._zod.def.shape));
     inst.catchall = (catchall) => inst.clone({ ...inst._zod.def, catchall: catchall });
     inst.passthrough = () => inst.clone({ ...inst._zod.def, catchall: unknown() });
@@ -46976,6 +47683,9 @@ exports.ZodObject = core.$constructor("ZodObject", (inst, def) => {
     inst.strip = () => inst.clone({ ...inst._zod.def, catchall: undefined });
     inst.extend = (incoming) => {
         return index_js_1.util.extend(inst, incoming);
+    };
+    inst.safeExtend = (incoming) => {
+        return index_js_1.util.safeExtend(inst, incoming);
     };
     inst.merge = (other) => index_js_1.util.merge(inst, other);
     inst.pick = (mask) => index_js_1.util.pick(inst, mask);
@@ -46986,10 +47696,7 @@ exports.ZodObject = core.$constructor("ZodObject", (inst, def) => {
 function object(shape, params) {
     const def = {
         type: "object",
-        get shape() {
-            index_js_1.util.assignProp(this, "shape", shape ? index_js_1.util.objectClone(shape) : {});
-            return this.shape;
-        },
+        shape: shape ?? {},
         ...index_js_1.util.normalizeParams(params),
     };
     return new exports.ZodObject(def);
@@ -46998,10 +47705,7 @@ function object(shape, params) {
 function strictObject(shape, params) {
     return new exports.ZodObject({
         type: "object",
-        get shape() {
-            index_js_1.util.assignProp(this, "shape", index_js_1.util.objectClone(shape));
-            return this.shape;
-        },
+        shape,
         catchall: never(),
         ...index_js_1.util.normalizeParams(params),
     });
@@ -47010,10 +47714,7 @@ function strictObject(shape, params) {
 function looseObject(shape, params) {
     return new exports.ZodObject({
         type: "object",
-        get shape() {
-            index_js_1.util.assignProp(this, "shape", index_js_1.util.objectClone(shape));
-            return this.shape;
-        },
+        shape,
         catchall: unknown(),
         ...index_js_1.util.normalizeParams(params),
     });
@@ -47021,12 +47722,30 @@ function looseObject(shape, params) {
 exports.ZodUnion = core.$constructor("ZodUnion", (inst, def) => {
     core.$ZodUnion.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.unionProcessor(inst, ctx, json, params);
     inst.options = def.options;
 });
 function union(options, params) {
     return new exports.ZodUnion({
         type: "union",
         options: options,
+        ...index_js_1.util.normalizeParams(params),
+    });
+}
+exports.ZodXor = core.$constructor("ZodXor", (inst, def) => {
+    exports.ZodUnion.init(inst, def);
+    core.$ZodXor.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.unionProcessor(inst, ctx, json, params);
+    inst.options = def.options;
+});
+/** Creates an exclusive union (XOR) where exactly one option must match.
+ * Unlike regular unions that succeed when any option matches, xor fails if
+ * zero or more than one option matches the input. */
+function xor(options, params) {
+    return new exports.ZodXor({
+        type: "union",
+        options: options,
+        inclusive: false,
         ...index_js_1.util.normalizeParams(params),
     });
 }
@@ -47046,6 +47765,7 @@ function discriminatedUnion(discriminator, options, params) {
 exports.ZodIntersection = core.$constructor("ZodIntersection", (inst, def) => {
     core.$ZodIntersection.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.intersectionProcessor(inst, ctx, json, params);
 });
 function intersection(left, right) {
     return new exports.ZodIntersection({
@@ -47057,6 +47777,7 @@ function intersection(left, right) {
 exports.ZodTuple = core.$constructor("ZodTuple", (inst, def) => {
     core.$ZodTuple.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.tupleProcessor(inst, ctx, json, params);
     inst.rest = (rest) => inst.clone({
         ...inst._zod.def,
         rest: rest,
@@ -47076,6 +47797,7 @@ function tuple(items, _paramsOrRest, _params) {
 exports.ZodRecord = core.$constructor("ZodRecord", (inst, def) => {
     core.$ZodRecord.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.recordProcessor(inst, ctx, json, params);
     inst.keyType = def.keyType;
     inst.valueType = def.valueType;
 });
@@ -47098,11 +47820,25 @@ function partialRecord(keyType, valueType, params) {
         ...index_js_1.util.normalizeParams(params),
     });
 }
+function looseRecord(keyType, valueType, params) {
+    return new exports.ZodRecord({
+        type: "record",
+        keyType,
+        valueType: valueType,
+        mode: "loose",
+        ...index_js_1.util.normalizeParams(params),
+    });
+}
 exports.ZodMap = core.$constructor("ZodMap", (inst, def) => {
     core.$ZodMap.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.mapProcessor(inst, ctx, json, params);
     inst.keyType = def.keyType;
     inst.valueType = def.valueType;
+    inst.min = (...args) => inst.check(core._minSize(...args));
+    inst.nonempty = (params) => inst.check(core._minSize(1, params));
+    inst.max = (...args) => inst.check(core._maxSize(...args));
+    inst.size = (...args) => inst.check(core._size(...args));
 });
 function map(keyType, valueType, params) {
     return new exports.ZodMap({
@@ -47115,6 +47851,7 @@ function map(keyType, valueType, params) {
 exports.ZodSet = core.$constructor("ZodSet", (inst, def) => {
     core.$ZodSet.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.setProcessor(inst, ctx, json, params);
     inst.min = (...args) => inst.check(core._minSize(...args));
     inst.nonempty = (params) => inst.check(core._minSize(1, params));
     inst.max = (...args) => inst.check(core._maxSize(...args));
@@ -47130,6 +47867,7 @@ function set(valueType, params) {
 exports.ZodEnum = core.$constructor("ZodEnum", (inst, def) => {
     core.$ZodEnum.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.enumProcessor(inst, ctx, json, params);
     inst.enum = def.entries;
     inst.options = Object.values(def.entries);
     const keys = new Set(Object.keys(def.entries));
@@ -47191,6 +47929,7 @@ function nativeEnum(entries, params) {
 exports.ZodLiteral = core.$constructor("ZodLiteral", (inst, def) => {
     core.$ZodLiteral.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.literalProcessor(inst, ctx, json, params);
     inst.values = new Set(def.values);
     Object.defineProperty(inst, "value", {
         get() {
@@ -47211,6 +47950,7 @@ function literal(value, params) {
 exports.ZodFile = core.$constructor("ZodFile", (inst, def) => {
     core.$ZodFile.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.fileProcessor(inst, ctx, json, params);
     inst.min = (size, params) => inst.check(core._minSize(size, params));
     inst.max = (size, params) => inst.check(core._maxSize(size, params));
     inst.mime = (types, params) => inst.check(core._mime(Array.isArray(types) ? types : [types], params));
@@ -47221,7 +47961,11 @@ function file(params) {
 exports.ZodTransform = core.$constructor("ZodTransform", (inst, def) => {
     core.$ZodTransform.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.transformProcessor(inst, ctx, json, params);
     inst._zod.parse = (payload, _ctx) => {
+        if (_ctx.direction === "backward") {
+            throw new core.$ZodEncodeError(inst.constructor.name);
+        }
         payload.addIssue = (issue) => {
             if (typeof issue === "string") {
                 payload.issues.push(index_js_1.util.issue(issue, payload.value, def));
@@ -47258,6 +48002,7 @@ function transform(fn) {
 exports.ZodOptional = core.$constructor("ZodOptional", (inst, def) => {
     core.$ZodOptional.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.optionalProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 });
 function optional(innerType) {
@@ -47266,9 +48011,22 @@ function optional(innerType) {
         innerType: innerType,
     });
 }
+exports.ZodExactOptional = core.$constructor("ZodExactOptional", (inst, def) => {
+    core.$ZodExactOptional.init(inst, def);
+    exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.optionalProcessor(inst, ctx, json, params);
+    inst.unwrap = () => inst._zod.def.innerType;
+});
+function exactOptional(innerType) {
+    return new exports.ZodExactOptional({
+        type: "optional",
+        innerType: innerType,
+    });
+}
 exports.ZodNullable = core.$constructor("ZodNullable", (inst, def) => {
     core.$ZodNullable.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.nullableProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 });
 function nullable(innerType) {
@@ -47284,6 +48042,7 @@ function nullish(innerType) {
 exports.ZodDefault = core.$constructor("ZodDefault", (inst, def) => {
     core.$ZodDefault.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.defaultProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
     inst.removeDefault = inst.unwrap;
 });
@@ -47299,6 +48058,7 @@ function _default(innerType, defaultValue) {
 exports.ZodPrefault = core.$constructor("ZodPrefault", (inst, def) => {
     core.$ZodPrefault.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.prefaultProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 });
 function prefault(innerType, defaultValue) {
@@ -47313,6 +48073,7 @@ function prefault(innerType, defaultValue) {
 exports.ZodNonOptional = core.$constructor("ZodNonOptional", (inst, def) => {
     core.$ZodNonOptional.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.nonoptionalProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 });
 function nonoptional(innerType, params) {
@@ -47325,6 +48086,7 @@ function nonoptional(innerType, params) {
 exports.ZodSuccess = core.$constructor("ZodSuccess", (inst, def) => {
     core.$ZodSuccess.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.successProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 });
 function success(innerType) {
@@ -47336,6 +48098,7 @@ function success(innerType) {
 exports.ZodCatch = core.$constructor("ZodCatch", (inst, def) => {
     core.$ZodCatch.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.catchProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
     inst.removeCatch = inst.unwrap;
 });
@@ -47349,6 +48112,7 @@ function _catch(innerType, catchValue) {
 exports.ZodNaN = core.$constructor("ZodNaN", (inst, def) => {
     core.$ZodNaN.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.nanProcessor(inst, ctx, json, params);
 });
 function nan(params) {
     return core._nan(exports.ZodNaN, params);
@@ -47356,6 +48120,7 @@ function nan(params) {
 exports.ZodPipe = core.$constructor("ZodPipe", (inst, def) => {
     core.$ZodPipe.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.pipeProcessor(inst, ctx, json, params);
     inst.in = def.in;
     inst.out = def.out;
 });
@@ -47367,9 +48132,23 @@ function pipe(in_, out) {
         // ...util.normalizeParams(params),
     });
 }
+exports.ZodCodec = core.$constructor("ZodCodec", (inst, def) => {
+    exports.ZodPipe.init(inst, def);
+    core.$ZodCodec.init(inst, def);
+});
+function codec(in_, out, params) {
+    return new exports.ZodCodec({
+        type: "pipe",
+        in: in_,
+        out: out,
+        transform: params.decode,
+        reverseTransform: params.encode,
+    });
+}
 exports.ZodReadonly = core.$constructor("ZodReadonly", (inst, def) => {
     core.$ZodReadonly.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.readonlyProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 });
 function readonly(innerType) {
@@ -47381,6 +48160,7 @@ function readonly(innerType) {
 exports.ZodTemplateLiteral = core.$constructor("ZodTemplateLiteral", (inst, def) => {
     core.$ZodTemplateLiteral.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.templateLiteralProcessor(inst, ctx, json, params);
 });
 function templateLiteral(parts, params) {
     return new exports.ZodTemplateLiteral({
@@ -47392,6 +48172,7 @@ function templateLiteral(parts, params) {
 exports.ZodLazy = core.$constructor("ZodLazy", (inst, def) => {
     core.$ZodLazy.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.lazyProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.getter();
 });
 function lazy(getter) {
@@ -47403,6 +48184,7 @@ function lazy(getter) {
 exports.ZodPromise = core.$constructor("ZodPromise", (inst, def) => {
     core.$ZodPromise.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.promiseProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 });
 function promise(innerType) {
@@ -47411,9 +48193,22 @@ function promise(innerType) {
         innerType: innerType,
     });
 }
+exports.ZodFunction = core.$constructor("ZodFunction", (inst, def) => {
+    core.$ZodFunction.init(inst, def);
+    exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.functionProcessor(inst, ctx, json, params);
+});
+function _function(params) {
+    return new exports.ZodFunction({
+        type: "function",
+        input: Array.isArray(params?.input) ? tuple(params?.input) : (params?.input ?? array(unknown())),
+        output: params?.output ?? unknown(),
+    });
+}
 exports.ZodCustom = core.$constructor("ZodCustom", (inst, def) => {
     core.$ZodCustom.init(inst, def);
     exports.ZodType.init(inst, def);
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.customProcessor(inst, ctx, json, params);
 });
 // custom checks
 function check(fn) {
@@ -47434,9 +48229,10 @@ function refine(fn, _params = {}) {
 function superRefine(fn) {
     return core._superRefine(fn);
 }
-function _instanceof(cls, params = {
-    error: `Input not instance of ${cls.name}`,
-}) {
+// Re-export describe and meta from core
+exports.describe = core.describe;
+exports.meta = core.meta;
+function _instanceof(cls, params = {}) {
     const inst = new exports.ZodCustom({
         type: "custom",
         check: "custom",
@@ -47445,14 +48241,25 @@ function _instanceof(cls, params = {
         ...index_js_1.util.normalizeParams(params),
     });
     inst._zod.bag.Class = cls;
+    // Override check to emit invalid_type instead of custom
+    inst._zod.check = (payload) => {
+        if (!(payload.value instanceof cls)) {
+            payload.issues.push({
+                code: "invalid_type",
+                expected: cls.name,
+                input: payload.value,
+                inst,
+                path: [...(inst._zod.def.path ?? [])],
+            });
+        }
+    };
     return inst;
 }
 // stringbool
 const stringbool = (...args) => core._stringbool({
-    Pipe: exports.ZodPipe,
+    Codec: exports.ZodCodec,
     Boolean: exports.ZodBoolean,
     String: exports.ZodString,
-    Transform: exports.ZodTransform,
 }, ...args);
 exports.stringbool = stringbool;
 function json(params) {
@@ -47518,6 +48325,7 @@ exports._xid = _xid;
 exports._ksuid = _ksuid;
 exports._ipv4 = _ipv4;
 exports._ipv6 = _ipv6;
+exports._mac = _mac;
 exports._cidrv4 = _cidrv4;
 exports._cidrv6 = _cidrv6;
 exports._base64 = _base64;
@@ -47585,8 +48393,10 @@ exports._normalize = _normalize;
 exports._trim = _trim;
 exports._toLowerCase = _toLowerCase;
 exports._toUpperCase = _toUpperCase;
+exports._slugify = _slugify;
 exports._array = _array;
 exports._union = _union;
+exports._xor = _xor;
 exports._discriminatedUnion = _discriminatedUnion;
 exports._intersection = _intersection;
 exports._tuple = _tuple;
@@ -47613,17 +48423,22 @@ exports._custom = _custom;
 exports._refine = _refine;
 exports._superRefine = _superRefine;
 exports._check = _check;
+exports.describe = describe;
+exports.meta = meta;
 exports._stringbool = _stringbool;
 exports._stringFormat = _stringFormat;
 const checks = __importStar(__nccwpck_require__(5880));
+const registries = __importStar(__nccwpck_require__(1446));
 const schemas = __importStar(__nccwpck_require__(4433));
 const util = __importStar(__nccwpck_require__(1327));
+// @__NO_SIDE_EFFECTS__
 function _string(Class, params) {
     return new Class({
         type: "string",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _coercedString(Class, params) {
     return new Class({
         type: "string",
@@ -47631,6 +48446,7 @@ function _coercedString(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _email(Class, params) {
     return new Class({
         type: "string",
@@ -47640,6 +48456,7 @@ function _email(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _guid(Class, params) {
     return new Class({
         type: "string",
@@ -47649,6 +48466,7 @@ function _guid(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _uuid(Class, params) {
     return new Class({
         type: "string",
@@ -47658,6 +48476,7 @@ function _uuid(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _uuidv4(Class, params) {
     return new Class({
         type: "string",
@@ -47668,6 +48487,7 @@ function _uuidv4(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _uuidv6(Class, params) {
     return new Class({
         type: "string",
@@ -47678,6 +48498,7 @@ function _uuidv6(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _uuidv7(Class, params) {
     return new Class({
         type: "string",
@@ -47688,6 +48509,7 @@ function _uuidv7(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _url(Class, params) {
     return new Class({
         type: "string",
@@ -47697,6 +48519,7 @@ function _url(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _emoji(Class, params) {
     return new Class({
         type: "string",
@@ -47706,6 +48529,7 @@ function _emoji(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _nanoid(Class, params) {
     return new Class({
         type: "string",
@@ -47715,6 +48539,7 @@ function _nanoid(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _cuid(Class, params) {
     return new Class({
         type: "string",
@@ -47724,6 +48549,7 @@ function _cuid(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _cuid2(Class, params) {
     return new Class({
         type: "string",
@@ -47733,6 +48559,7 @@ function _cuid2(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _ulid(Class, params) {
     return new Class({
         type: "string",
@@ -47742,6 +48569,7 @@ function _ulid(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _xid(Class, params) {
     return new Class({
         type: "string",
@@ -47751,6 +48579,7 @@ function _xid(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _ksuid(Class, params) {
     return new Class({
         type: "string",
@@ -47760,6 +48589,7 @@ function _ksuid(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _ipv4(Class, params) {
     return new Class({
         type: "string",
@@ -47769,6 +48599,7 @@ function _ipv4(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _ipv6(Class, params) {
     return new Class({
         type: "string",
@@ -47778,6 +48609,17 @@ function _ipv6(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
+function _mac(Class, params) {
+    return new Class({
+        type: "string",
+        format: "mac",
+        check: "string_format",
+        abort: false,
+        ...util.normalizeParams(params),
+    });
+}
+// @__NO_SIDE_EFFECTS__
 function _cidrv4(Class, params) {
     return new Class({
         type: "string",
@@ -47787,6 +48629,7 @@ function _cidrv4(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _cidrv6(Class, params) {
     return new Class({
         type: "string",
@@ -47796,6 +48639,7 @@ function _cidrv6(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _base64(Class, params) {
     return new Class({
         type: "string",
@@ -47805,6 +48649,7 @@ function _base64(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _base64url(Class, params) {
     return new Class({
         type: "string",
@@ -47814,6 +48659,7 @@ function _base64url(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _e164(Class, params) {
     return new Class({
         type: "string",
@@ -47823,6 +48669,7 @@ function _e164(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _jwt(Class, params) {
     return new Class({
         type: "string",
@@ -47839,6 +48686,7 @@ exports.TimePrecision = {
     Millisecond: 3,
     Microsecond: 6,
 };
+// @__NO_SIDE_EFFECTS__
 function _isoDateTime(Class, params) {
     return new Class({
         type: "string",
@@ -47850,6 +48698,7 @@ function _isoDateTime(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _isoDate(Class, params) {
     return new Class({
         type: "string",
@@ -47858,6 +48707,7 @@ function _isoDate(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _isoTime(Class, params) {
     return new Class({
         type: "string",
@@ -47867,6 +48717,7 @@ function _isoTime(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _isoDuration(Class, params) {
     return new Class({
         type: "string",
@@ -47875,6 +48726,7 @@ function _isoDuration(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _number(Class, params) {
     return new Class({
         type: "number",
@@ -47882,6 +48734,7 @@ function _number(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _coercedNumber(Class, params) {
     return new Class({
         type: "number",
@@ -47890,6 +48743,7 @@ function _coercedNumber(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _int(Class, params) {
     return new Class({
         type: "number",
@@ -47899,6 +48753,7 @@ function _int(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _float32(Class, params) {
     return new Class({
         type: "number",
@@ -47908,6 +48763,7 @@ function _float32(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _float64(Class, params) {
     return new Class({
         type: "number",
@@ -47917,6 +48773,7 @@ function _float64(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _int32(Class, params) {
     return new Class({
         type: "number",
@@ -47926,6 +48783,7 @@ function _int32(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _uint32(Class, params) {
     return new Class({
         type: "number",
@@ -47935,12 +48793,14 @@ function _uint32(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _boolean(Class, params) {
     return new Class({
         type: "boolean",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _coercedBoolean(Class, params) {
     return new Class({
         type: "boolean",
@@ -47948,12 +48808,14 @@ function _coercedBoolean(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _bigint(Class, params) {
     return new Class({
         type: "bigint",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _coercedBigint(Class, params) {
     return new Class({
         type: "bigint",
@@ -47961,6 +48823,7 @@ function _coercedBigint(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _int64(Class, params) {
     return new Class({
         type: "bigint",
@@ -47970,6 +48833,7 @@ function _int64(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _uint64(Class, params) {
     return new Class({
         type: "bigint",
@@ -47979,52 +48843,61 @@ function _uint64(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _symbol(Class, params) {
     return new Class({
         type: "symbol",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _undefined(Class, params) {
     return new Class({
         type: "undefined",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _null(Class, params) {
     return new Class({
         type: "null",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _any(Class) {
     return new Class({
         type: "any",
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _unknown(Class) {
     return new Class({
         type: "unknown",
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _never(Class, params) {
     return new Class({
         type: "never",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _void(Class, params) {
     return new Class({
         type: "void",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _date(Class, params) {
     return new Class({
         type: "date",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _coercedDate(Class, params) {
     return new Class({
         type: "date",
@@ -48032,12 +48905,14 @@ function _coercedDate(Class, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _nan(Class, params) {
     return new Class({
         type: "nan",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _lt(value, params) {
     return new checks.$ZodCheckLessThan({
         check: "less_than",
@@ -48046,6 +48921,7 @@ function _lt(value, params) {
         inclusive: false,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _lte(value, params) {
     return new checks.$ZodCheckLessThan({
         check: "less_than",
@@ -48054,6 +48930,7 @@ function _lte(value, params) {
         inclusive: true,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _gt(value, params) {
     return new checks.$ZodCheckGreaterThan({
         check: "greater_than",
@@ -48062,6 +48939,7 @@ function _gt(value, params) {
         inclusive: false,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _gte(value, params) {
     return new checks.$ZodCheckGreaterThan({
         check: "greater_than",
@@ -48070,21 +48948,26 @@ function _gte(value, params) {
         inclusive: true,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _positive(params) {
     return _gt(0, params);
 }
 // negative
+// @__NO_SIDE_EFFECTS__
 function _negative(params) {
     return _lt(0, params);
 }
 // nonpositive
+// @__NO_SIDE_EFFECTS__
 function _nonpositive(params) {
     return _lte(0, params);
 }
 // nonnegative
+// @__NO_SIDE_EFFECTS__
 function _nonnegative(params) {
     return _gte(0, params);
 }
+// @__NO_SIDE_EFFECTS__
 function _multipleOf(value, params) {
     return new checks.$ZodCheckMultipleOf({
         check: "multiple_of",
@@ -48092,6 +48975,7 @@ function _multipleOf(value, params) {
         value,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _maxSize(maximum, params) {
     return new checks.$ZodCheckMaxSize({
         check: "max_size",
@@ -48099,6 +48983,7 @@ function _maxSize(maximum, params) {
         maximum,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _minSize(minimum, params) {
     return new checks.$ZodCheckMinSize({
         check: "min_size",
@@ -48106,6 +48991,7 @@ function _minSize(minimum, params) {
         minimum,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _size(size, params) {
     return new checks.$ZodCheckSizeEquals({
         check: "size_equals",
@@ -48113,6 +48999,7 @@ function _size(size, params) {
         size,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _maxLength(maximum, params) {
     const ch = new checks.$ZodCheckMaxLength({
         check: "max_length",
@@ -48121,6 +49008,7 @@ function _maxLength(maximum, params) {
     });
     return ch;
 }
+// @__NO_SIDE_EFFECTS__
 function _minLength(minimum, params) {
     return new checks.$ZodCheckMinLength({
         check: "min_length",
@@ -48128,6 +49016,7 @@ function _minLength(minimum, params) {
         minimum,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _length(length, params) {
     return new checks.$ZodCheckLengthEquals({
         check: "length_equals",
@@ -48135,6 +49024,7 @@ function _length(length, params) {
         length,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _regex(pattern, params) {
     return new checks.$ZodCheckRegex({
         check: "string_format",
@@ -48143,6 +49033,7 @@ function _regex(pattern, params) {
         pattern,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _lowercase(params) {
     return new checks.$ZodCheckLowerCase({
         check: "string_format",
@@ -48150,6 +49041,7 @@ function _lowercase(params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _uppercase(params) {
     return new checks.$ZodCheckUpperCase({
         check: "string_format",
@@ -48157,6 +49049,7 @@ function _uppercase(params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _includes(includes, params) {
     return new checks.$ZodCheckIncludes({
         check: "string_format",
@@ -48165,6 +49058,7 @@ function _includes(includes, params) {
         includes,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _startsWith(prefix, params) {
     return new checks.$ZodCheckStartsWith({
         check: "string_format",
@@ -48173,6 +49067,7 @@ function _startsWith(prefix, params) {
         prefix,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _endsWith(suffix, params) {
     return new checks.$ZodCheckEndsWith({
         check: "string_format",
@@ -48181,6 +49076,7 @@ function _endsWith(suffix, params) {
         suffix,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _property(property, schema, params) {
     return new checks.$ZodCheckProperty({
         check: "property",
@@ -48189,6 +49085,7 @@ function _property(property, schema, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _mime(types, params) {
     return new checks.$ZodCheckMimeType({
         check: "mime_type",
@@ -48196,6 +49093,7 @@ function _mime(types, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _overwrite(tx) {
     return new checks.$ZodCheckOverwrite({
         check: "overwrite",
@@ -48203,21 +49101,31 @@ function _overwrite(tx) {
     });
 }
 // normalize
+// @__NO_SIDE_EFFECTS__
 function _normalize(form) {
     return _overwrite((input) => input.normalize(form));
 }
 // trim
+// @__NO_SIDE_EFFECTS__
 function _trim() {
     return _overwrite((input) => input.trim());
 }
 // toLowerCase
+// @__NO_SIDE_EFFECTS__
 function _toLowerCase() {
     return _overwrite((input) => input.toLowerCase());
 }
 // toUpperCase
+// @__NO_SIDE_EFFECTS__
 function _toUpperCase() {
     return _overwrite((input) => input.toUpperCase());
 }
+// slugify
+// @__NO_SIDE_EFFECTS__
+function _slugify() {
+    return _overwrite((input) => util.slugify(input));
+}
+// @__NO_SIDE_EFFECTS__
 function _array(Class, element, params) {
     return new Class({
         type: "array",
@@ -48228,6 +49136,7 @@ function _array(Class, element, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _union(Class, options, params) {
     return new Class({
         type: "union",
@@ -48235,6 +49144,15 @@ function _union(Class, options, params) {
         ...util.normalizeParams(params),
     });
 }
+function _xor(Class, options, params) {
+    return new Class({
+        type: "union",
+        options,
+        inclusive: false,
+        ...util.normalizeParams(params),
+    });
+}
+// @__NO_SIDE_EFFECTS__
 function _discriminatedUnion(Class, discriminator, options, params) {
     return new Class({
         type: "union",
@@ -48243,6 +49161,7 @@ function _discriminatedUnion(Class, discriminator, options, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _intersection(Class, left, right) {
     return new Class({
         type: "intersection",
@@ -48255,6 +49174,7 @@ function _intersection(Class, left, right) {
 //   items: [],
 //   params?: string | $ZodTupleParams
 // ): schemas.$ZodTuple<[], null>;
+// @__NO_SIDE_EFFECTS__
 function _tuple(Class, items, _paramsOrRest, _params) {
     const hasRest = _paramsOrRest instanceof schemas.$ZodType;
     const params = hasRest ? _params : _paramsOrRest;
@@ -48266,6 +49186,7 @@ function _tuple(Class, items, _paramsOrRest, _params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _record(Class, keyType, valueType, params) {
     return new Class({
         type: "record",
@@ -48274,6 +49195,7 @@ function _record(Class, keyType, valueType, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _map(Class, keyType, valueType, params) {
     return new Class({
         type: "map",
@@ -48282,6 +49204,7 @@ function _map(Class, keyType, valueType, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _set(Class, valueType, params) {
     return new Class({
         type: "set",
@@ -48289,6 +49212,7 @@ function _set(Class, valueType, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _enum(Class, values, params) {
     const entries = Array.isArray(values) ? Object.fromEntries(values.map((v) => [v, v])) : values;
     // if (Array.isArray(values)) {
@@ -48308,6 +49232,7 @@ function _enum(Class, values, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 /** @deprecated This API has been merged into `z.enum()`. Use `z.enum()` instead.
  *
  * ```ts
@@ -48322,6 +49247,7 @@ function _nativeEnum(Class, entries, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _literal(Class, value, params) {
     return new Class({
         type: "literal",
@@ -48329,30 +49255,35 @@ function _literal(Class, value, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _file(Class, params) {
     return new Class({
         type: "file",
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _transform(Class, fn) {
     return new Class({
         type: "transform",
         transform: fn,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _optional(Class, innerType) {
     return new Class({
         type: "optional",
         innerType,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _nullable(Class, innerType) {
     return new Class({
         type: "nullable",
         innerType,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _default(Class, innerType, defaultValue) {
     return new Class({
         type: "default",
@@ -48362,6 +49293,7 @@ function _default(Class, innerType, defaultValue) {
         },
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _nonoptional(Class, innerType, params) {
     return new Class({
         type: "nonoptional",
@@ -48369,12 +49301,14 @@ function _nonoptional(Class, innerType, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _success(Class, innerType) {
     return new Class({
         type: "success",
         innerType,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _catch(Class, innerType, catchValue) {
     return new Class({
         type: "catch",
@@ -48382,6 +49316,7 @@ function _catch(Class, innerType, catchValue) {
         catchValue: (typeof catchValue === "function" ? catchValue : () => catchValue),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _pipe(Class, in_, out) {
     return new Class({
         type: "pipe",
@@ -48389,12 +49324,14 @@ function _pipe(Class, in_, out) {
         out,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _readonly(Class, innerType) {
     return new Class({
         type: "readonly",
         innerType,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _templateLiteral(Class, parts, params) {
     return new Class({
         type: "template_literal",
@@ -48402,18 +49339,21 @@ function _templateLiteral(Class, parts, params) {
         ...util.normalizeParams(params),
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _lazy(Class, getter) {
     return new Class({
         type: "lazy",
         getter,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _promise(Class, innerType) {
     return new Class({
         type: "promise",
         innerType,
     });
 }
+// @__NO_SIDE_EFFECTS__
 function _custom(Class, fn, _params) {
     const norm = util.normalizeParams(_params);
     norm.abort ?? (norm.abort = true); // default to abort:false
@@ -48426,6 +49366,7 @@ function _custom(Class, fn, _params) {
     return schema;
 }
 // same as _custom but defaults to abort:false
+// @__NO_SIDE_EFFECTS__
 function _refine(Class, fn, _params) {
     const schema = new Class({
         type: "custom",
@@ -48435,6 +49376,7 @@ function _refine(Class, fn, _params) {
     });
     return schema;
 }
+// @__NO_SIDE_EFFECTS__
 function _superRefine(fn) {
     const ch = _check((payload) => {
         payload.addIssue = (issue) => {
@@ -48449,7 +49391,7 @@ function _superRefine(fn) {
                 _issue.code ?? (_issue.code = "custom");
                 _issue.input ?? (_issue.input = payload.value);
                 _issue.inst ?? (_issue.inst = ch);
-                _issue.continue ?? (_issue.continue = !ch._zod.def.abort);
+                _issue.continue ?? (_issue.continue = !ch._zod.def.abort); // abort is always undefined, so this is always true...
                 payload.issues.push(util.issue(_issue));
             }
         };
@@ -48457,6 +49399,7 @@ function _superRefine(fn) {
     });
     return ch;
 }
+// @__NO_SIDE_EFFECTS__
 function _check(fn, params) {
     const ch = new checks.$ZodCheck({
         check: "custom",
@@ -48465,6 +49408,31 @@ function _check(fn, params) {
     ch._zod.check = fn;
     return ch;
 }
+// @__NO_SIDE_EFFECTS__
+function describe(description) {
+    const ch = new checks.$ZodCheck({ check: "describe" });
+    ch._zod.onattach = [
+        (inst) => {
+            const existing = registries.globalRegistry.get(inst) ?? {};
+            registries.globalRegistry.add(inst, { ...existing, description });
+        },
+    ];
+    ch._zod.check = () => { }; // no-op check
+    return ch;
+}
+// @__NO_SIDE_EFFECTS__
+function meta(metadata) {
+    const ch = new checks.$ZodCheck({ check: "meta" });
+    ch._zod.onattach = [
+        (inst) => {
+            const existing = registries.globalRegistry.get(inst) ?? {};
+            registries.globalRegistry.add(inst, { ...existing, ...metadata });
+        },
+    ];
+    ch._zod.check = () => { }; // no-op check
+    return ch;
+}
+// @__NO_SIDE_EFFECTS__
 function _stringbool(Classes, _params) {
     const params = util.normalizeParams(_params);
     let truthyArray = params.truthy ?? ["true", "1", "yes", "on", "y", "enabled"];
@@ -48475,13 +49443,16 @@ function _stringbool(Classes, _params) {
     }
     const truthySet = new Set(truthyArray);
     const falsySet = new Set(falsyArray);
-    const _Pipe = Classes.Pipe ?? schemas.$ZodPipe;
+    const _Codec = Classes.Codec ?? schemas.$ZodCodec;
     const _Boolean = Classes.Boolean ?? schemas.$ZodBoolean;
     const _String = Classes.String ?? schemas.$ZodString;
-    const _Transform = Classes.Transform ?? schemas.$ZodTransform;
-    const tx = new _Transform({
-        type: "transform",
-        transform: (input, payload) => {
+    const stringSchema = new _String({ type: "string", error: params.error });
+    const booleanSchema = new _Boolean({ type: "boolean", error: params.error });
+    const codec = new _Codec({
+        type: "pipe",
+        in: stringSchema,
+        out: booleanSchema,
+        transform: ((input, payload) => {
             let data = input;
             if (params.case !== "sensitive")
                 data = data.toLowerCase();
@@ -48497,32 +49468,25 @@ function _stringbool(Classes, _params) {
                     expected: "stringbool",
                     values: [...truthySet, ...falsySet],
                     input: payload.value,
-                    inst: tx,
+                    inst: codec,
                     continue: false,
                 });
                 return {};
             }
-        },
-        error: params.error,
-    });
-    // params.error;
-    const innerPipe = new _Pipe({
-        type: "pipe",
-        in: new _String({ type: "string", error: params.error }),
-        out: tx,
-        error: params.error,
-    });
-    const outerPipe = new _Pipe({
-        type: "pipe",
-        in: innerPipe,
-        out: new _Boolean({
-            type: "boolean",
-            error: params.error,
+        }),
+        reverseTransform: ((input, _payload) => {
+            if (input === true) {
+                return truthyArray[0] || "true";
+            }
+            else {
+                return falsyArray[0] || "false";
+            }
         }),
         error: params.error,
     });
-    return outerPipe;
+    return codec;
 }
+// @__NO_SIDE_EFFECTS__
 function _stringFormat(Class, format, fnOrRegex, _params = {}) {
     const params = util.normalizeParams(_params);
     const def = {
@@ -48608,7 +49572,7 @@ exports.$ZodCheckLessThan = core.$constructor("$ZodCheckLessThan", (inst, def) =
         payload.issues.push({
             origin,
             code: "too_big",
-            maximum: def.value,
+            maximum: typeof def.value === "object" ? def.value.getTime() : def.value,
             input: payload.value,
             inclusive: def.inclusive,
             inst,
@@ -48636,7 +49600,7 @@ exports.$ZodCheckGreaterThan = core.$constructor("$ZodCheckGreaterThan", (inst, 
         payload.issues.push({
             origin,
             code: "too_small",
-            minimum: def.value,
+            minimum: typeof def.value === "object" ? def.value.getTime() : def.value,
             input: payload.value,
             inclusive: def.inclusive,
             inst,
@@ -48724,6 +49688,7 @@ exports.$ZodCheckNumberFormat = core.$constructor("$ZodCheckNumberFormat", (inst
                         note: "Integers must be within the safe integer range.",
                         inst,
                         origin,
+                        inclusive: true,
                         continue: !def.abort,
                     });
                 }
@@ -48736,6 +49701,7 @@ exports.$ZodCheckNumberFormat = core.$constructor("$ZodCheckNumberFormat", (inst
                         note: "Integers must be within the safe integer range.",
                         inst,
                         origin,
+                        inclusive: true,
                         continue: !def.abort,
                     });
                 }
@@ -48759,7 +49725,9 @@ exports.$ZodCheckNumberFormat = core.$constructor("$ZodCheckNumberFormat", (inst
                 input,
                 code: "too_big",
                 maximum,
+                inclusive: true,
                 inst,
+                continue: !def.abort,
             });
         }
     };
@@ -48792,7 +49760,9 @@ exports.$ZodCheckBigIntFormat = core.$constructor("$ZodCheckBigIntFormat", (inst
                 input,
                 code: "too_big",
                 maximum,
+                inclusive: true,
                 inst,
+                continue: !def.abort,
             });
         }
     };
@@ -48818,6 +49788,7 @@ exports.$ZodCheckMaxSize = core.$constructor("$ZodCheckMaxSize", (inst, def) => 
             origin: util.getSizableOrigin(input),
             code: "too_big",
             maximum: def.maximum,
+            inclusive: true,
             input,
             inst,
             continue: !def.abort,
@@ -48845,6 +49816,7 @@ exports.$ZodCheckMinSize = core.$constructor("$ZodCheckMinSize", (inst, def) => 
             origin: util.getSizableOrigin(input),
             code: "too_small",
             minimum: def.minimum,
+            inclusive: true,
             input,
             inst,
             continue: !def.abort,
@@ -49150,7 +50122,7 @@ exports.$ZodCheckOverwrite = core.$constructor("$ZodCheckOverwrite", (inst, def)
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.globalConfig = exports.$ZodAsyncError = exports.$brand = exports.NEVER = void 0;
+exports.globalConfig = exports.$ZodEncodeError = exports.$ZodAsyncError = exports.$brand = exports.NEVER = void 0;
 exports.$constructor = $constructor;
 exports.config = config;
 /** A special constant with type `never` */
@@ -49159,21 +50131,30 @@ exports.NEVER = Object.freeze({
 });
 function $constructor(name, initializer, params) {
     function init(inst, def) {
-        var _a;
-        Object.defineProperty(inst, "_zod", {
-            value: inst._zod ?? {},
-            enumerable: false,
-        });
-        (_a = inst._zod).traits ?? (_a.traits = new Set());
+        if (!inst._zod) {
+            Object.defineProperty(inst, "_zod", {
+                value: {
+                    def,
+                    constr: _,
+                    traits: new Set(),
+                },
+                enumerable: false,
+            });
+        }
+        if (inst._zod.traits.has(name)) {
+            return;
+        }
         inst._zod.traits.add(name);
         initializer(inst, def);
         // support prototype modifications
-        for (const k in _.prototype) {
-            if (!(k in inst))
-                Object.defineProperty(inst, k, { value: _.prototype[k].bind(inst) });
+        const proto = _.prototype;
+        const keys = Object.keys(proto);
+        for (let i = 0; i < keys.length; i++) {
+            const k = keys[i];
+            if (!(k in inst)) {
+                inst[k] = proto[k].bind(inst);
+            }
         }
-        inst._zod.constr = _;
-        inst._zod.def = def;
     }
     // doesn't work if Parent has a constructor with arguments
     const Parent = params?.Parent ?? Object;
@@ -49209,6 +50190,13 @@ class $ZodAsyncError extends Error {
     }
 }
 exports.$ZodAsyncError = $ZodAsyncError;
+class $ZodEncodeError extends Error {
+    constructor(name) {
+        super(`Encountered unidirectional transform during encode: ${name}`);
+        this.name = "ZodEncodeError";
+    }
+}
+exports.$ZodEncodeError = $ZodEncodeError;
 exports.globalConfig = {};
 function config(newConfig) {
     if (newConfig)
@@ -49335,11 +50323,7 @@ function flattenError(error, mapper = (issue) => issue.message) {
     }
     return { formErrors, fieldErrors };
 }
-function formatError(error, _mapper) {
-    const mapper = _mapper ||
-        function (issue) {
-            return issue.message;
-        };
+function formatError(error, mapper = (issue) => issue.message) {
     const fieldErrors = { _errors: [] };
     const processError = (error) => {
         for (const issue of error.issues) {
@@ -49377,11 +50361,7 @@ function formatError(error, _mapper) {
     processError(error);
     return fieldErrors;
 }
-function treeifyError(error, _mapper) {
-    const mapper = _mapper ||
-        function (issue) {
-            return issue.message;
-        };
+function treeifyError(error, mapper = (issue) => issue.message) {
     const result = { errors: [] };
     const processError = (error, path = []) => {
         var _a, _b;
@@ -49495,116 +50475,6 @@ function prettifyError(error) {
 
 /***/ }),
 
-/***/ 3991:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.$ZodFunction = void 0;
-exports["function"] = _function;
-const api_js_1 = __nccwpck_require__(6377);
-const parse_js_1 = __nccwpck_require__(7360);
-const schemas = __importStar(__nccwpck_require__(4433));
-const schemas_js_1 = __nccwpck_require__(4433);
-class $ZodFunction {
-    constructor(def) {
-        this._def = def;
-        this.def = def;
-    }
-    implement(func) {
-        if (typeof func !== "function") {
-            throw new Error("implement() must be called with a function");
-        }
-        const impl = ((...args) => {
-            const parsedArgs = this._def.input ? (0, parse_js_1.parse)(this._def.input, args, undefined, { callee: impl }) : args;
-            if (!Array.isArray(parsedArgs)) {
-                throw new Error("Invalid arguments schema: not an array or tuple schema.");
-            }
-            const output = func(...parsedArgs);
-            return this._def.output ? (0, parse_js_1.parse)(this._def.output, output, undefined, { callee: impl }) : output;
-        });
-        return impl;
-    }
-    implementAsync(func) {
-        if (typeof func !== "function") {
-            throw new Error("implement() must be called with a function");
-        }
-        const impl = (async (...args) => {
-            const parsedArgs = this._def.input ? await (0, parse_js_1.parseAsync)(this._def.input, args, undefined, { callee: impl }) : args;
-            if (!Array.isArray(parsedArgs)) {
-                throw new Error("Invalid arguments schema: not an array or tuple schema.");
-            }
-            const output = await func(...parsedArgs);
-            return this._def.output ? (0, parse_js_1.parseAsync)(this._def.output, output, undefined, { callee: impl }) : output;
-        });
-        return impl;
-    }
-    input(...args) {
-        const F = this.constructor;
-        if (Array.isArray(args[0])) {
-            return new F({
-                type: "function",
-                input: new schemas_js_1.$ZodTuple({
-                    type: "tuple",
-                    items: args[0],
-                    rest: args[1],
-                }),
-                output: this._def.output,
-            });
-        }
-        return new F({
-            type: "function",
-            input: args[0],
-            output: this._def.output,
-        });
-    }
-    output(output) {
-        const F = this.constructor;
-        return new F({
-            type: "function",
-            input: this._def.input,
-            output,
-        });
-    }
-}
-exports.$ZodFunction = $ZodFunction;
-function _function(params) {
-    return new $ZodFunction({
-        type: "function",
-        input: Array.isArray(params?.input)
-            ? (0, api_js_1._tuple)(schemas.$ZodTuple, params?.input)
-            : (params?.input ?? (0, api_js_1._array)(schemas.$ZodArray, (0, api_js_1._unknown)(schemas.$ZodUnknown))),
-        output: params?.output ?? (0, api_js_1._unknown)(schemas.$ZodUnknown),
-    });
-}
-
-
-/***/ }),
-
 /***/ 8117:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -49637,7 +50507,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.JSONSchema = exports.locales = exports.regexes = exports.util = void 0;
+exports.JSONSchema = exports.JSONSchemaGenerator = exports.toJSONSchema = exports.locales = exports.regexes = exports.util = void 0;
 __exportStar(__nccwpck_require__(2990), exports);
 __exportStar(__nccwpck_require__(7360), exports);
 __exportStar(__nccwpck_require__(9686), exports);
@@ -49649,10 +50519,776 @@ exports.regexes = __importStar(__nccwpck_require__(5592));
 exports.locales = __importStar(__nccwpck_require__(995));
 __exportStar(__nccwpck_require__(1446), exports);
 __exportStar(__nccwpck_require__(5563), exports);
-__exportStar(__nccwpck_require__(3991), exports);
 __exportStar(__nccwpck_require__(6377), exports);
 __exportStar(__nccwpck_require__(7633), exports);
+var json_schema_processors_js_1 = __nccwpck_require__(9339);
+Object.defineProperty(exports, "toJSONSchema", ({ enumerable: true, get: function () { return json_schema_processors_js_1.toJSONSchema; } }));
+var json_schema_generator_js_1 = __nccwpck_require__(9131);
+Object.defineProperty(exports, "JSONSchemaGenerator", ({ enumerable: true, get: function () { return json_schema_generator_js_1.JSONSchemaGenerator; } }));
 exports.JSONSchema = __importStar(__nccwpck_require__(9539));
+
+
+/***/ }),
+
+/***/ 9131:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.JSONSchemaGenerator = void 0;
+const json_schema_processors_js_1 = __nccwpck_require__(9339);
+const to_json_schema_js_1 = __nccwpck_require__(7633);
+/**
+ * Legacy class-based interface for JSON Schema generation.
+ * This class wraps the new functional implementation to provide backward compatibility.
+ *
+ * @deprecated Use the `toJSONSchema` function instead for new code.
+ *
+ * @example
+ * ```typescript
+ * // Legacy usage (still supported)
+ * const gen = new JSONSchemaGenerator({ target: "draft-07" });
+ * gen.process(schema);
+ * const result = gen.emit(schema);
+ *
+ * // Preferred modern usage
+ * const result = toJSONSchema(schema, { target: "draft-07" });
+ * ```
+ */
+class JSONSchemaGenerator {
+    /** @deprecated Access via ctx instead */
+    get metadataRegistry() {
+        return this.ctx.metadataRegistry;
+    }
+    /** @deprecated Access via ctx instead */
+    get target() {
+        return this.ctx.target;
+    }
+    /** @deprecated Access via ctx instead */
+    get unrepresentable() {
+        return this.ctx.unrepresentable;
+    }
+    /** @deprecated Access via ctx instead */
+    get override() {
+        return this.ctx.override;
+    }
+    /** @deprecated Access via ctx instead */
+    get io() {
+        return this.ctx.io;
+    }
+    /** @deprecated Access via ctx instead */
+    get counter() {
+        return this.ctx.counter;
+    }
+    set counter(value) {
+        this.ctx.counter = value;
+    }
+    /** @deprecated Access via ctx instead */
+    get seen() {
+        return this.ctx.seen;
+    }
+    constructor(params) {
+        // Normalize target for internal context
+        let normalizedTarget = params?.target ?? "draft-2020-12";
+        if (normalizedTarget === "draft-4")
+            normalizedTarget = "draft-04";
+        if (normalizedTarget === "draft-7")
+            normalizedTarget = "draft-07";
+        this.ctx = (0, to_json_schema_js_1.initializeContext)({
+            processors: json_schema_processors_js_1.allProcessors,
+            target: normalizedTarget,
+            ...(params?.metadata && { metadata: params.metadata }),
+            ...(params?.unrepresentable && { unrepresentable: params.unrepresentable }),
+            ...(params?.override && { override: params.override }),
+            ...(params?.io && { io: params.io }),
+        });
+    }
+    /**
+     * Process a schema to prepare it for JSON Schema generation.
+     * This must be called before emit().
+     */
+    process(schema, _params = { path: [], schemaPath: [] }) {
+        return (0, to_json_schema_js_1.process)(schema, this.ctx, _params);
+    }
+    /**
+     * Emit the final JSON Schema after processing.
+     * Must call process() first.
+     */
+    emit(schema, _params) {
+        // Apply emit params to the context
+        if (_params) {
+            if (_params.cycles)
+                this.ctx.cycles = _params.cycles;
+            if (_params.reused)
+                this.ctx.reused = _params.reused;
+            if (_params.external)
+                this.ctx.external = _params.external;
+        }
+        (0, to_json_schema_js_1.extractDefs)(this.ctx, schema);
+        const result = (0, to_json_schema_js_1.finalize)(this.ctx, schema);
+        // Strip ~standard property to match old implementation's return type
+        const { "~standard": _, ...plainResult } = result;
+        return plainResult;
+    }
+}
+exports.JSONSchemaGenerator = JSONSchemaGenerator;
+
+
+/***/ }),
+
+/***/ 9339:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.allProcessors = exports.lazyProcessor = exports.optionalProcessor = exports.promiseProcessor = exports.readonlyProcessor = exports.pipeProcessor = exports.catchProcessor = exports.prefaultProcessor = exports.defaultProcessor = exports.nonoptionalProcessor = exports.nullableProcessor = exports.recordProcessor = exports.tupleProcessor = exports.intersectionProcessor = exports.unionProcessor = exports.objectProcessor = exports.arrayProcessor = exports.setProcessor = exports.mapProcessor = exports.transformProcessor = exports.functionProcessor = exports.customProcessor = exports.successProcessor = exports.fileProcessor = exports.templateLiteralProcessor = exports.nanProcessor = exports.literalProcessor = exports.enumProcessor = exports.dateProcessor = exports.unknownProcessor = exports.anyProcessor = exports.neverProcessor = exports.voidProcessor = exports.undefinedProcessor = exports.nullProcessor = exports.symbolProcessor = exports.bigintProcessor = exports.booleanProcessor = exports.numberProcessor = exports.stringProcessor = void 0;
+exports.toJSONSchema = toJSONSchema;
+const to_json_schema_js_1 = __nccwpck_require__(7633);
+const util_js_1 = __nccwpck_require__(1327);
+const formatMap = {
+    guid: "uuid",
+    url: "uri",
+    datetime: "date-time",
+    json_string: "json-string",
+    regex: "", // do not set
+};
+// ==================== SIMPLE TYPE PROCESSORS ====================
+const stringProcessor = (schema, ctx, _json, _params) => {
+    const json = _json;
+    json.type = "string";
+    const { minimum, maximum, format, patterns, contentEncoding } = schema._zod
+        .bag;
+    if (typeof minimum === "number")
+        json.minLength = minimum;
+    if (typeof maximum === "number")
+        json.maxLength = maximum;
+    // custom pattern overrides format
+    if (format) {
+        json.format = formatMap[format] ?? format;
+        if (json.format === "")
+            delete json.format; // empty format is not valid
+        // JSON Schema format: "time" requires a full time with offset or Z
+        // z.iso.time() does not include timezone information, so format: "time" should never be used
+        if (format === "time") {
+            delete json.format;
+        }
+    }
+    if (contentEncoding)
+        json.contentEncoding = contentEncoding;
+    if (patterns && patterns.size > 0) {
+        const regexes = [...patterns];
+        if (regexes.length === 1)
+            json.pattern = regexes[0].source;
+        else if (regexes.length > 1) {
+            json.allOf = [
+                ...regexes.map((regex) => ({
+                    ...(ctx.target === "draft-07" || ctx.target === "draft-04" || ctx.target === "openapi-3.0"
+                        ? { type: "string" }
+                        : {}),
+                    pattern: regex.source,
+                })),
+            ];
+        }
+    }
+};
+exports.stringProcessor = stringProcessor;
+const numberProcessor = (schema, ctx, _json, _params) => {
+    const json = _json;
+    const { minimum, maximum, format, multipleOf, exclusiveMaximum, exclusiveMinimum } = schema._zod.bag;
+    if (typeof format === "string" && format.includes("int"))
+        json.type = "integer";
+    else
+        json.type = "number";
+    if (typeof exclusiveMinimum === "number") {
+        if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
+            json.minimum = exclusiveMinimum;
+            json.exclusiveMinimum = true;
+        }
+        else {
+            json.exclusiveMinimum = exclusiveMinimum;
+        }
+    }
+    if (typeof minimum === "number") {
+        json.minimum = minimum;
+        if (typeof exclusiveMinimum === "number" && ctx.target !== "draft-04") {
+            if (exclusiveMinimum >= minimum)
+                delete json.minimum;
+            else
+                delete json.exclusiveMinimum;
+        }
+    }
+    if (typeof exclusiveMaximum === "number") {
+        if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
+            json.maximum = exclusiveMaximum;
+            json.exclusiveMaximum = true;
+        }
+        else {
+            json.exclusiveMaximum = exclusiveMaximum;
+        }
+    }
+    if (typeof maximum === "number") {
+        json.maximum = maximum;
+        if (typeof exclusiveMaximum === "number" && ctx.target !== "draft-04") {
+            if (exclusiveMaximum <= maximum)
+                delete json.maximum;
+            else
+                delete json.exclusiveMaximum;
+        }
+    }
+    if (typeof multipleOf === "number")
+        json.multipleOf = multipleOf;
+};
+exports.numberProcessor = numberProcessor;
+const booleanProcessor = (_schema, _ctx, json, _params) => {
+    json.type = "boolean";
+};
+exports.booleanProcessor = booleanProcessor;
+const bigintProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("BigInt cannot be represented in JSON Schema");
+    }
+};
+exports.bigintProcessor = bigintProcessor;
+const symbolProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Symbols cannot be represented in JSON Schema");
+    }
+};
+exports.symbolProcessor = symbolProcessor;
+const nullProcessor = (_schema, ctx, json, _params) => {
+    if (ctx.target === "openapi-3.0") {
+        json.type = "string";
+        json.nullable = true;
+        json.enum = [null];
+    }
+    else {
+        json.type = "null";
+    }
+};
+exports.nullProcessor = nullProcessor;
+const undefinedProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Undefined cannot be represented in JSON Schema");
+    }
+};
+exports.undefinedProcessor = undefinedProcessor;
+const voidProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Void cannot be represented in JSON Schema");
+    }
+};
+exports.voidProcessor = voidProcessor;
+const neverProcessor = (_schema, _ctx, json, _params) => {
+    json.not = {};
+};
+exports.neverProcessor = neverProcessor;
+const anyProcessor = (_schema, _ctx, _json, _params) => {
+    // empty schema accepts anything
+};
+exports.anyProcessor = anyProcessor;
+const unknownProcessor = (_schema, _ctx, _json, _params) => {
+    // empty schema accepts anything
+};
+exports.unknownProcessor = unknownProcessor;
+const dateProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Date cannot be represented in JSON Schema");
+    }
+};
+exports.dateProcessor = dateProcessor;
+const enumProcessor = (schema, _ctx, json, _params) => {
+    const def = schema._zod.def;
+    const values = (0, util_js_1.getEnumValues)(def.entries);
+    // Number enums can have both string and number values
+    if (values.every((v) => typeof v === "number"))
+        json.type = "number";
+    if (values.every((v) => typeof v === "string"))
+        json.type = "string";
+    json.enum = values;
+};
+exports.enumProcessor = enumProcessor;
+const literalProcessor = (schema, ctx, json, _params) => {
+    const def = schema._zod.def;
+    const vals = [];
+    for (const val of def.values) {
+        if (val === undefined) {
+            if (ctx.unrepresentable === "throw") {
+                throw new Error("Literal `undefined` cannot be represented in JSON Schema");
+            }
+            else {
+                // do not add to vals
+            }
+        }
+        else if (typeof val === "bigint") {
+            if (ctx.unrepresentable === "throw") {
+                throw new Error("BigInt literals cannot be represented in JSON Schema");
+            }
+            else {
+                vals.push(Number(val));
+            }
+        }
+        else {
+            vals.push(val);
+        }
+    }
+    if (vals.length === 0) {
+        // do nothing (an undefined literal was stripped)
+    }
+    else if (vals.length === 1) {
+        const val = vals[0];
+        json.type = val === null ? "null" : typeof val;
+        if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
+            json.enum = [val];
+        }
+        else {
+            json.const = val;
+        }
+    }
+    else {
+        if (vals.every((v) => typeof v === "number"))
+            json.type = "number";
+        if (vals.every((v) => typeof v === "string"))
+            json.type = "string";
+        if (vals.every((v) => typeof v === "boolean"))
+            json.type = "boolean";
+        if (vals.every((v) => v === null))
+            json.type = "null";
+        json.enum = vals;
+    }
+};
+exports.literalProcessor = literalProcessor;
+const nanProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("NaN cannot be represented in JSON Schema");
+    }
+};
+exports.nanProcessor = nanProcessor;
+const templateLiteralProcessor = (schema, _ctx, json, _params) => {
+    const _json = json;
+    const pattern = schema._zod.pattern;
+    if (!pattern)
+        throw new Error("Pattern not found in template literal");
+    _json.type = "string";
+    _json.pattern = pattern.source;
+};
+exports.templateLiteralProcessor = templateLiteralProcessor;
+const fileProcessor = (schema, _ctx, json, _params) => {
+    const _json = json;
+    const file = {
+        type: "string",
+        format: "binary",
+        contentEncoding: "binary",
+    };
+    const { minimum, maximum, mime } = schema._zod.bag;
+    if (minimum !== undefined)
+        file.minLength = minimum;
+    if (maximum !== undefined)
+        file.maxLength = maximum;
+    if (mime) {
+        if (mime.length === 1) {
+            file.contentMediaType = mime[0];
+            Object.assign(_json, file);
+        }
+        else {
+            Object.assign(_json, file); // shared props at root
+            _json.anyOf = mime.map((m) => ({ contentMediaType: m })); // only contentMediaType differs
+        }
+    }
+    else {
+        Object.assign(_json, file);
+    }
+};
+exports.fileProcessor = fileProcessor;
+const successProcessor = (_schema, _ctx, json, _params) => {
+    json.type = "boolean";
+};
+exports.successProcessor = successProcessor;
+const customProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Custom types cannot be represented in JSON Schema");
+    }
+};
+exports.customProcessor = customProcessor;
+const functionProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Function types cannot be represented in JSON Schema");
+    }
+};
+exports.functionProcessor = functionProcessor;
+const transformProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Transforms cannot be represented in JSON Schema");
+    }
+};
+exports.transformProcessor = transformProcessor;
+const mapProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Map cannot be represented in JSON Schema");
+    }
+};
+exports.mapProcessor = mapProcessor;
+const setProcessor = (_schema, ctx, _json, _params) => {
+    if (ctx.unrepresentable === "throw") {
+        throw new Error("Set cannot be represented in JSON Schema");
+    }
+};
+exports.setProcessor = setProcessor;
+// ==================== COMPOSITE TYPE PROCESSORS ====================
+const arrayProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    const { minimum, maximum } = schema._zod.bag;
+    if (typeof minimum === "number")
+        json.minItems = minimum;
+    if (typeof maximum === "number")
+        json.maxItems = maximum;
+    json.type = "array";
+    json.items = (0, to_json_schema_js_1.process)(def.element, ctx, { ...params, path: [...params.path, "items"] });
+};
+exports.arrayProcessor = arrayProcessor;
+const objectProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    json.type = "object";
+    json.properties = {};
+    const shape = def.shape;
+    for (const key in shape) {
+        json.properties[key] = (0, to_json_schema_js_1.process)(shape[key], ctx, {
+            ...params,
+            path: [...params.path, "properties", key],
+        });
+    }
+    // required keys
+    const allKeys = new Set(Object.keys(shape));
+    const requiredKeys = new Set([...allKeys].filter((key) => {
+        const v = def.shape[key]._zod;
+        if (ctx.io === "input") {
+            return v.optin === undefined;
+        }
+        else {
+            return v.optout === undefined;
+        }
+    }));
+    if (requiredKeys.size > 0) {
+        json.required = Array.from(requiredKeys);
+    }
+    // catchall
+    if (def.catchall?._zod.def.type === "never") {
+        // strict
+        json.additionalProperties = false;
+    }
+    else if (!def.catchall) {
+        // regular
+        if (ctx.io === "output")
+            json.additionalProperties = false;
+    }
+    else if (def.catchall) {
+        json.additionalProperties = (0, to_json_schema_js_1.process)(def.catchall, ctx, {
+            ...params,
+            path: [...params.path, "additionalProperties"],
+        });
+    }
+};
+exports.objectProcessor = objectProcessor;
+const unionProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    // Exclusive unions (inclusive === false) use oneOf (exactly one match) instead of anyOf (one or more matches)
+    // This includes both z.xor() and discriminated unions
+    const isExclusive = def.inclusive === false;
+    const options = def.options.map((x, i) => (0, to_json_schema_js_1.process)(x, ctx, {
+        ...params,
+        path: [...params.path, isExclusive ? "oneOf" : "anyOf", i],
+    }));
+    if (isExclusive) {
+        json.oneOf = options;
+    }
+    else {
+        json.anyOf = options;
+    }
+};
+exports.unionProcessor = unionProcessor;
+const intersectionProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    const a = (0, to_json_schema_js_1.process)(def.left, ctx, {
+        ...params,
+        path: [...params.path, "allOf", 0],
+    });
+    const b = (0, to_json_schema_js_1.process)(def.right, ctx, {
+        ...params,
+        path: [...params.path, "allOf", 1],
+    });
+    const isSimpleIntersection = (val) => "allOf" in val && Object.keys(val).length === 1;
+    const allOf = [
+        ...(isSimpleIntersection(a) ? a.allOf : [a]),
+        ...(isSimpleIntersection(b) ? b.allOf : [b]),
+    ];
+    json.allOf = allOf;
+};
+exports.intersectionProcessor = intersectionProcessor;
+const tupleProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    json.type = "array";
+    const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
+    const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
+    const prefixItems = def.items.map((x, i) => (0, to_json_schema_js_1.process)(x, ctx, {
+        ...params,
+        path: [...params.path, prefixPath, i],
+    }));
+    const rest = def.rest
+        ? (0, to_json_schema_js_1.process)(def.rest, ctx, {
+            ...params,
+            path: [...params.path, restPath, ...(ctx.target === "openapi-3.0" ? [def.items.length] : [])],
+        })
+        : null;
+    if (ctx.target === "draft-2020-12") {
+        json.prefixItems = prefixItems;
+        if (rest) {
+            json.items = rest;
+        }
+    }
+    else if (ctx.target === "openapi-3.0") {
+        json.items = {
+            anyOf: prefixItems,
+        };
+        if (rest) {
+            json.items.anyOf.push(rest);
+        }
+        json.minItems = prefixItems.length;
+        if (!rest) {
+            json.maxItems = prefixItems.length;
+        }
+    }
+    else {
+        json.items = prefixItems;
+        if (rest) {
+            json.additionalItems = rest;
+        }
+    }
+    // length
+    const { minimum, maximum } = schema._zod.bag;
+    if (typeof minimum === "number")
+        json.minItems = minimum;
+    if (typeof maximum === "number")
+        json.maxItems = maximum;
+};
+exports.tupleProcessor = tupleProcessor;
+const recordProcessor = (schema, ctx, _json, params) => {
+    const json = _json;
+    const def = schema._zod.def;
+    json.type = "object";
+    // For looseRecord with regex patterns, use patternProperties
+    // This correctly represents "only validate keys matching the pattern" semantics
+    // and composes well with allOf (intersections)
+    const keyType = def.keyType;
+    const keyBag = keyType._zod.bag;
+    const patterns = keyBag?.patterns;
+    if (def.mode === "loose" && patterns && patterns.size > 0) {
+        // Use patternProperties for looseRecord with regex patterns
+        const valueSchema = (0, to_json_schema_js_1.process)(def.valueType, ctx, {
+            ...params,
+            path: [...params.path, "patternProperties", "*"],
+        });
+        json.patternProperties = {};
+        for (const pattern of patterns) {
+            json.patternProperties[pattern.source] = valueSchema;
+        }
+    }
+    else {
+        // Default behavior: use propertyNames + additionalProperties
+        if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
+            json.propertyNames = (0, to_json_schema_js_1.process)(def.keyType, ctx, {
+                ...params,
+                path: [...params.path, "propertyNames"],
+            });
+        }
+        json.additionalProperties = (0, to_json_schema_js_1.process)(def.valueType, ctx, {
+            ...params,
+            path: [...params.path, "additionalProperties"],
+        });
+    }
+    // Add required for keys with discrete values (enum, literal, etc.)
+    const keyValues = keyType._zod.values;
+    if (keyValues) {
+        const validKeyValues = [...keyValues].filter((v) => typeof v === "string" || typeof v === "number");
+        if (validKeyValues.length > 0) {
+            json.required = validKeyValues;
+        }
+    }
+};
+exports.recordProcessor = recordProcessor;
+const nullableProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    const inner = (0, to_json_schema_js_1.process)(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    if (ctx.target === "openapi-3.0") {
+        seen.ref = def.innerType;
+        json.nullable = true;
+    }
+    else {
+        json.anyOf = [inner, { type: "null" }];
+    }
+};
+exports.nullableProcessor = nullableProcessor;
+const nonoptionalProcessor = (schema, ctx, _json, params) => {
+    const def = schema._zod.def;
+    (0, to_json_schema_js_1.process)(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+};
+exports.nonoptionalProcessor = nonoptionalProcessor;
+const defaultProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    (0, to_json_schema_js_1.process)(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+    json.default = JSON.parse(JSON.stringify(def.defaultValue));
+};
+exports.defaultProcessor = defaultProcessor;
+const prefaultProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    (0, to_json_schema_js_1.process)(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+    if (ctx.io === "input")
+        json._prefault = JSON.parse(JSON.stringify(def.defaultValue));
+};
+exports.prefaultProcessor = prefaultProcessor;
+const catchProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    (0, to_json_schema_js_1.process)(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+    let catchValue;
+    try {
+        catchValue = def.catchValue(undefined);
+    }
+    catch {
+        throw new Error("Dynamic catch values are not supported in JSON Schema");
+    }
+    json.default = catchValue;
+};
+exports.catchProcessor = catchProcessor;
+const pipeProcessor = (schema, ctx, _json, params) => {
+    const def = schema._zod.def;
+    const innerType = ctx.io === "input" ? (def.in._zod.def.type === "transform" ? def.out : def.in) : def.out;
+    (0, to_json_schema_js_1.process)(innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = innerType;
+};
+exports.pipeProcessor = pipeProcessor;
+const readonlyProcessor = (schema, ctx, json, params) => {
+    const def = schema._zod.def;
+    (0, to_json_schema_js_1.process)(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+    json.readOnly = true;
+};
+exports.readonlyProcessor = readonlyProcessor;
+const promiseProcessor = (schema, ctx, _json, params) => {
+    const def = schema._zod.def;
+    (0, to_json_schema_js_1.process)(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+};
+exports.promiseProcessor = promiseProcessor;
+const optionalProcessor = (schema, ctx, _json, params) => {
+    const def = schema._zod.def;
+    (0, to_json_schema_js_1.process)(def.innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = def.innerType;
+};
+exports.optionalProcessor = optionalProcessor;
+const lazyProcessor = (schema, ctx, _json, params) => {
+    const innerType = schema._zod.innerType;
+    (0, to_json_schema_js_1.process)(innerType, ctx, params);
+    const seen = ctx.seen.get(schema);
+    seen.ref = innerType;
+};
+exports.lazyProcessor = lazyProcessor;
+// ==================== ALL PROCESSORS ====================
+exports.allProcessors = {
+    string: exports.stringProcessor,
+    number: exports.numberProcessor,
+    boolean: exports.booleanProcessor,
+    bigint: exports.bigintProcessor,
+    symbol: exports.symbolProcessor,
+    null: exports.nullProcessor,
+    undefined: exports.undefinedProcessor,
+    void: exports.voidProcessor,
+    never: exports.neverProcessor,
+    any: exports.anyProcessor,
+    unknown: exports.unknownProcessor,
+    date: exports.dateProcessor,
+    enum: exports.enumProcessor,
+    literal: exports.literalProcessor,
+    nan: exports.nanProcessor,
+    template_literal: exports.templateLiteralProcessor,
+    file: exports.fileProcessor,
+    success: exports.successProcessor,
+    custom: exports.customProcessor,
+    function: exports.functionProcessor,
+    transform: exports.transformProcessor,
+    map: exports.mapProcessor,
+    set: exports.setProcessor,
+    array: exports.arrayProcessor,
+    object: exports.objectProcessor,
+    union: exports.unionProcessor,
+    intersection: exports.intersectionProcessor,
+    tuple: exports.tupleProcessor,
+    record: exports.recordProcessor,
+    nullable: exports.nullableProcessor,
+    nonoptional: exports.nonoptionalProcessor,
+    default: exports.defaultProcessor,
+    prefault: exports.prefaultProcessor,
+    catch: exports.catchProcessor,
+    pipe: exports.pipeProcessor,
+    readonly: exports.readonlyProcessor,
+    promise: exports.promiseProcessor,
+    optional: exports.optionalProcessor,
+    lazy: exports.lazyProcessor,
+};
+function toJSONSchema(input, params) {
+    if ("_idmap" in input) {
+        // Registry case
+        const registry = input;
+        const ctx = (0, to_json_schema_js_1.initializeContext)({ ...params, processors: exports.allProcessors });
+        const defs = {};
+        // First pass: process all schemas to build the seen map
+        for (const entry of registry._idmap.entries()) {
+            const [_, schema] = entry;
+            (0, to_json_schema_js_1.process)(schema, ctx);
+        }
+        const schemas = {};
+        const external = {
+            registry,
+            uri: params?.uri,
+            defs,
+        };
+        // Update the context with external configuration
+        ctx.external = external;
+        // Second pass: emit each schema
+        for (const entry of registry._idmap.entries()) {
+            const [key, schema] = entry;
+            (0, to_json_schema_js_1.extractDefs)(ctx, schema);
+            schemas[key] = (0, to_json_schema_js_1.finalize)(ctx, schema);
+        }
+        if (Object.keys(defs).length > 0) {
+            const defsSegment = ctx.target === "draft-2020-12" ? "$defs" : "definitions";
+            schemas.__shared = {
+                [defsSegment]: defs,
+            };
+        }
+        return { schemas };
+    }
+    // Single schema case
+    const ctx = (0, to_json_schema_js_1.initializeContext)({ ...params, processors: exports.allProcessors });
+    (0, to_json_schema_js_1.process)(input, ctx);
+    (0, to_json_schema_js_1.extractDefs)(ctx, input);
+    return (0, to_json_schema_js_1.finalize)(ctx, input);
+}
 
 
 /***/ }),
@@ -49696,7 +51332,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.safeParseAsync = exports._safeParseAsync = exports.safeParse = exports._safeParse = exports.parseAsync = exports._parseAsync = exports.parse = exports._parse = void 0;
+exports.safeDecodeAsync = exports._safeDecodeAsync = exports.safeEncodeAsync = exports._safeEncodeAsync = exports.safeDecode = exports._safeDecode = exports.safeEncode = exports._safeEncode = exports.decodeAsync = exports._decodeAsync = exports.encodeAsync = exports._encodeAsync = exports.decode = exports._decode = exports.encode = exports._encode = exports.safeParseAsync = exports._safeParseAsync = exports.safeParse = exports._safeParse = exports.parseAsync = exports._parseAsync = exports.parse = exports._parse = void 0;
 const core = __importStar(__nccwpck_require__(2990));
 const errors = __importStar(__nccwpck_require__(9686));
 const util = __importStar(__nccwpck_require__(1327));
@@ -49758,20 +51394,89 @@ const _safeParseAsync = (_Err) => async (schema, value, _ctx) => {
 };
 exports._safeParseAsync = _safeParseAsync;
 exports.safeParseAsync = (0, exports._safeParseAsync)(errors.$ZodRealError);
+const _encode = (_Err) => (schema, value, _ctx) => {
+    const ctx = _ctx ? Object.assign(_ctx, { direction: "backward" }) : { direction: "backward" };
+    return (0, exports._parse)(_Err)(schema, value, ctx);
+};
+exports._encode = _encode;
+exports.encode = (0, exports._encode)(errors.$ZodRealError);
+const _decode = (_Err) => (schema, value, _ctx) => {
+    return (0, exports._parse)(_Err)(schema, value, _ctx);
+};
+exports._decode = _decode;
+exports.decode = (0, exports._decode)(errors.$ZodRealError);
+const _encodeAsync = (_Err) => async (schema, value, _ctx) => {
+    const ctx = _ctx ? Object.assign(_ctx, { direction: "backward" }) : { direction: "backward" };
+    return (0, exports._parseAsync)(_Err)(schema, value, ctx);
+};
+exports._encodeAsync = _encodeAsync;
+exports.encodeAsync = (0, exports._encodeAsync)(errors.$ZodRealError);
+const _decodeAsync = (_Err) => async (schema, value, _ctx) => {
+    return (0, exports._parseAsync)(_Err)(schema, value, _ctx);
+};
+exports._decodeAsync = _decodeAsync;
+exports.decodeAsync = (0, exports._decodeAsync)(errors.$ZodRealError);
+const _safeEncode = (_Err) => (schema, value, _ctx) => {
+    const ctx = _ctx ? Object.assign(_ctx, { direction: "backward" }) : { direction: "backward" };
+    return (0, exports._safeParse)(_Err)(schema, value, ctx);
+};
+exports._safeEncode = _safeEncode;
+exports.safeEncode = (0, exports._safeEncode)(errors.$ZodRealError);
+const _safeDecode = (_Err) => (schema, value, _ctx) => {
+    return (0, exports._safeParse)(_Err)(schema, value, _ctx);
+};
+exports._safeDecode = _safeDecode;
+exports.safeDecode = (0, exports._safeDecode)(errors.$ZodRealError);
+const _safeEncodeAsync = (_Err) => async (schema, value, _ctx) => {
+    const ctx = _ctx ? Object.assign(_ctx, { direction: "backward" }) : { direction: "backward" };
+    return (0, exports._safeParseAsync)(_Err)(schema, value, ctx);
+};
+exports._safeEncodeAsync = _safeEncodeAsync;
+exports.safeEncodeAsync = (0, exports._safeEncodeAsync)(errors.$ZodRealError);
+const _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
+    return (0, exports._safeParseAsync)(_Err)(schema, value, _ctx);
+};
+exports._safeDecodeAsync = _safeDecodeAsync;
+exports.safeDecodeAsync = (0, exports._safeDecodeAsync)(errors.$ZodRealError);
 
 
 /***/ }),
 
 /***/ 5592:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.uppercase = exports.lowercase = exports.undefined = exports["null"] = exports.boolean = exports.number = exports.integer = exports.bigint = exports.string = exports.date = exports.e164 = exports.domain = exports.hostname = exports.base64url = exports.base64 = exports.cidrv6 = exports.cidrv4 = exports.ipv6 = exports.ipv4 = exports.browserEmail = exports.idnEmail = exports.unicodeEmail = exports.rfc5322Email = exports.html5Email = exports.email = exports.uuid7 = exports.uuid6 = exports.uuid4 = exports.uuid = exports.guid = exports.extendedDuration = exports.duration = exports.nanoid = exports.ksuid = exports.xid = exports.ulid = exports.cuid2 = exports.cuid = void 0;
+exports.sha384_hex = exports.sha256_base64url = exports.sha256_base64 = exports.sha256_hex = exports.sha1_base64url = exports.sha1_base64 = exports.sha1_hex = exports.md5_base64url = exports.md5_base64 = exports.md5_hex = exports.hex = exports.uppercase = exports.lowercase = exports.undefined = exports["null"] = exports.boolean = exports.number = exports.integer = exports.bigint = exports.string = exports.date = exports.e164 = exports.domain = exports.hostname = exports.base64url = exports.base64 = exports.cidrv6 = exports.cidrv4 = exports.mac = exports.ipv6 = exports.ipv4 = exports.browserEmail = exports.idnEmail = exports.unicodeEmail = exports.rfc5322Email = exports.html5Email = exports.email = exports.uuid7 = exports.uuid6 = exports.uuid4 = exports.uuid = exports.guid = exports.extendedDuration = exports.duration = exports.nanoid = exports.ksuid = exports.xid = exports.ulid = exports.cuid2 = exports.cuid = void 0;
+exports.sha512_base64url = exports.sha512_base64 = exports.sha512_hex = exports.sha384_base64url = exports.sha384_base64 = void 0;
 exports.emoji = emoji;
 exports.time = time;
 exports.datetime = datetime;
+const util = __importStar(__nccwpck_require__(1327));
 exports.cuid = /^[cC][^\s-]{8,}$/;
 exports.cuid2 = /^[0-9a-z]+$/;
 exports.ulid = /^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/;
@@ -49789,7 +51494,7 @@ exports.guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0
  * @param version Optionally specify a version 1-8. If no version is specified, all versions are supported. */
 const uuid = (version) => {
     if (!version)
-        return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$/;
+        return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/;
     return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
 };
 exports.uuid = uuid;
@@ -49804,7 +51509,7 @@ exports.html5Email = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9
 exports.rfc5322Email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 /** A loose regex that allows Unicode characters, enforces length limits, and that's about it. */
 exports.unicodeEmail = /^[^\s@"]{1,64}@[^\s@]{1,255}$/u;
-exports.idnEmail = /^[^\s@"]{1,64}@[^\s@]{1,255}$/u;
+exports.idnEmail = exports.unicodeEmail;
 exports.browserEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 // from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
 const _emoji = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
@@ -49812,7 +51517,12 @@ function emoji() {
     return new RegExp(_emoji, "u");
 }
 exports.ipv4 = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
-exports.ipv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})$/;
+exports.ipv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))$/;
+const mac = (delimiter) => {
+    const escapedDelim = util.escapeRegex(delimiter ?? ":");
+    return new RegExp(`^(?:[0-9A-F]{2}${escapedDelim}){5}[0-9A-F]{2}$|^(?:[0-9a-f]{2}${escapedDelim}){5}[0-9a-f]{2}$`);
+};
+exports.mac = mac;
 exports.cidrv4 = /^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/([0-9]|[1-2][0-9]|3[0-2])$/;
 exports.cidrv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
 // https://stackoverflow.com/questions/7860392/determine-if-string-is-in-base64-using-javascript
@@ -49823,7 +51533,8 @@ exports.base64url = /^[A-Za-z0-9_-]*$/;
 exports.hostname = /^(?=.{1,253}\.?$)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[-0-9a-zA-Z]{0,61}[0-9a-zA-Z])?)*\.?$/;
 exports.domain = /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 // https://blog.stevenlevithan.com/archives/validate-phone-number#r4-3 (regex sans spaces)
-exports.e164 = /^\+(?:[0-9]){6,14}[0-9]$/;
+// E.164: leading digit must be 1-9; total digits (excluding '+') between 7-15
+exports.e164 = /^\+[1-9]\d{6,14}$/;
 // const dateSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
 const dateSource = `(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))`;
 exports.date = new RegExp(`^${dateSource}$`);
@@ -49858,18 +51569,49 @@ const string = (params) => {
     return new RegExp(`^${regex}$`);
 };
 exports.string = string;
-exports.bigint = /^\d+n?$/;
-exports.integer = /^\d+$/;
-exports.number = /^-?\d+(?:\.\d+)?/i;
-exports.boolean = /true|false/i;
-const _null = /null/i;
+exports.bigint = /^-?\d+n?$/;
+exports.integer = /^-?\d+$/;
+exports.number = /^-?\d+(?:\.\d+)?$/;
+exports.boolean = /^(?:true|false)$/i;
+const _null = /^null$/i;
 exports["null"] = _null;
-const _undefined = /undefined/i;
+const _undefined = /^undefined$/i;
 exports.undefined = _undefined;
 // regex for string with no uppercase letters
 exports.lowercase = /^[^A-Z]*$/;
 // regex for string with no lowercase letters
 exports.uppercase = /^[^a-z]*$/;
+// regex for hexadecimal strings (any length)
+exports.hex = /^[0-9a-fA-F]*$/;
+// Hash regexes for different algorithms and encodings
+// Helper function to create base64 regex with exact length and padding
+function fixedBase64(bodyLength, padding) {
+    return new RegExp(`^[A-Za-z0-9+/]{${bodyLength}}${padding}$`);
+}
+// Helper function to create base64url regex with exact length (no padding)
+function fixedBase64url(length) {
+    return new RegExp(`^[A-Za-z0-9_-]{${length}}$`);
+}
+// MD5 (16 bytes): base64 = 24 chars total (22 + "==")
+exports.md5_hex = /^[0-9a-fA-F]{32}$/;
+exports.md5_base64 = fixedBase64(22, "==");
+exports.md5_base64url = fixedBase64url(22);
+// SHA1 (20 bytes): base64 = 28 chars total (27 + "=")
+exports.sha1_hex = /^[0-9a-fA-F]{40}$/;
+exports.sha1_base64 = fixedBase64(27, "=");
+exports.sha1_base64url = fixedBase64url(27);
+// SHA256 (32 bytes): base64 = 44 chars total (43 + "=")
+exports.sha256_hex = /^[0-9a-fA-F]{64}$/;
+exports.sha256_base64 = fixedBase64(43, "=");
+exports.sha256_base64url = fixedBase64url(43);
+// SHA384 (48 bytes): base64 = 64 chars total (no padding)
+exports.sha384_hex = /^[0-9a-fA-F]{96}$/;
+exports.sha384_base64 = fixedBase64(64, "");
+exports.sha384_base64url = fixedBase64url(64);
+// SHA512 (64 bytes): base64 = 88 chars total (86 + "==")
+exports.sha512_hex = /^[0-9a-fA-F]{128}$/;
+exports.sha512_base64 = fixedBase64(86, "==");
+exports.sha512_base64url = fixedBase64url(86);
 
 
 /***/ }),
@@ -49879,6 +51621,7 @@ exports.uppercase = /^[^a-z]*$/;
 
 "use strict";
 
+var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.globalRegistry = exports.$ZodRegistry = exports.$input = exports.$output = void 0;
 exports.registry = registry;
@@ -49886,22 +51629,19 @@ exports.$output = Symbol("ZodOutput");
 exports.$input = Symbol("ZodInput");
 class $ZodRegistry {
     constructor() {
-        this._map = new Map();
+        this._map = new WeakMap();
         this._idmap = new Map();
     }
     add(schema, ..._meta) {
         const meta = _meta[0];
         this._map.set(schema, meta);
         if (meta && typeof meta === "object" && "id" in meta) {
-            if (this._idmap.has(meta.id)) {
-                throw new Error(`ID ${meta.id} already exists in the registry`);
-            }
             this._idmap.set(meta.id, schema);
         }
         return this;
     }
     clear() {
-        this._map = new Map();
+        this._map = new WeakMap();
         this._idmap = new Map();
         return this;
     }
@@ -49934,7 +51674,8 @@ exports.$ZodRegistry = $ZodRegistry;
 function registry() {
     return new $ZodRegistry();
 }
-exports.globalRegistry = registry();
+(_a = globalThis).__zod_globalRegistry ?? (_a.__zod_globalRegistry = registry());
+exports.globalRegistry = globalThis.__zod_globalRegistry;
 
 
 /***/ }),
@@ -49968,8 +51709,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.$ZodSet = exports.$ZodMap = exports.$ZodRecord = exports.$ZodTuple = exports.$ZodIntersection = exports.$ZodDiscriminatedUnion = exports.$ZodUnion = exports.$ZodObject = exports.$ZodArray = exports.$ZodDate = exports.$ZodVoid = exports.$ZodNever = exports.$ZodUnknown = exports.$ZodAny = exports.$ZodNull = exports.$ZodUndefined = exports.$ZodSymbol = exports.$ZodBigIntFormat = exports.$ZodBigInt = exports.$ZodBoolean = exports.$ZodNumberFormat = exports.$ZodNumber = exports.$ZodCustomStringFormat = exports.$ZodJWT = exports.$ZodE164 = exports.$ZodBase64URL = exports.$ZodBase64 = exports.$ZodCIDRv6 = exports.$ZodCIDRv4 = exports.$ZodIPv6 = exports.$ZodIPv4 = exports.$ZodISODuration = exports.$ZodISOTime = exports.$ZodISODate = exports.$ZodISODateTime = exports.$ZodKSUID = exports.$ZodXID = exports.$ZodULID = exports.$ZodCUID2 = exports.$ZodCUID = exports.$ZodNanoID = exports.$ZodEmoji = exports.$ZodURL = exports.$ZodEmail = exports.$ZodUUID = exports.$ZodGUID = exports.$ZodStringFormat = exports.$ZodString = exports.clone = exports.$ZodType = void 0;
-exports.$ZodCustom = exports.$ZodLazy = exports.$ZodPromise = exports.$ZodTemplateLiteral = exports.$ZodReadonly = exports.$ZodPipe = exports.$ZodNaN = exports.$ZodCatch = exports.$ZodSuccess = exports.$ZodNonOptional = exports.$ZodPrefault = exports.$ZodDefault = exports.$ZodNullable = exports.$ZodOptional = exports.$ZodTransform = exports.$ZodFile = exports.$ZodLiteral = exports.$ZodEnum = void 0;
+exports.$ZodTuple = exports.$ZodIntersection = exports.$ZodDiscriminatedUnion = exports.$ZodXor = exports.$ZodUnion = exports.$ZodObjectJIT = exports.$ZodObject = exports.$ZodArray = exports.$ZodDate = exports.$ZodVoid = exports.$ZodNever = exports.$ZodUnknown = exports.$ZodAny = exports.$ZodNull = exports.$ZodUndefined = exports.$ZodSymbol = exports.$ZodBigIntFormat = exports.$ZodBigInt = exports.$ZodBoolean = exports.$ZodNumberFormat = exports.$ZodNumber = exports.$ZodCustomStringFormat = exports.$ZodJWT = exports.$ZodE164 = exports.$ZodBase64URL = exports.$ZodBase64 = exports.$ZodCIDRv6 = exports.$ZodCIDRv4 = exports.$ZodMAC = exports.$ZodIPv6 = exports.$ZodIPv4 = exports.$ZodISODuration = exports.$ZodISOTime = exports.$ZodISODate = exports.$ZodISODateTime = exports.$ZodKSUID = exports.$ZodXID = exports.$ZodULID = exports.$ZodCUID2 = exports.$ZodCUID = exports.$ZodNanoID = exports.$ZodEmoji = exports.$ZodURL = exports.$ZodEmail = exports.$ZodUUID = exports.$ZodGUID = exports.$ZodStringFormat = exports.$ZodString = exports.clone = exports.$ZodType = void 0;
+exports.$ZodCustom = exports.$ZodLazy = exports.$ZodPromise = exports.$ZodFunction = exports.$ZodTemplateLiteral = exports.$ZodReadonly = exports.$ZodCodec = exports.$ZodPipe = exports.$ZodNaN = exports.$ZodCatch = exports.$ZodSuccess = exports.$ZodNonOptional = exports.$ZodPrefault = exports.$ZodDefault = exports.$ZodNullable = exports.$ZodExactOptional = exports.$ZodOptional = exports.$ZodTransform = exports.$ZodFile = exports.$ZodLiteral = exports.$ZodEnum = exports.$ZodSet = exports.$ZodMap = exports.$ZodRecord = void 0;
 exports.isValidBase64 = isValidBase64;
 exports.isValidBase64URL = isValidBase64URL;
 exports.isValidJWT = isValidJWT;
@@ -49991,7 +51732,6 @@ exports.$ZodType = core.$constructor("$ZodType", (inst, def) => {
     if (inst._zod.traits.has("$ZodCheck")) {
         checks.unshift(inst);
     }
-    //
     for (const ch of checks) {
         for (const fn of ch._zod.onattach) {
             fn(inst);
@@ -50048,7 +51788,37 @@ exports.$ZodType = core.$constructor("$ZodType", (inst, def) => {
             }
             return payload;
         };
+        const handleCanaryResult = (canary, payload, ctx) => {
+            // abort if the canary is aborted
+            if (util.aborted(canary)) {
+                canary.aborted = true;
+                return canary;
+            }
+            // run checks first, then
+            const checkResult = runChecks(payload, checks, ctx);
+            if (checkResult instanceof Promise) {
+                if (ctx.async === false)
+                    throw new core.$ZodAsyncError();
+                return checkResult.then((checkResult) => inst._zod.parse(checkResult, ctx));
+            }
+            return inst._zod.parse(checkResult, ctx);
+        };
         inst._zod.run = (payload, ctx) => {
+            if (ctx.skipChecks) {
+                return inst._zod.parse(payload, ctx);
+            }
+            if (ctx.direction === "backward") {
+                // run canary
+                // initial pass (no checks)
+                const canary = inst._zod.parse({ value: payload.value, issues: [] }, { ...ctx, skipChecks: true });
+                if (canary instanceof Promise) {
+                    return canary.then((canary) => {
+                        return handleCanaryResult(canary, payload, ctx);
+                    });
+                }
+                return handleCanaryResult(canary, payload, ctx);
+            }
+            // forward
             const result = inst._zod.parse(payload, ctx);
             if (result instanceof Promise) {
                 if (ctx.async === false)
@@ -50058,7 +51828,8 @@ exports.$ZodType = core.$constructor("$ZodType", (inst, def) => {
             return runChecks(result, checks, ctx);
         };
     }
-    inst["~standard"] = {
+    // Lazy initialize ~standard to avoid creating objects for every schema
+    util.defineLazy(inst, "~standard", () => ({
         validate: (value) => {
             try {
                 const r = (0, parse_js_1.safeParse)(inst, value);
@@ -50070,7 +51841,7 @@ exports.$ZodType = core.$constructor("$ZodType", (inst, def) => {
         },
         vendor: "zod",
         version: 1,
-    };
+    }));
 });
 var util_js_1 = __nccwpck_require__(1327);
 Object.defineProperty(exports, "clone", ({ enumerable: true, get: function () { return util_js_1.clone; } }));
@@ -50143,7 +51914,7 @@ exports.$ZodURL = core.$constructor("$ZodURL", (inst, def) => {
                         code: "invalid_format",
                         format: "url",
                         note: "Invalid hostname",
-                        pattern: regexes.hostname.source,
+                        pattern: def.hostname.source,
                         input: payload.value,
                         inst,
                         continue: !def.abort,
@@ -50233,18 +52004,12 @@ exports.$ZodISODuration = core.$constructor("$ZodISODuration", (inst, def) => {
 exports.$ZodIPv4 = core.$constructor("$ZodIPv4", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.ipv4);
     exports.$ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = `ipv4`;
-    });
+    inst._zod.bag.format = `ipv4`;
 });
 exports.$ZodIPv6 = core.$constructor("$ZodIPv6", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.ipv6);
     exports.$ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = `ipv6`;
-    });
+    inst._zod.bag.format = `ipv6`;
     inst._zod.check = (payload) => {
         try {
             // @ts-ignore
@@ -50262,6 +52027,11 @@ exports.$ZodIPv6 = core.$constructor("$ZodIPv6", (inst, def) => {
         }
     };
 });
+exports.$ZodMAC = core.$constructor("$ZodMAC", (inst, def) => {
+    def.pattern ?? (def.pattern = regexes.mac(def.delimiter));
+    exports.$ZodStringFormat.init(inst, def);
+    inst._zod.bag.format = `mac`;
+});
 exports.$ZodCIDRv4 = core.$constructor("$ZodCIDRv4", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.cidrv4);
     exports.$ZodStringFormat.init(inst, def);
@@ -50270,8 +52040,11 @@ exports.$ZodCIDRv6 = core.$constructor("$ZodCIDRv6", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.cidrv6); // not used for validation
     exports.$ZodStringFormat.init(inst, def);
     inst._zod.check = (payload) => {
-        const [address, prefix] = payload.value.split("/");
+        const parts = payload.value.split("/");
         try {
+            if (parts.length !== 2)
+                throw new Error();
+            const [address, prefix] = parts;
             if (!prefix)
                 throw new Error();
             const prefixNum = Number(prefix);
@@ -50311,9 +52084,7 @@ function isValidBase64(data) {
 exports.$ZodBase64 = core.$constructor("$ZodBase64", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.base64);
     exports.$ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.bag.contentEncoding = "base64";
-    });
+    inst._zod.bag.contentEncoding = "base64";
     inst._zod.check = (payload) => {
         if (isValidBase64(payload.value))
             return;
@@ -50337,9 +52108,7 @@ function isValidBase64URL(data) {
 exports.$ZodBase64URL = core.$constructor("$ZodBase64URL", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.base64url);
     exports.$ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.bag.contentEncoding = "base64url";
-    });
+    inst._zod.bag.contentEncoding = "base64url";
     inst._zod.check = (payload) => {
         if (isValidBase64URL(payload.value))
             return;
@@ -50437,9 +52206,9 @@ exports.$ZodNumber = core.$constructor("$ZodNumber", (inst, def) => {
         return payload;
     };
 });
-exports.$ZodNumberFormat = core.$constructor("$ZodNumber", (inst, def) => {
+exports.$ZodNumberFormat = core.$constructor("$ZodNumberFormat", (inst, def) => {
     checks.$ZodCheckNumberFormat.init(inst, def);
-    exports.$ZodNumber.init(inst, def); // no format checksp
+    exports.$ZodNumber.init(inst, def); // no format checks
 });
 exports.$ZodBoolean = core.$constructor("$ZodBoolean", (inst, def) => {
     exports.$ZodType.init(inst, def);
@@ -50482,7 +52251,7 @@ exports.$ZodBigInt = core.$constructor("$ZodBigInt", (inst, def) => {
         return payload;
     };
 });
-exports.$ZodBigIntFormat = core.$constructor("$ZodBigInt", (inst, def) => {
+exports.$ZodBigIntFormat = core.$constructor("$ZodBigIntFormat", (inst, def) => {
     checks.$ZodCheckBigIntFormat.init(inst, def);
     exports.$ZodBigInt.init(inst, def); // no format checks
 });
@@ -50636,8 +52405,12 @@ exports.$ZodArray = core.$constructor("$ZodArray", (inst, def) => {
         return payload; //handleArrayResultsAsync(parseResults, final);
     };
 });
-function handlePropertyResult(result, final, key, input) {
+function handlePropertyResult(result, final, key, input, isOptionalOut) {
     if (result.issues.length) {
+        // For optional-out schemas, ignore errors on absent keys
+        if (isOptionalOut && !(key in input)) {
+            return;
+        }
         final.issues.push(...util.prefixIssues(key, result.issues));
     }
     if (result.value === undefined) {
@@ -50649,25 +52422,76 @@ function handlePropertyResult(result, final, key, input) {
         final.value[key] = result.value;
     }
 }
+function normalizeDef(def) {
+    const keys = Object.keys(def.shape);
+    for (const k of keys) {
+        if (!def.shape?.[k]?._zod?.traits?.has("$ZodType")) {
+            throw new Error(`Invalid element at key "${k}": expected a Zod schema`);
+        }
+    }
+    const okeys = util.optionalKeys(def.shape);
+    return {
+        ...def,
+        keys,
+        keySet: new Set(keys),
+        numKeys: keys.length,
+        optionalKeys: new Set(okeys),
+    };
+}
+function handleCatchall(proms, input, payload, ctx, def, inst) {
+    const unrecognized = [];
+    // iterate over input keys
+    const keySet = def.keySet;
+    const _catchall = def.catchall._zod;
+    const t = _catchall.def.type;
+    const isOptionalOut = _catchall.optout === "optional";
+    for (const key in input) {
+        if (keySet.has(key))
+            continue;
+        if (t === "never") {
+            unrecognized.push(key);
+            continue;
+        }
+        const r = _catchall.run({ value: input[key], issues: [] }, ctx);
+        if (r instanceof Promise) {
+            proms.push(r.then((r) => handlePropertyResult(r, payload, key, input, isOptionalOut)));
+        }
+        else {
+            handlePropertyResult(r, payload, key, input, isOptionalOut);
+        }
+    }
+    if (unrecognized.length) {
+        payload.issues.push({
+            code: "unrecognized_keys",
+            keys: unrecognized,
+            input,
+            inst,
+        });
+    }
+    if (!proms.length)
+        return payload;
+    return Promise.all(proms).then(() => {
+        return payload;
+    });
+}
 exports.$ZodObject = core.$constructor("$ZodObject", (inst, def) => {
     // requires cast because technically $ZodObject doesn't extend
     exports.$ZodType.init(inst, def);
-    const _normalized = util.cached(() => {
-        const keys = Object.keys(def.shape);
-        for (const k of keys) {
-            if (!def.shape[k]._zod.traits.has("$ZodType")) {
-                throw new Error(`Invalid element at key "${k}": expected a Zod schema`);
-            }
-        }
-        const okeys = util.optionalKeys(def.shape);
-        return {
-            shape: def.shape,
-            keys,
-            keySet: new Set(keys),
-            numKeys: keys.length,
-            optionalKeys: new Set(okeys),
-        };
-    });
+    // const sh = def.shape;
+    const desc = Object.getOwnPropertyDescriptor(def, "shape");
+    if (!desc?.get) {
+        const sh = def.shape;
+        Object.defineProperty(def, "shape", {
+            get: () => {
+                const newSh = { ...sh };
+                Object.defineProperty(def, "shape", {
+                    value: newSh,
+                });
+                return newSh;
+            },
+        });
+    }
+    const _normalized = util.cached(() => normalizeDef(def));
     util.defineLazy(inst._zod, "propValues", () => {
         const shape = def.shape;
         const propValues = {};
@@ -50681,6 +52505,46 @@ exports.$ZodObject = core.$constructor("$ZodObject", (inst, def) => {
         }
         return propValues;
     });
+    const isObject = util.isObject;
+    const catchall = def.catchall;
+    let value;
+    inst._zod.parse = (payload, ctx) => {
+        value ?? (value = _normalized.value);
+        const input = payload.value;
+        if (!isObject(input)) {
+            payload.issues.push({
+                expected: "object",
+                code: "invalid_type",
+                input,
+                inst,
+            });
+            return payload;
+        }
+        payload.value = {};
+        const proms = [];
+        const shape = value.shape;
+        for (const key of value.keys) {
+            const el = shape[key];
+            const isOptionalOut = el._zod.optout === "optional";
+            const r = el._zod.run({ value: input[key], issues: [] }, ctx);
+            if (r instanceof Promise) {
+                proms.push(r.then((r) => handlePropertyResult(r, payload, key, input, isOptionalOut)));
+            }
+            else {
+                handlePropertyResult(r, payload, key, input, isOptionalOut);
+            }
+        }
+        if (!catchall) {
+            return proms.length ? Promise.all(proms).then(() => payload) : payload;
+        }
+        return handleCatchall(proms, input, payload, ctx, _normalized.value, inst);
+    };
+});
+exports.$ZodObjectJIT = core.$constructor("$ZodObjectJIT", (inst, def) => {
+    // requires cast because technically $ZodObject doesn't extend
+    exports.$ZodObject.init(inst, def);
+    const superParse = inst._zod.parse;
+    const _normalized = util.cached(() => normalizeDef(def));
     const generateFastpass = (shape) => {
         const doc = new doc_js_1.Doc(["shape", "payload", "ctx"]);
         const normalized = _normalized.value;
@@ -50695,12 +52559,37 @@ exports.$ZodObject = core.$constructor("$ZodObject", (inst, def) => {
             ids[key] = `key_${counter++}`;
         }
         // A: preserve key order {
-        doc.write(`const newResult = {}`);
+        doc.write(`const newResult = {};`);
         for (const key of normalized.keys) {
             const id = ids[key];
             const k = util.esc(key);
+            const schema = shape[key];
+            const isOptionalOut = schema?._zod?.optout === "optional";
             doc.write(`const ${id} = ${parseStr(key)};`);
-            doc.write(`
+            if (isOptionalOut) {
+                // For optional-out schemas, ignore errors on absent keys
+                doc.write(`
+        if (${id}.issues.length) {
+          if (${k} in input) {
+            payload.issues = payload.issues.concat(${id}.issues.map(iss => ({
+              ...iss,
+              path: iss.path ? [${k}, ...iss.path] : [${k}]
+            })));
+          }
+        }
+        
+        if (${id}.value === undefined) {
+          if (${k} in input) {
+            newResult[${k}] = undefined;
+          }
+        } else {
+          newResult[${k}] = ${id}.value;
+        }
+        
+      `);
+            }
+            else {
+                doc.write(`
         if (${id}.issues.length) {
           payload.issues = payload.issues.concat(${id}.issues.map(iss => ({
             ...iss,
@@ -50715,7 +52604,9 @@ exports.$ZodObject = core.$constructor("$ZodObject", (inst, def) => {
         } else {
           newResult[${k}] = ${id}.value;
         }
+        
       `);
+            }
         }
         doc.write(`payload.value = newResult;`);
         doc.write(`return payload;`);
@@ -50741,63 +52632,16 @@ exports.$ZodObject = core.$constructor("$ZodObject", (inst, def) => {
             });
             return payload;
         }
-        const proms = [];
         if (jit && fastEnabled && ctx?.async === false && ctx.jitless !== true) {
             // always synchronous
             if (!fastpass)
                 fastpass = generateFastpass(def.shape);
             payload = fastpass(payload, ctx);
+            if (!catchall)
+                return payload;
+            return handleCatchall([], input, payload, ctx, value, inst);
         }
-        else {
-            payload.value = {};
-            const shape = value.shape;
-            for (const key of value.keys) {
-                const el = shape[key];
-                const r = el._zod.run({ value: input[key], issues: [] }, ctx);
-                if (r instanceof Promise) {
-                    proms.push(r.then((r) => handlePropertyResult(r, payload, key, input)));
-                }
-                else {
-                    handlePropertyResult(r, payload, key, input);
-                }
-            }
-        }
-        if (!catchall) {
-            return proms.length ? Promise.all(proms).then(() => payload) : payload;
-        }
-        const unrecognized = [];
-        // iterate over input keys
-        const keySet = value.keySet;
-        const _catchall = catchall._zod;
-        const t = _catchall.def.type;
-        for (const key of Object.keys(input)) {
-            if (keySet.has(key))
-                continue;
-            if (t === "never") {
-                unrecognized.push(key);
-                continue;
-            }
-            const r = _catchall.run({ value: input[key], issues: [] }, ctx);
-            if (r instanceof Promise) {
-                proms.push(r.then((r) => handlePropertyResult(r, payload, key, input)));
-            }
-            else {
-                handlePropertyResult(r, payload, key, input);
-            }
-        }
-        if (unrecognized.length) {
-            payload.issues.push({
-                code: "unrecognized_keys",
-                keys: unrecognized,
-                input,
-                inst,
-            });
-        }
-        if (!proms.length)
-            return payload;
-        return Promise.all(proms).then(() => {
-            return payload;
-        });
+        return superParse(payload, ctx);
     };
 });
 function handleUnionResults(results, final, inst, ctx) {
@@ -50867,9 +52711,68 @@ exports.$ZodUnion = core.$constructor("$ZodUnion", (inst, def) => {
         });
     };
 });
+function handleExclusiveUnionResults(results, final, inst, ctx) {
+    const successes = results.filter((r) => r.issues.length === 0);
+    if (successes.length === 1) {
+        final.value = successes[0].value;
+        return final;
+    }
+    if (successes.length === 0) {
+        // No matches - same as regular union
+        final.issues.push({
+            code: "invalid_union",
+            input: final.value,
+            inst,
+            errors: results.map((result) => result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config()))),
+        });
+    }
+    else {
+        // Multiple matches - exclusive union failure
+        final.issues.push({
+            code: "invalid_union",
+            input: final.value,
+            inst,
+            errors: [],
+            inclusive: false,
+        });
+    }
+    return final;
+}
+exports.$ZodXor = core.$constructor("$ZodXor", (inst, def) => {
+    exports.$ZodUnion.init(inst, def);
+    def.inclusive = false;
+    const single = def.options.length === 1;
+    const first = def.options[0]._zod.run;
+    inst._zod.parse = (payload, ctx) => {
+        if (single) {
+            return first(payload, ctx);
+        }
+        let async = false;
+        const results = [];
+        for (const option of def.options) {
+            const result = option._zod.run({
+                value: payload.value,
+                issues: [],
+            }, ctx);
+            if (result instanceof Promise) {
+                results.push(result);
+                async = true;
+            }
+            else {
+                results.push(result);
+            }
+        }
+        if (!async)
+            return handleExclusiveUnionResults(results, payload, inst, ctx);
+        return Promise.all(results).then((results) => {
+            return handleExclusiveUnionResults(results, payload, inst, ctx);
+        });
+    };
+});
 exports.$ZodDiscriminatedUnion = 
 /*@__PURE__*/
 core.$constructor("$ZodDiscriminatedUnion", (inst, def) => {
+    def.inclusive = false;
     exports.$ZodUnion.init(inst, def);
     const _super = inst._zod.parse;
     util.defineLazy(inst._zod, "propValues", () => {
@@ -50997,11 +52900,38 @@ function mergeValues(a, b) {
     return { valid: false, mergeErrorPath: [] };
 }
 function handleIntersectionResults(result, left, right) {
-    if (left.issues.length) {
-        result.issues.push(...left.issues);
+    // Track which side(s) report each key as unrecognized
+    const unrecKeys = new Map();
+    let unrecIssue;
+    for (const iss of left.issues) {
+        if (iss.code === "unrecognized_keys") {
+            unrecIssue ?? (unrecIssue = iss);
+            for (const k of iss.keys) {
+                if (!unrecKeys.has(k))
+                    unrecKeys.set(k, {});
+                unrecKeys.get(k).l = true;
+            }
+        }
+        else {
+            result.issues.push(iss);
+        }
     }
-    if (right.issues.length) {
-        result.issues.push(...right.issues);
+    for (const iss of right.issues) {
+        if (iss.code === "unrecognized_keys") {
+            for (const k of iss.keys) {
+                if (!unrecKeys.has(k))
+                    unrecKeys.set(k, {});
+                unrecKeys.get(k).r = true;
+            }
+        }
+        else {
+            result.issues.push(iss);
+        }
+    }
+    // Report only keys unrecognized by BOTH sides
+    const bothKeys = [...unrecKeys].filter(([, f]) => f.l && f.r).map(([k]) => k);
+    if (bothKeys.length && unrecIssue) {
+        result.issues.push({ ...unrecIssue, keys: bothKeys });
     }
     if (util.aborted(result))
         return result;
@@ -51015,7 +52945,6 @@ function handleIntersectionResults(result, left, right) {
 exports.$ZodTuple = core.$constructor("$ZodTuple", (inst, def) => {
     exports.$ZodType.init(inst, def);
     const items = def.items;
-    const optStart = items.length - [...items].reverse().findIndex((item) => item._zod.optin !== "optional");
     inst._zod.parse = (payload, ctx) => {
         const input = payload.value;
         if (!Array.isArray(input)) {
@@ -51029,12 +52958,16 @@ exports.$ZodTuple = core.$constructor("$ZodTuple", (inst, def) => {
         }
         payload.value = [];
         const proms = [];
+        const reversedIndex = [...items].reverse().findIndex((item) => item._zod.optin !== "optional");
+        const optStart = reversedIndex === -1 ? 0 : items.length - reversedIndex;
         if (!def.rest) {
             const tooBig = input.length > items.length;
             const tooSmall = input.length < optStart - 1;
             if (tooBig || tooSmall) {
                 payload.issues.push({
-                    ...(tooBig ? { code: "too_big", maximum: items.length } : { code: "too_small", minimum: items.length }),
+                    ...(tooBig
+                        ? { code: "too_big", maximum: items.length, inclusive: true }
+                        : { code: "too_small", minimum: items.length }),
                     input,
                     inst,
                     origin: "array",
@@ -51100,11 +53033,13 @@ exports.$ZodRecord = core.$constructor("$ZodRecord", (inst, def) => {
             return payload;
         }
         const proms = [];
-        if (def.keyType._zod.values) {
-            const values = def.keyType._zod.values;
+        const values = def.keyType._zod.values;
+        if (values) {
             payload.value = {};
+            const recordKeys = new Set();
             for (const key of values) {
                 if (typeof key === "string" || typeof key === "number" || typeof key === "symbol") {
+                    recordKeys.add(typeof key === "number" ? key.toString() : key);
                     const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
                     if (result instanceof Promise) {
                         proms.push(result.then((result) => {
@@ -51124,7 +53059,7 @@ exports.$ZodRecord = core.$constructor("$ZodRecord", (inst, def) => {
             }
             let unrecognized;
             for (const key in input) {
-                if (!values.has(key)) {
+                if (!recordKeys.has(key)) {
                     unrecognized = unrecognized ?? [];
                     unrecognized.push(key);
                 }
@@ -51143,20 +53078,38 @@ exports.$ZodRecord = core.$constructor("$ZodRecord", (inst, def) => {
             for (const key of Reflect.ownKeys(input)) {
                 if (key === "__proto__")
                     continue;
-                const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
+                let keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
                 if (keyResult instanceof Promise) {
                     throw new Error("Async schemas not supported in object keys currently");
                 }
+                // Numeric string fallback: if key is a numeric string and failed, retry with Number(key)
+                // This handles z.number(), z.literal([1, 2, 3]), and unions containing numeric literals
+                const checkNumericKey = typeof key === "string" && regexes.number.test(key) && keyResult.issues.length;
+                if (checkNumericKey) {
+                    const retryResult = def.keyType._zod.run({ value: Number(key), issues: [] }, ctx);
+                    if (retryResult instanceof Promise) {
+                        throw new Error("Async schemas not supported in object keys currently");
+                    }
+                    if (retryResult.issues.length === 0) {
+                        keyResult = retryResult;
+                    }
+                }
                 if (keyResult.issues.length) {
-                    payload.issues.push({
-                        code: "invalid_key",
-                        origin: "record",
-                        issues: keyResult.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())),
-                        input: key,
-                        path: [key],
-                        inst,
-                    });
-                    payload.value[keyResult.value] = keyResult.value;
+                    if (def.mode === "loose") {
+                        // Pass through unchanged
+                        payload.value[key] = input[key];
+                    }
+                    else {
+                        // Default "strict" behavior: error on invalid key
+                        payload.issues.push({
+                            code: "invalid_key",
+                            origin: "record",
+                            issues: keyResult.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config())),
+                            input: key,
+                            path: [key],
+                            inst,
+                        });
+                    }
                     continue;
                 }
                 const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
@@ -51308,13 +53261,14 @@ exports.$ZodLiteral = core.$constructor("$ZodLiteral", (inst, def) => {
     if (def.values.length === 0) {
         throw new Error("Cannot create literal schema with no valid values");
     }
-    inst._zod.values = new Set(def.values);
+    const values = new Set(def.values);
+    inst._zod.values = values;
     inst._zod.pattern = new RegExp(`^(${def.values
         .map((o) => (typeof o === "string" ? util.escapeRegex(o) : o ? util.escapeRegex(o.toString()) : String(o)))
         .join("|")})$`);
     inst._zod.parse = (payload, _ctx) => {
         const input = payload.value;
-        if (inst._zod.values.has(input)) {
+        if (values.has(input)) {
             return payload;
         }
         payload.issues.push({
@@ -51344,9 +53298,12 @@ exports.$ZodFile = core.$constructor("$ZodFile", (inst, def) => {
 });
 exports.$ZodTransform = core.$constructor("$ZodTransform", (inst, def) => {
     exports.$ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
+    inst._zod.parse = (payload, ctx) => {
+        if (ctx.direction === "backward") {
+            throw new core.$ZodEncodeError(inst.constructor.name);
+        }
         const _out = def.transform(payload.value, payload);
-        if (_ctx.async) {
+        if (ctx.async) {
             const output = _out instanceof Promise ? _out : Promise.resolve(_out);
             return output.then((output) => {
                 payload.value = output;
@@ -51390,6 +53347,17 @@ exports.$ZodOptional = core.$constructor("$ZodOptional", (inst, def) => {
         return def.innerType._zod.run(payload, ctx);
     };
 });
+exports.$ZodExactOptional = core.$constructor("$ZodExactOptional", (inst, def) => {
+    // Call parent init - inherits optin/optout = "optional"
+    exports.$ZodOptional.init(inst, def);
+    // Override values/pattern to NOT add undefined
+    util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
+    util.defineLazy(inst._zod, "pattern", () => def.innerType._zod.pattern);
+    // Override parse to just delegate (no undefined handling)
+    inst._zod.parse = (payload, ctx) => {
+        return def.innerType._zod.run(payload, ctx);
+    };
+});
 exports.$ZodNullable = core.$constructor("$ZodNullable", (inst, def) => {
     exports.$ZodType.init(inst, def);
     util.defineLazy(inst._zod, "optin", () => def.innerType._zod.optin);
@@ -51402,6 +53370,7 @@ exports.$ZodNullable = core.$constructor("$ZodNullable", (inst, def) => {
         return def.innerType._zod.values ? new Set([...def.innerType._zod.values, null]) : undefined;
     });
     inst._zod.parse = (payload, ctx) => {
+        // Forward direction (decode): allow null to pass through
         if (payload.value === null)
             return payload;
         return def.innerType._zod.run(payload, ctx);
@@ -51413,13 +53382,18 @@ exports.$ZodDefault = core.$constructor("$ZodDefault", (inst, def) => {
     inst._zod.optin = "optional";
     util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
     inst._zod.parse = (payload, ctx) => {
+        if (ctx.direction === "backward") {
+            return def.innerType._zod.run(payload, ctx);
+        }
+        // Forward direction (decode): apply defaults for undefined input
         if (payload.value === undefined) {
             payload.value = def.defaultValue;
             /**
-             * $ZodDefault always returns the default value immediately.
+             * $ZodDefault returns the default value immediately in forward direction.
              * It doesn't pass the default value into the validator ("prefault"). There's no reason to pass the default value through validation. The validity of the default is enforced by TypeScript statically. Otherwise, it's the responsibility of the user to ensure the default is valid. In the case of pipes with divergent in/out types, you can specify the default on the `in` schema of your ZodPipe to set a "prefault" for the pipe.   */
             return payload;
         }
+        // Forward direction: continue with default handling
         const result = def.innerType._zod.run(payload, ctx);
         if (result instanceof Promise) {
             return result.then((result) => handleDefaultResult(result, def));
@@ -51438,6 +53412,10 @@ exports.$ZodPrefault = core.$constructor("$ZodPrefault", (inst, def) => {
     inst._zod.optin = "optional";
     util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
     inst._zod.parse = (payload, ctx) => {
+        if (ctx.direction === "backward") {
+            return def.innerType._zod.run(payload, ctx);
+        }
+        // Forward direction (decode): apply prefault for undefined input
         if (payload.value === undefined) {
             payload.value = def.defaultValue;
         }
@@ -51472,6 +53450,9 @@ function handleNonOptionalResult(payload, inst) {
 exports.$ZodSuccess = core.$constructor("$ZodSuccess", (inst, def) => {
     exports.$ZodType.init(inst, def);
     inst._zod.parse = (payload, ctx) => {
+        if (ctx.direction === "backward") {
+            throw new core.$ZodEncodeError("ZodSuccess");
+        }
         const result = def.innerType._zod.run(payload, ctx);
         if (result instanceof Promise) {
             return result.then((result) => {
@@ -51489,6 +53470,10 @@ exports.$ZodCatch = core.$constructor("$ZodCatch", (inst, def) => {
     util.defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
     util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
     inst._zod.parse = (payload, ctx) => {
+        if (ctx.direction === "backward") {
+            return def.innerType._zod.run(payload, ctx);
+        }
+        // Forward direction (decode): apply catch logic
         const result = def.innerType._zod.run(payload, ctx);
         if (result instanceof Promise) {
             return result.then((result) => {
@@ -51542,26 +53527,92 @@ exports.$ZodPipe = core.$constructor("$ZodPipe", (inst, def) => {
     util.defineLazy(inst._zod, "optout", () => def.out._zod.optout);
     util.defineLazy(inst._zod, "propValues", () => def.in._zod.propValues);
     inst._zod.parse = (payload, ctx) => {
+        if (ctx.direction === "backward") {
+            const right = def.out._zod.run(payload, ctx);
+            if (right instanceof Promise) {
+                return right.then((right) => handlePipeResult(right, def.in, ctx));
+            }
+            return handlePipeResult(right, def.in, ctx);
+        }
         const left = def.in._zod.run(payload, ctx);
         if (left instanceof Promise) {
-            return left.then((left) => handlePipeResult(left, def, ctx));
+            return left.then((left) => handlePipeResult(left, def.out, ctx));
         }
-        return handlePipeResult(left, def, ctx);
+        return handlePipeResult(left, def.out, ctx);
     };
 });
-function handlePipeResult(left, def, ctx) {
+function handlePipeResult(left, next, ctx) {
     if (left.issues.length) {
+        // prevent further checks
+        left.aborted = true;
         return left;
     }
-    return def.out._zod.run({ value: left.value, issues: left.issues }, ctx);
+    return next._zod.run({ value: left.value, issues: left.issues }, ctx);
+}
+exports.$ZodCodec = core.$constructor("$ZodCodec", (inst, def) => {
+    exports.$ZodType.init(inst, def);
+    util.defineLazy(inst._zod, "values", () => def.in._zod.values);
+    util.defineLazy(inst._zod, "optin", () => def.in._zod.optin);
+    util.defineLazy(inst._zod, "optout", () => def.out._zod.optout);
+    util.defineLazy(inst._zod, "propValues", () => def.in._zod.propValues);
+    inst._zod.parse = (payload, ctx) => {
+        const direction = ctx.direction || "forward";
+        if (direction === "forward") {
+            const left = def.in._zod.run(payload, ctx);
+            if (left instanceof Promise) {
+                return left.then((left) => handleCodecAResult(left, def, ctx));
+            }
+            return handleCodecAResult(left, def, ctx);
+        }
+        else {
+            const right = def.out._zod.run(payload, ctx);
+            if (right instanceof Promise) {
+                return right.then((right) => handleCodecAResult(right, def, ctx));
+            }
+            return handleCodecAResult(right, def, ctx);
+        }
+    };
+});
+function handleCodecAResult(result, def, ctx) {
+    if (result.issues.length) {
+        // prevent further checks
+        result.aborted = true;
+        return result;
+    }
+    const direction = ctx.direction || "forward";
+    if (direction === "forward") {
+        const transformed = def.transform(result.value, result);
+        if (transformed instanceof Promise) {
+            return transformed.then((value) => handleCodecTxResult(result, value, def.out, ctx));
+        }
+        return handleCodecTxResult(result, transformed, def.out, ctx);
+    }
+    else {
+        const transformed = def.reverseTransform(result.value, result);
+        if (transformed instanceof Promise) {
+            return transformed.then((value) => handleCodecTxResult(result, value, def.in, ctx));
+        }
+        return handleCodecTxResult(result, transformed, def.in, ctx);
+    }
+}
+function handleCodecTxResult(left, value, nextSchema, ctx) {
+    // Check if transform added any issues
+    if (left.issues.length) {
+        left.aborted = true;
+        return left;
+    }
+    return nextSchema._zod.run({ value, issues: left.issues }, ctx);
 }
 exports.$ZodReadonly = core.$constructor("$ZodReadonly", (inst, def) => {
     exports.$ZodType.init(inst, def);
     util.defineLazy(inst._zod, "propValues", () => def.innerType._zod.propValues);
     util.defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    util.defineLazy(inst._zod, "optin", () => def.innerType._zod.optin);
-    util.defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
+    util.defineLazy(inst._zod, "optin", () => def.innerType?._zod?.optin);
+    util.defineLazy(inst._zod, "optout", () => def.innerType?._zod?.optout);
     inst._zod.parse = (payload, ctx) => {
+        if (ctx.direction === "backward") {
+            return def.innerType._zod.run(payload, ctx);
+        }
         const result = def.innerType._zod.run(payload, ctx);
         if (result instanceof Promise) {
             return result.then(handleReadonlyResult);
@@ -51603,7 +53654,7 @@ exports.$ZodTemplateLiteral = core.$constructor("$ZodTemplateLiteral", (inst, de
             payload.issues.push({
                 input: payload.value,
                 inst,
-                expected: "template_literal",
+                expected: "string",
                 code: "invalid_type",
             });
             return payload;
@@ -51622,6 +53673,85 @@ exports.$ZodTemplateLiteral = core.$constructor("$ZodTemplateLiteral", (inst, de
         return payload;
     };
 });
+exports.$ZodFunction = core.$constructor("$ZodFunction", (inst, def) => {
+    exports.$ZodType.init(inst, def);
+    inst._def = def;
+    inst._zod.def = def;
+    inst.implement = (func) => {
+        if (typeof func !== "function") {
+            throw new Error("implement() must be called with a function");
+        }
+        return function (...args) {
+            const parsedArgs = inst._def.input ? (0, parse_js_1.parse)(inst._def.input, args) : args;
+            const result = Reflect.apply(func, this, parsedArgs);
+            if (inst._def.output) {
+                return (0, parse_js_1.parse)(inst._def.output, result);
+            }
+            return result;
+        };
+    };
+    inst.implementAsync = (func) => {
+        if (typeof func !== "function") {
+            throw new Error("implementAsync() must be called with a function");
+        }
+        return async function (...args) {
+            const parsedArgs = inst._def.input ? await (0, parse_js_1.parseAsync)(inst._def.input, args) : args;
+            const result = await Reflect.apply(func, this, parsedArgs);
+            if (inst._def.output) {
+                return await (0, parse_js_1.parseAsync)(inst._def.output, result);
+            }
+            return result;
+        };
+    };
+    inst._zod.parse = (payload, _ctx) => {
+        if (typeof payload.value !== "function") {
+            payload.issues.push({
+                code: "invalid_type",
+                expected: "function",
+                input: payload.value,
+                inst,
+            });
+            return payload;
+        }
+        // Check if output is a promise type to determine if we should use async implementation
+        const hasPromiseOutput = inst._def.output && inst._def.output._zod.def.type === "promise";
+        if (hasPromiseOutput) {
+            payload.value = inst.implementAsync(payload.value);
+        }
+        else {
+            payload.value = inst.implement(payload.value);
+        }
+        return payload;
+    };
+    inst.input = (...args) => {
+        const F = inst.constructor;
+        if (Array.isArray(args[0])) {
+            return new F({
+                type: "function",
+                input: new exports.$ZodTuple({
+                    type: "tuple",
+                    items: args[0],
+                    rest: args[1],
+                }),
+                output: inst._def.output,
+            });
+        }
+        return new F({
+            type: "function",
+            input: args[0],
+            output: inst._def.output,
+        });
+    };
+    inst.output = (output) => {
+        const F = inst.constructor;
+        return new F({
+            type: "function",
+            input: inst._def.input,
+            output,
+        });
+    };
+    return inst;
+});
 exports.$ZodPromise = core.$constructor("$ZodPromise", (inst, def) => {
     exports.$ZodType.init(inst, def);
     inst._zod.parse = (payload, ctx) => {
@@ -51638,10 +53768,10 @@ exports.$ZodLazy = core.$constructor("$ZodLazy", (inst, def) => {
     //   return () => _innerType;
     // });
     util.defineLazy(inst._zod, "innerType", () => def.getter());
-    util.defineLazy(inst._zod, "pattern", () => inst._zod.innerType._zod.pattern);
-    util.defineLazy(inst._zod, "propValues", () => inst._zod.innerType._zod.propValues);
-    util.defineLazy(inst._zod, "optin", () => inst._zod.innerType._zod.optin ?? undefined);
-    util.defineLazy(inst._zod, "optout", () => inst._zod.innerType._zod.optout ?? undefined);
+    util.defineLazy(inst._zod, "pattern", () => inst._zod.innerType?._zod?.pattern);
+    util.defineLazy(inst._zod, "propValues", () => inst._zod.innerType?._zod?.propValues);
+    util.defineLazy(inst._zod, "optin", () => inst._zod.innerType?._zod?.optin ?? undefined);
+    util.defineLazy(inst._zod, "optout", () => inst._zod.innerType?._zod?.optout ?? undefined);
     inst._zod.parse = (payload, ctx) => {
         const inner = inst._zod.innerType;
         return inner._zod.run(payload, ctx);
@@ -51688,886 +53818,450 @@ function handleRefineResult(result, payload, input, inst) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.JSONSchemaGenerator = void 0;
-exports.toJSONSchema = toJSONSchema;
+exports.createStandardJSONSchemaMethod = exports.createToJSONSchemaMethod = void 0;
+exports.initializeContext = initializeContext;
+exports.process = process;
+exports.extractDefs = extractDefs;
+exports.finalize = finalize;
 const registries_js_1 = __nccwpck_require__(1446);
-const util_js_1 = __nccwpck_require__(1327);
-class JSONSchemaGenerator {
-    constructor(params) {
-        this.counter = 0;
-        this.metadataRegistry = params?.metadata ?? registries_js_1.globalRegistry;
-        this.target = params?.target ?? "draft-2020-12";
-        this.unrepresentable = params?.unrepresentable ?? "throw";
-        this.override = params?.override ?? (() => { });
-        this.io = params?.io ?? "output";
-        this.seen = new Map();
+// function initializeContext<T extends schemas.$ZodType>(inputs: JSONSchemaGeneratorParams<T>): ToJSONSchemaContext<T> {
+//   return {
+//     processor: inputs.processor,
+//     metadataRegistry: inputs.metadata ?? globalRegistry,
+//     target: inputs.target ?? "draft-2020-12",
+//     unrepresentable: inputs.unrepresentable ?? "throw",
+//   };
+// }
+function initializeContext(params) {
+    // Normalize target: convert old non-hyphenated versions to hyphenated versions
+    let target = params?.target ?? "draft-2020-12";
+    if (target === "draft-4")
+        target = "draft-04";
+    if (target === "draft-7")
+        target = "draft-07";
+    return {
+        processors: params.processors ?? {},
+        metadataRegistry: params?.metadata ?? registries_js_1.globalRegistry,
+        target,
+        unrepresentable: params?.unrepresentable ?? "throw",
+        override: params?.override ?? (() => { }),
+        io: params?.io ?? "output",
+        counter: 0,
+        seen: new Map(),
+        cycles: params?.cycles ?? "ref",
+        reused: params?.reused ?? "inline",
+        external: params?.external ?? undefined,
+    };
+}
+function process(schema, ctx, _params = { path: [], schemaPath: [] }) {
+    var _a;
+    const def = schema._zod.def;
+    // check for schema in seens
+    const seen = ctx.seen.get(schema);
+    if (seen) {
+        seen.count++;
+        // check if cycle
+        const isCycle = _params.schemaPath.includes(schema);
+        if (isCycle) {
+            seen.cycle = _params.path;
+        }
+        return seen.schema;
     }
-    process(schema, _params = { path: [], schemaPath: [] }) {
-        var _a;
-        const def = schema._zod.def;
-        const formatMap = {
-            guid: "uuid",
-            url: "uri",
-            datetime: "date-time",
-            json_string: "json-string",
-            regex: "", // do not set
-        };
-        // check for schema in seens
-        const seen = this.seen.get(schema);
-        if (seen) {
-            seen.count++;
-            // check if cycle
-            const isCycle = _params.schemaPath.includes(schema);
-            if (isCycle) {
-                seen.cycle = _params.path;
-            }
-            return seen.schema;
-        }
-        // initialize
-        const result = { schema: {}, count: 1, cycle: undefined, path: _params.path };
-        this.seen.set(schema, result);
-        // custom method overrides default behavior
-        const overrideSchema = schema._zod.toJSONSchema?.();
-        if (overrideSchema) {
-            result.schema = overrideSchema;
-        }
-        else {
-            const params = {
-                ..._params,
-                schemaPath: [..._params.schemaPath, schema],
-                path: _params.path,
-            };
-            const parent = schema._zod.parent;
-            if (parent) {
-                // schema was cloned from another schema
-                result.ref = parent;
-                this.process(parent, params);
-                this.seen.get(parent).isParent = true;
-            }
-            else {
-                const _json = result.schema;
-                switch (def.type) {
-                    case "string": {
-                        const json = _json;
-                        json.type = "string";
-                        const { minimum, maximum, format, patterns, contentEncoding } = schema._zod
-                            .bag;
-                        if (typeof minimum === "number")
-                            json.minLength = minimum;
-                        if (typeof maximum === "number")
-                            json.maxLength = maximum;
-                        // custom pattern overrides format
-                        if (format) {
-                            json.format = formatMap[format] ?? format;
-                            if (json.format === "")
-                                delete json.format; // empty format is not valid
-                        }
-                        if (contentEncoding)
-                            json.contentEncoding = contentEncoding;
-                        if (patterns && patterns.size > 0) {
-                            const regexes = [...patterns];
-                            if (regexes.length === 1)
-                                json.pattern = regexes[0].source;
-                            else if (regexes.length > 1) {
-                                result.schema.allOf = [
-                                    ...regexes.map((regex) => ({
-                                        ...(this.target === "draft-7" || this.target === "draft-4" ? { type: "string" } : {}),
-                                        pattern: regex.source,
-                                    })),
-                                ];
-                            }
-                        }
-                        break;
-                    }
-                    case "number": {
-                        const json = _json;
-                        const { minimum, maximum, format, multipleOf, exclusiveMaximum, exclusiveMinimum } = schema._zod.bag;
-                        if (typeof format === "string" && format.includes("int"))
-                            json.type = "integer";
-                        else
-                            json.type = "number";
-                        if (typeof exclusiveMinimum === "number") {
-                            if (this.target === "draft-4") {
-                                json.minimum = exclusiveMinimum;
-                                json.exclusiveMinimum = true;
-                            }
-                            else {
-                                json.exclusiveMinimum = exclusiveMinimum;
-                            }
-                        }
-                        if (typeof minimum === "number") {
-                            json.minimum = minimum;
-                            if (typeof exclusiveMinimum === "number" && this.target !== "draft-4") {
-                                if (exclusiveMinimum >= minimum)
-                                    delete json.minimum;
-                                else
-                                    delete json.exclusiveMinimum;
-                            }
-                        }
-                        if (typeof exclusiveMaximum === "number") {
-                            if (this.target === "draft-4") {
-                                json.maximum = exclusiveMaximum;
-                                json.exclusiveMaximum = true;
-                            }
-                            else {
-                                json.exclusiveMaximum = exclusiveMaximum;
-                            }
-                        }
-                        if (typeof maximum === "number") {
-                            json.maximum = maximum;
-                            if (typeof exclusiveMaximum === "number" && this.target !== "draft-4") {
-                                if (exclusiveMaximum <= maximum)
-                                    delete json.maximum;
-                                else
-                                    delete json.exclusiveMaximum;
-                            }
-                        }
-                        if (typeof multipleOf === "number")
-                            json.multipleOf = multipleOf;
-                        break;
-                    }
-                    case "boolean": {
-                        const json = _json;
-                        json.type = "boolean";
-                        break;
-                    }
-                    case "bigint": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("BigInt cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "symbol": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("Symbols cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "null": {
-                        _json.type = "null";
-                        break;
-                    }
-                    case "any": {
-                        break;
-                    }
-                    case "unknown": {
-                        break;
-                    }
-                    case "undefined": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("Undefined cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "void": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("Void cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "never": {
-                        _json.not = {};
-                        break;
-                    }
-                    case "date": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("Date cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "array": {
-                        const json = _json;
-                        const { minimum, maximum } = schema._zod.bag;
-                        if (typeof minimum === "number")
-                            json.minItems = minimum;
-                        if (typeof maximum === "number")
-                            json.maxItems = maximum;
-                        json.type = "array";
-                        json.items = this.process(def.element, { ...params, path: [...params.path, "items"] });
-                        break;
-                    }
-                    case "object": {
-                        const json = _json;
-                        json.type = "object";
-                        json.properties = {};
-                        const shape = def.shape; // params.shapeCache.get(schema)!;
-                        for (const key in shape) {
-                            json.properties[key] = this.process(shape[key], {
-                                ...params,
-                                path: [...params.path, "properties", key],
-                            });
-                        }
-                        // required keys
-                        const allKeys = new Set(Object.keys(shape));
-                        // const optionalKeys = new Set(def.optional);
-                        const requiredKeys = new Set([...allKeys].filter((key) => {
-                            const v = def.shape[key]._zod;
-                            if (this.io === "input") {
-                                return v.optin === undefined;
-                            }
-                            else {
-                                return v.optout === undefined;
-                            }
-                        }));
-                        if (requiredKeys.size > 0) {
-                            json.required = Array.from(requiredKeys);
-                        }
-                        // catchall
-                        if (def.catchall?._zod.def.type === "never") {
-                            // strict
-                            json.additionalProperties = false;
-                        }
-                        else if (!def.catchall) {
-                            // regular
-                            if (this.io === "output")
-                                json.additionalProperties = false;
-                        }
-                        else if (def.catchall) {
-                            json.additionalProperties = this.process(def.catchall, {
-                                ...params,
-                                path: [...params.path, "additionalProperties"],
-                            });
-                        }
-                        break;
-                    }
-                    case "union": {
-                        const json = _json;
-                        json.anyOf = def.options.map((x, i) => this.process(x, {
-                            ...params,
-                            path: [...params.path, "anyOf", i],
-                        }));
-                        break;
-                    }
-                    case "intersection": {
-                        const json = _json;
-                        const a = this.process(def.left, {
-                            ...params,
-                            path: [...params.path, "allOf", 0],
-                        });
-                        const b = this.process(def.right, {
-                            ...params,
-                            path: [...params.path, "allOf", 1],
-                        });
-                        const isSimpleIntersection = (val) => "allOf" in val && Object.keys(val).length === 1;
-                        const allOf = [
-                            ...(isSimpleIntersection(a) ? a.allOf : [a]),
-                            ...(isSimpleIntersection(b) ? b.allOf : [b]),
-                        ];
-                        json.allOf = allOf;
-                        break;
-                    }
-                    case "tuple": {
-                        const json = _json;
-                        json.type = "array";
-                        const prefixItems = def.items.map((x, i) => this.process(x, { ...params, path: [...params.path, "prefixItems", i] }));
-                        if (this.target === "draft-2020-12") {
-                            json.prefixItems = prefixItems;
-                        }
-                        else {
-                            json.items = prefixItems;
-                        }
-                        if (def.rest) {
-                            const rest = this.process(def.rest, {
-                                ...params,
-                                path: [...params.path, "items"],
-                            });
-                            if (this.target === "draft-2020-12") {
-                                json.items = rest;
-                            }
-                            else {
-                                json.additionalItems = rest;
-                            }
-                        }
-                        // additionalItems
-                        if (def.rest) {
-                            json.items = this.process(def.rest, {
-                                ...params,
-                                path: [...params.path, "items"],
-                            });
-                        }
-                        // length
-                        const { minimum, maximum } = schema._zod.bag;
-                        if (typeof minimum === "number")
-                            json.minItems = minimum;
-                        if (typeof maximum === "number")
-                            json.maxItems = maximum;
-                        break;
-                    }
-                    case "record": {
-                        const json = _json;
-                        json.type = "object";
-                        if (this.target !== "draft-4") {
-                            json.propertyNames = this.process(def.keyType, {
-                                ...params,
-                                path: [...params.path, "propertyNames"],
-                            });
-                        }
-                        json.additionalProperties = this.process(def.valueType, {
-                            ...params,
-                            path: [...params.path, "additionalProperties"],
-                        });
-                        break;
-                    }
-                    case "map": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("Map cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "set": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("Set cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "enum": {
-                        const json = _json;
-                        const values = (0, util_js_1.getEnumValues)(def.entries);
-                        // Number enums can have both string and number values
-                        if (values.every((v) => typeof v === "number"))
-                            json.type = "number";
-                        if (values.every((v) => typeof v === "string"))
-                            json.type = "string";
-                        json.enum = values;
-                        break;
-                    }
-                    case "literal": {
-                        const json = _json;
-                        const vals = [];
-                        for (const val of def.values) {
-                            if (val === undefined) {
-                                if (this.unrepresentable === "throw") {
-                                    throw new Error("Literal `undefined` cannot be represented in JSON Schema");
-                                }
-                                else {
-                                    // do not add to vals
-                                }
-                            }
-                            else if (typeof val === "bigint") {
-                                if (this.unrepresentable === "throw") {
-                                    throw new Error("BigInt literals cannot be represented in JSON Schema");
-                                }
-                                else {
-                                    vals.push(Number(val));
-                                }
-                            }
-                            else {
-                                vals.push(val);
-                            }
-                        }
-                        if (vals.length === 0) {
-                            // do nothing (an undefined literal was stripped)
-                        }
-                        else if (vals.length === 1) {
-                            const val = vals[0];
-                            json.type = val === null ? "null" : typeof val;
-                            if (this.target === "draft-4") {
-                                json.enum = [val];
-                            }
-                            else {
-                                json.const = val;
-                            }
-                        }
-                        else {
-                            if (vals.every((v) => typeof v === "number"))
-                                json.type = "number";
-                            if (vals.every((v) => typeof v === "string"))
-                                json.type = "string";
-                            if (vals.every((v) => typeof v === "boolean"))
-                                json.type = "string";
-                            if (vals.every((v) => v === null))
-                                json.type = "null";
-                            json.enum = vals;
-                        }
-                        break;
-                    }
-                    case "file": {
-                        const json = _json;
-                        const file = {
-                            type: "string",
-                            format: "binary",
-                            contentEncoding: "binary",
-                        };
-                        const { minimum, maximum, mime } = schema._zod.bag;
-                        if (minimum !== undefined)
-                            file.minLength = minimum;
-                        if (maximum !== undefined)
-                            file.maxLength = maximum;
-                        if (mime) {
-                            if (mime.length === 1) {
-                                file.contentMediaType = mime[0];
-                                Object.assign(json, file);
-                            }
-                            else {
-                                json.anyOf = mime.map((m) => {
-                                    const mFile = { ...file, contentMediaType: m };
-                                    return mFile;
-                                });
-                            }
-                        }
-                        else {
-                            Object.assign(json, file);
-                        }
-                        // if (this.unrepresentable === "throw") {
-                        //   throw new Error("File cannot be represented in JSON Schema");
-                        // }
-                        break;
-                    }
-                    case "transform": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("Transforms cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "nullable": {
-                        const inner = this.process(def.innerType, params);
-                        _json.anyOf = [inner, { type: "null" }];
-                        break;
-                    }
-                    case "nonoptional": {
-                        this.process(def.innerType, params);
-                        result.ref = def.innerType;
-                        break;
-                    }
-                    case "success": {
-                        const json = _json;
-                        json.type = "boolean";
-                        break;
-                    }
-                    case "default": {
-                        this.process(def.innerType, params);
-                        result.ref = def.innerType;
-                        _json.default = JSON.parse(JSON.stringify(def.defaultValue));
-                        break;
-                    }
-                    case "prefault": {
-                        this.process(def.innerType, params);
-                        result.ref = def.innerType;
-                        if (this.io === "input")
-                            _json._prefault = JSON.parse(JSON.stringify(def.defaultValue));
-                        break;
-                    }
-                    case "catch": {
-                        // use conditionals
-                        this.process(def.innerType, params);
-                        result.ref = def.innerType;
-                        let catchValue;
-                        try {
-                            catchValue = def.catchValue(undefined);
-                        }
-                        catch {
-                            throw new Error("Dynamic catch values are not supported in JSON Schema");
-                        }
-                        _json.default = catchValue;
-                        break;
-                    }
-                    case "nan": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("NaN cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    case "template_literal": {
-                        const json = _json;
-                        const pattern = schema._zod.pattern;
-                        if (!pattern)
-                            throw new Error("Pattern not found in template literal");
-                        json.type = "string";
-                        json.pattern = pattern.source;
-                        break;
-                    }
-                    case "pipe": {
-                        const innerType = this.io === "input" ? (def.in._zod.def.type === "transform" ? def.out : def.in) : def.out;
-                        this.process(innerType, params);
-                        result.ref = innerType;
-                        break;
-                    }
-                    case "readonly": {
-                        this.process(def.innerType, params);
-                        result.ref = def.innerType;
-                        _json.readOnly = true;
-                        break;
-                    }
-                    // passthrough types
-                    case "promise": {
-                        this.process(def.innerType, params);
-                        result.ref = def.innerType;
-                        break;
-                    }
-                    case "optional": {
-                        this.process(def.innerType, params);
-                        result.ref = def.innerType;
-                        break;
-                    }
-                    case "lazy": {
-                        const innerType = schema._zod.innerType;
-                        this.process(innerType, params);
-                        result.ref = innerType;
-                        break;
-                    }
-                    case "custom": {
-                        if (this.unrepresentable === "throw") {
-                            throw new Error("Custom types cannot be represented in JSON Schema");
-                        }
-                        break;
-                    }
-                    default: {
-                        def;
-                    }
-                }
-            }
-        }
-        // metadata
-        const meta = this.metadataRegistry.get(schema);
-        if (meta)
-            Object.assign(result.schema, meta);
-        if (this.io === "input" && isTransforming(schema)) {
-            // examples/defaults only apply to output type of pipe
-            delete result.schema.examples;
-            delete result.schema.default;
-        }
-        // set prefault as default
-        if (this.io === "input" && result.schema._prefault)
-            (_a = result.schema).default ?? (_a.default = result.schema._prefault);
-        delete result.schema._prefault;
-        // pulling fresh from this.seen in case it was overwritten
-        const _result = this.seen.get(schema);
-        return _result.schema;
+    // initialize
+    const result = { schema: {}, count: 1, cycle: undefined, path: _params.path };
+    ctx.seen.set(schema, result);
+    // custom method overrides default behavior
+    const overrideSchema = schema._zod.toJSONSchema?.();
+    if (overrideSchema) {
+        result.schema = overrideSchema;
     }
-    emit(schema, _params) {
+    else {
         const params = {
-            cycles: _params?.cycles ?? "ref",
-            reused: _params?.reused ?? "inline",
-            // unrepresentable: _params?.unrepresentable ?? "throw",
-            // uri: _params?.uri ?? ((id) => `${id}`),
-            external: _params?.external ?? undefined,
+            ..._params,
+            schemaPath: [..._params.schemaPath, schema],
+            path: _params.path,
         };
-        // iterate over seen map;
-        const root = this.seen.get(schema);
-        if (!root)
-            throw new Error("Unprocessed schema. This is a bug in Zod.");
-        // initialize result with root schema fields
-        // Object.assign(result, seen.cached);
-        // returns a ref to the schema
-        // defId will be empty if the ref points to an external schema (or #)
-        const makeURI = (entry) => {
-            // comparing the seen objects because sometimes
-            // multiple schemas map to the same seen object.
-            // e.g. lazy
-            // external is configured
-            const defsSegment = this.target === "draft-2020-12" ? "$defs" : "definitions";
-            if (params.external) {
-                const externalId = params.external.registry.get(entry[0])?.id; // ?? "__shared";// `__schema${this.counter++}`;
-                // check if schema is in the external registry
-                const uriGenerator = params.external.uri ?? ((id) => id);
-                if (externalId) {
-                    return { ref: uriGenerator(externalId) };
-                }
-                // otherwise, add to __shared
-                const id = entry[1].defId ?? entry[1].schema.id ?? `schema${this.counter++}`;
-                entry[1].defId = id; // set defId so it will be reused if needed
-                return { defId: id, ref: `${uriGenerator("__shared")}#/${defsSegment}/${id}` };
-            }
-            if (entry[1] === root) {
-                return { ref: "#" };
-            }
-            // self-contained schema
-            const uriPrefix = `#`;
-            const defUriPrefix = `${uriPrefix}/${defsSegment}/`;
-            const defId = entry[1].schema.id ?? `__schema${this.counter++}`;
-            return { defId, ref: defUriPrefix + defId };
-        };
-        // stored cached version in `def` property
-        // remove all properties, set $ref
-        const extractToDef = (entry) => {
-            // if the schema is already a reference, do not extract it
-            if (entry[1].schema.$ref) {
-                return;
-            }
-            const seen = entry[1];
-            const { ref, defId } = makeURI(entry);
-            seen.def = { ...seen.schema };
-            // defId won't be set if the schema is a reference to an external schema
-            if (defId)
-                seen.defId = defId;
-            // wipe away all properties except $ref
-            const schema = seen.schema;
-            for (const key in schema) {
-                delete schema[key];
-            }
-            schema.$ref = ref;
-        };
-        // throw on cycles
-        // break cycles
-        if (params.cycles === "throw") {
-            for (const entry of this.seen.entries()) {
-                const seen = entry[1];
-                if (seen.cycle) {
-                    throw new Error("Cycle detected: " +
-                        `#/${seen.cycle?.join("/")}/<root>` +
-                        '\n\nSet the `cycles` parameter to `"ref"` to resolve cyclical schemas with defs.');
-                }
-            }
+        if (schema._zod.processJSONSchema) {
+            schema._zod.processJSONSchema(ctx, result.schema, params);
         }
-        // extract schemas into $defs
-        for (const entry of this.seen.entries()) {
+        else {
+            const _json = result.schema;
+            const processor = ctx.processors[def.type];
+            if (!processor) {
+                throw new Error(`[toJSONSchema]: Non-representable type encountered: ${def.type}`);
+            }
+            processor(schema, ctx, _json, params);
+        }
+        const parent = schema._zod.parent;
+        if (parent) {
+            // Also set ref if processor didn't (for inheritance)
+            if (!result.ref)
+                result.ref = parent;
+            process(parent, ctx, params);
+            ctx.seen.get(parent).isParent = true;
+        }
+    }
+    // metadata
+    const meta = ctx.metadataRegistry.get(schema);
+    if (meta)
+        Object.assign(result.schema, meta);
+    if (ctx.io === "input" && isTransforming(schema)) {
+        // examples/defaults only apply to output type of pipe
+        delete result.schema.examples;
+        delete result.schema.default;
+    }
+    // set prefault as default
+    if (ctx.io === "input" && result.schema._prefault)
+        (_a = result.schema).default ?? (_a.default = result.schema._prefault);
+    delete result.schema._prefault;
+    // pulling fresh from ctx.seen in case it was overwritten
+    const _result = ctx.seen.get(schema);
+    return _result.schema;
+}
+function extractDefs(ctx, schema
+// params: EmitParams
+) {
+    // iterate over seen map;
+    const root = ctx.seen.get(schema);
+    if (!root)
+        throw new Error("Unprocessed schema. This is a bug in Zod.");
+    // Track ids to detect duplicates across different schemas
+    const idToSchema = new Map();
+    for (const entry of ctx.seen.entries()) {
+        const id = ctx.metadataRegistry.get(entry[0])?.id;
+        if (id) {
+            const existing = idToSchema.get(id);
+            if (existing && existing !== entry[0]) {
+                throw new Error(`Duplicate schema id "${id}" detected during JSON Schema conversion. Two different schemas cannot share the same id when converted together.`);
+            }
+            idToSchema.set(id, entry[0]);
+        }
+    }
+    // returns a ref to the schema
+    // defId will be empty if the ref points to an external schema (or #)
+    const makeURI = (entry) => {
+        // comparing the seen objects because sometimes
+        // multiple schemas map to the same seen object.
+        // e.g. lazy
+        // external is configured
+        const defsSegment = ctx.target === "draft-2020-12" ? "$defs" : "definitions";
+        if (ctx.external) {
+            const externalId = ctx.external.registry.get(entry[0])?.id; // ?? "__shared";// `__schema${ctx.counter++}`;
+            // check if schema is in the external registry
+            const uriGenerator = ctx.external.uri ?? ((id) => id);
+            if (externalId) {
+                return { ref: uriGenerator(externalId) };
+            }
+            // otherwise, add to __shared
+            const id = entry[1].defId ?? entry[1].schema.id ?? `schema${ctx.counter++}`;
+            entry[1].defId = id; // set defId so it will be reused if needed
+            return { defId: id, ref: `${uriGenerator("__shared")}#/${defsSegment}/${id}` };
+        }
+        if (entry[1] === root) {
+            return { ref: "#" };
+        }
+        // self-contained schema
+        const uriPrefix = `#`;
+        const defUriPrefix = `${uriPrefix}/${defsSegment}/`;
+        const defId = entry[1].schema.id ?? `__schema${ctx.counter++}`;
+        return { defId, ref: defUriPrefix + defId };
+    };
+    // stored cached version in `def` property
+    // remove all properties, set $ref
+    const extractToDef = (entry) => {
+        // if the schema is already a reference, do not extract it
+        if (entry[1].schema.$ref) {
+            return;
+        }
+        const seen = entry[1];
+        const { ref, defId } = makeURI(entry);
+        seen.def = { ...seen.schema };
+        // defId won't be set if the schema is a reference to an external schema
+        // or if the schema is the root schema
+        if (defId)
+            seen.defId = defId;
+        // wipe away all properties except $ref
+        const schema = seen.schema;
+        for (const key in schema) {
+            delete schema[key];
+        }
+        schema.$ref = ref;
+    };
+    // throw on cycles
+    // break cycles
+    if (ctx.cycles === "throw") {
+        for (const entry of ctx.seen.entries()) {
             const seen = entry[1];
-            // convert root schema to # $ref
-            if (schema === entry[0]) {
-                extractToDef(entry); // this has special handling for the root schema
-                continue;
-            }
-            // extract schemas that are in the external registry
-            if (params.external) {
-                const ext = params.external.registry.get(entry[0])?.id;
-                if (schema !== entry[0] && ext) {
-                    extractToDef(entry);
-                    continue;
-                }
-            }
-            // extract schemas with `id` meta
-            const id = this.metadataRegistry.get(entry[0])?.id;
-            if (id) {
-                extractToDef(entry);
-                continue;
-            }
-            // break cycles
             if (seen.cycle) {
-                // any
+                throw new Error("Cycle detected: " +
+                    `#/${seen.cycle?.join("/")}/<root>` +
+                    '\n\nSet the `cycles` parameter to `"ref"` to resolve cyclical schemas with defs.');
+            }
+        }
+    }
+    // extract schemas into $defs
+    for (const entry of ctx.seen.entries()) {
+        const seen = entry[1];
+        // convert root schema to # $ref
+        if (schema === entry[0]) {
+            extractToDef(entry); // this has special handling for the root schema
+            continue;
+        }
+        // extract schemas that are in the external registry
+        if (ctx.external) {
+            const ext = ctx.external.registry.get(entry[0])?.id;
+            if (schema !== entry[0] && ext) {
                 extractToDef(entry);
                 continue;
             }
-            // extract reused schemas
-            if (seen.count > 1) {
-                if (params.reused === "ref") {
-                    extractToDef(entry);
-                    // biome-ignore lint:
-                    continue;
-                }
+        }
+        // extract schemas with `id` meta
+        const id = ctx.metadataRegistry.get(entry[0])?.id;
+        if (id) {
+            extractToDef(entry);
+            continue;
+        }
+        // break cycles
+        if (seen.cycle) {
+            // any
+            extractToDef(entry);
+            continue;
+        }
+        // extract reused schemas
+        if (seen.count > 1) {
+            if (ctx.reused === "ref") {
+                extractToDef(entry);
+                // biome-ignore lint:
+                continue;
             }
-        }
-        // flatten _refs
-        const flattenRef = (zodSchema, params) => {
-            const seen = this.seen.get(zodSchema);
-            const schema = seen.def ?? seen.schema;
-            const _cached = { ...schema };
-            // already seen
-            if (seen.ref === null) {
-                return;
-            }
-            // flatten ref if defined
-            const ref = seen.ref;
-            seen.ref = null; // prevent recursion
-            if (ref) {
-                flattenRef(ref, params);
-                // merge referenced schema into current
-                const refSchema = this.seen.get(ref).schema;
-                if (refSchema.$ref && (params.target === "draft-7" || params.target === "draft-4")) {
-                    schema.allOf = schema.allOf ?? [];
-                    schema.allOf.push(refSchema);
-                }
-                else {
-                    Object.assign(schema, refSchema);
-                    Object.assign(schema, _cached); // prevent overwriting any fields in the original schema
-                }
-            }
-            // execute overrides
-            if (!seen.isParent)
-                this.override({
-                    zodSchema: zodSchema,
-                    jsonSchema: schema,
-                    path: seen.path ?? [],
-                });
-        };
-        for (const entry of [...this.seen.entries()].reverse()) {
-            flattenRef(entry[0], { target: this.target });
-        }
-        const result = {};
-        if (this.target === "draft-2020-12") {
-            result.$schema = "https://json-schema.org/draft/2020-12/schema";
-        }
-        else if (this.target === "draft-7") {
-            result.$schema = "http://json-schema.org/draft-07/schema#";
-        }
-        else if (this.target === "draft-4") {
-            result.$schema = "http://json-schema.org/draft-04/schema#";
-        }
-        else {
-            // @ts-ignore
-            console.warn(`Invalid target: ${this.target}`);
-        }
-        if (params.external?.uri) {
-            const id = params.external.registry.get(schema)?.id;
-            if (!id)
-                throw new Error("Schema is missing an `id` property");
-            result.$id = params.external.uri(id);
-        }
-        Object.assign(result, root.def);
-        // build defs object
-        const defs = params.external?.defs ?? {};
-        for (const entry of this.seen.entries()) {
-            const seen = entry[1];
-            if (seen.def && seen.defId) {
-                defs[seen.defId] = seen.def;
-            }
-        }
-        // set definitions in result
-        if (params.external) {
-        }
-        else {
-            if (Object.keys(defs).length > 0) {
-                if (this.target === "draft-2020-12") {
-                    result.$defs = defs;
-                }
-                else {
-                    result.definitions = defs;
-                }
-            }
-        }
-        try {
-            // this "finalizes" this schema and ensures all cycles are removed
-            // each call to .emit() is functionally independent
-            // though the seen map is shared
-            return JSON.parse(JSON.stringify(result));
-        }
-        catch (_err) {
-            throw new Error("Error converting schema to JSON.");
         }
     }
 }
-exports.JSONSchemaGenerator = JSONSchemaGenerator;
-function toJSONSchema(input, _params) {
-    if (input instanceof registries_js_1.$ZodRegistry) {
-        const gen = new JSONSchemaGenerator(_params);
-        const defs = {};
-        for (const entry of input._idmap.entries()) {
-            const [_, schema] = entry;
-            gen.process(schema);
+function finalize(ctx, schema) {
+    const root = ctx.seen.get(schema);
+    if (!root)
+        throw new Error("Unprocessed schema. This is a bug in Zod.");
+    // flatten refs - inherit properties from parent schemas
+    const flattenRef = (zodSchema) => {
+        const seen = ctx.seen.get(zodSchema);
+        // already processed
+        if (seen.ref === null)
+            return;
+        const schema = seen.def ?? seen.schema;
+        const _cached = { ...schema };
+        const ref = seen.ref;
+        seen.ref = null; // prevent infinite recursion
+        if (ref) {
+            flattenRef(ref);
+            const refSeen = ctx.seen.get(ref);
+            const refSchema = refSeen.schema;
+            // merge referenced schema into current
+            if (refSchema.$ref && (ctx.target === "draft-07" || ctx.target === "draft-04" || ctx.target === "openapi-3.0")) {
+                // older drafts can't combine $ref with other properties
+                schema.allOf = schema.allOf ?? [];
+                schema.allOf.push(refSchema);
+            }
+            else {
+                Object.assign(schema, refSchema);
+            }
+            // restore child's own properties (child wins)
+            Object.assign(schema, _cached);
+            const isParentRef = zodSchema._zod.parent === ref;
+            // For parent chain, child is a refinement - remove parent-only properties
+            if (isParentRef) {
+                for (const key in schema) {
+                    if (key === "$ref" || key === "allOf")
+                        continue;
+                    if (!(key in _cached)) {
+                        delete schema[key];
+                    }
+                }
+            }
+            // When ref was extracted to $defs, remove properties that match the definition
+            if (refSchema.$ref && refSeen.def) {
+                for (const key in schema) {
+                    if (key === "$ref" || key === "allOf")
+                        continue;
+                    if (key in refSeen.def && JSON.stringify(schema[key]) === JSON.stringify(refSeen.def[key])) {
+                        delete schema[key];
+                    }
+                }
+            }
         }
-        const schemas = {};
-        const external = {
-            registry: input,
-            uri: _params?.uri,
-            defs,
-        };
-        for (const entry of input._idmap.entries()) {
-            const [key, schema] = entry;
-            schemas[key] = gen.emit(schema, {
-                ..._params,
-                external,
-            });
+        // If parent was extracted (has $ref), propagate $ref to this schema
+        // This handles cases like: readonly().meta({id}).describe()
+        // where processor sets ref to innerType but parent should be referenced
+        const parent = zodSchema._zod.parent;
+        if (parent && parent !== ref) {
+            // Ensure parent is processed first so its def has inherited properties
+            flattenRef(parent);
+            const parentSeen = ctx.seen.get(parent);
+            if (parentSeen?.schema.$ref) {
+                schema.$ref = parentSeen.schema.$ref;
+                // De-duplicate with parent's definition
+                if (parentSeen.def) {
+                    for (const key in schema) {
+                        if (key === "$ref" || key === "allOf")
+                            continue;
+                        if (key in parentSeen.def && JSON.stringify(schema[key]) === JSON.stringify(parentSeen.def[key])) {
+                            delete schema[key];
+                        }
+                    }
+                }
+            }
         }
-        if (Object.keys(defs).length > 0) {
-            const defsSegment = gen.target === "draft-2020-12" ? "$defs" : "definitions";
-            schemas.__shared = {
-                [defsSegment]: defs,
-            };
-        }
-        return { schemas };
+        // execute overrides
+        ctx.override({
+            zodSchema: zodSchema,
+            jsonSchema: schema,
+            path: seen.path ?? [],
+        });
+    };
+    for (const entry of [...ctx.seen.entries()].reverse()) {
+        flattenRef(entry[0]);
     }
-    const gen = new JSONSchemaGenerator(_params);
-    gen.process(input);
-    return gen.emit(input, _params);
+    const result = {};
+    if (ctx.target === "draft-2020-12") {
+        result.$schema = "https://json-schema.org/draft/2020-12/schema";
+    }
+    else if (ctx.target === "draft-07") {
+        result.$schema = "http://json-schema.org/draft-07/schema#";
+    }
+    else if (ctx.target === "draft-04") {
+        result.$schema = "http://json-schema.org/draft-04/schema#";
+    }
+    else if (ctx.target === "openapi-3.0") {
+        // OpenAPI 3.0 schema objects should not include a $schema property
+    }
+    else {
+        // Arbitrary string values are allowed but won't have a $schema property set
+    }
+    if (ctx.external?.uri) {
+        const id = ctx.external.registry.get(schema)?.id;
+        if (!id)
+            throw new Error("Schema is missing an `id` property");
+        result.$id = ctx.external.uri(id);
+    }
+    Object.assign(result, root.def ?? root.schema);
+    // build defs object
+    const defs = ctx.external?.defs ?? {};
+    for (const entry of ctx.seen.entries()) {
+        const seen = entry[1];
+        if (seen.def && seen.defId) {
+            defs[seen.defId] = seen.def;
+        }
+    }
+    // set definitions in result
+    if (ctx.external) {
+    }
+    else {
+        if (Object.keys(defs).length > 0) {
+            if (ctx.target === "draft-2020-12") {
+                result.$defs = defs;
+            }
+            else {
+                result.definitions = defs;
+            }
+        }
+    }
+    try {
+        // this "finalizes" this schema and ensures all cycles are removed
+        // each call to finalize() is functionally independent
+        // though the seen map is shared
+        const finalized = JSON.parse(JSON.stringify(result));
+        Object.defineProperty(finalized, "~standard", {
+            value: {
+                ...schema["~standard"],
+                jsonSchema: {
+                    input: (0, exports.createStandardJSONSchemaMethod)(schema, "input", ctx.processors),
+                    output: (0, exports.createStandardJSONSchemaMethod)(schema, "output", ctx.processors),
+                },
+            },
+            enumerable: false,
+            writable: false,
+        });
+        return finalized;
+    }
+    catch (_err) {
+        throw new Error("Error converting schema to JSON.");
+    }
 }
 function isTransforming(_schema, _ctx) {
     const ctx = _ctx ?? { seen: new Set() };
     if (ctx.seen.has(_schema))
         return false;
     ctx.seen.add(_schema);
-    const schema = _schema;
-    const def = schema._zod.def;
-    switch (def.type) {
-        case "string":
-        case "number":
-        case "bigint":
-        case "boolean":
-        case "date":
-        case "symbol":
-        case "undefined":
-        case "null":
-        case "any":
-        case "unknown":
-        case "never":
-        case "void":
-        case "literal":
-        case "enum":
-        case "nan":
-        case "file":
-        case "template_literal":
-            return false;
-        case "array": {
-            return isTransforming(def.element, ctx);
-        }
-        case "object": {
-            for (const key in def.shape) {
-                if (isTransforming(def.shape[key], ctx))
-                    return true;
-            }
-            return false;
-        }
-        case "union": {
-            for (const option of def.options) {
-                if (isTransforming(option, ctx))
-                    return true;
-            }
-            return false;
-        }
-        case "intersection": {
-            return isTransforming(def.left, ctx) || isTransforming(def.right, ctx);
-        }
-        case "tuple": {
-            for (const item of def.items) {
-                if (isTransforming(item, ctx))
-                    return true;
-            }
-            if (def.rest && isTransforming(def.rest, ctx))
-                return true;
-            return false;
-        }
-        case "record": {
-            return isTransforming(def.keyType, ctx) || isTransforming(def.valueType, ctx);
-        }
-        case "map": {
-            return isTransforming(def.keyType, ctx) || isTransforming(def.valueType, ctx);
-        }
-        case "set": {
-            return isTransforming(def.valueType, ctx);
-        }
-        // inner types
-        case "promise":
-        case "optional":
-        case "nonoptional":
-        case "nullable":
-        case "readonly":
-            return isTransforming(def.innerType, ctx);
-        case "lazy":
-            return isTransforming(def.getter(), ctx);
-        case "default": {
-            return isTransforming(def.innerType, ctx);
-        }
-        case "prefault": {
-            return isTransforming(def.innerType, ctx);
-        }
-        case "custom": {
-            return false;
-        }
-        case "transform": {
-            return true;
-        }
-        case "pipe": {
-            return isTransforming(def.in, ctx) || isTransforming(def.out, ctx);
-        }
-        case "success": {
-            return false;
-        }
-        case "catch": {
-            return false;
-        }
-        default:
-            def;
+    const def = _schema._zod.def;
+    if (def.type === "transform")
+        return true;
+    if (def.type === "array")
+        return isTransforming(def.element, ctx);
+    if (def.type === "set")
+        return isTransforming(def.valueType, ctx);
+    if (def.type === "lazy")
+        return isTransforming(def.getter(), ctx);
+    if (def.type === "promise" ||
+        def.type === "optional" ||
+        def.type === "nonoptional" ||
+        def.type === "nullable" ||
+        def.type === "readonly" ||
+        def.type === "default" ||
+        def.type === "prefault") {
+        return isTransforming(def.innerType, ctx);
     }
-    throw new Error(`Unknown schema type: ${def.type}`);
+    if (def.type === "intersection") {
+        return isTransforming(def.left, ctx) || isTransforming(def.right, ctx);
+    }
+    if (def.type === "record" || def.type === "map") {
+        return isTransforming(def.keyType, ctx) || isTransforming(def.valueType, ctx);
+    }
+    if (def.type === "pipe") {
+        return isTransforming(def.in, ctx) || isTransforming(def.out, ctx);
+    }
+    if (def.type === "object") {
+        for (const key in def.shape) {
+            if (isTransforming(def.shape[key], ctx))
+                return true;
+        }
+        return false;
+    }
+    if (def.type === "union") {
+        for (const option of def.options) {
+            if (isTransforming(option, ctx))
+                return true;
+        }
+        return false;
+    }
+    if (def.type === "tuple") {
+        for (const item of def.items) {
+            if (isTransforming(item, ctx))
+                return true;
+        }
+        if (def.rest && isTransforming(def.rest, ctx))
+            return true;
+        return false;
+    }
+    return false;
 }
+/**
+ * Creates a toJSONSchema method for a schema instance.
+ * This encapsulates the logic of initializing context, processing, extracting defs, and finalizing.
+ */
+const createToJSONSchemaMethod = (schema, processors = {}) => (params) => {
+    const ctx = initializeContext({ ...params, processors });
+    process(schema, ctx);
+    extractDefs(ctx, schema);
+    return finalize(ctx, schema);
+};
+exports.createToJSONSchemaMethod = createToJSONSchemaMethod;
+const createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) => {
+    const { libraryOptions, target } = params ?? {};
+    const ctx = initializeContext({ ...(libraryOptions ?? {}), target, io, processors });
+    process(schema, ctx);
+    extractDefs(ctx, schema);
+    return finalize(ctx, schema);
+};
+exports.createStandardJSONSchemaMethod = createStandardJSONSchemaMethod;
 
 
 /***/ }),
@@ -52600,6 +54294,7 @@ exports.getElementAtPath = getElementAtPath;
 exports.promiseAllObject = promiseAllObject;
 exports.randomString = randomString;
 exports.esc = esc;
+exports.slugify = slugify;
 exports.isObject = isObject;
 exports.isPlainObject = isPlainObject;
 exports.shallowClone = shallowClone;
@@ -52613,6 +54308,7 @@ exports.optionalKeys = optionalKeys;
 exports.pick = pick;
 exports.omit = omit;
 exports.extend = extend;
+exports.safeExtend = safeExtend;
 exports.merge = merge;
 exports.partial = partial;
 exports.required = required;
@@ -52622,8 +54318,15 @@ exports.unwrapMessage = unwrapMessage;
 exports.finalizeIssue = finalizeIssue;
 exports.getSizableOrigin = getSizableOrigin;
 exports.getLengthableOrigin = getLengthableOrigin;
+exports.parsedType = parsedType;
 exports.issue = issue;
 exports.cleanEnum = cleanEnum;
+exports.base64ToUint8Array = base64ToUint8Array;
+exports.uint8ArrayToBase64 = uint8ArrayToBase64;
+exports.base64urlToUint8Array = base64urlToUint8Array;
+exports.uint8ArrayToBase64url = uint8ArrayToBase64url;
+exports.hexToUint8Array = hexToUint8Array;
+exports.uint8ArrayToHex = uint8ArrayToHex;
 // functions
 function assertEqual(val) {
     return val;
@@ -52633,7 +54336,7 @@ function assertNotEqual(val) {
 }
 function assertIs(_arg) { }
 function assertNever(_x) {
-    throw new Error();
+    throw new Error("Unexpected value in exhaustive check");
 }
 function assert(_) { }
 function getEnumValues(entries) {
@@ -52761,6 +54464,14 @@ function randomString(length = 10) {
 function esc(str) {
     return JSON.stringify(str);
 }
+function slugify(input) {
+    return input
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
 exports.captureStackTrace = ("captureStackTrace" in Error ? Error.captureStackTrace : (..._args) => { });
 function isObject(data) {
     return typeof data === "object" && data !== null && !Array.isArray(data);
@@ -52786,6 +54497,8 @@ function isPlainObject(o) {
     const ctor = o.constructor;
     if (ctor === undefined)
         return true;
+    if (typeof ctor !== "function")
+        return true;
     // modified prototype
     const prot = ctor.prototype;
     if (isObject(prot) === false)
@@ -52799,6 +54512,8 @@ function isPlainObject(o) {
 function shallowClone(o) {
     if (isPlainObject(o))
         return { ...o };
+    if (Array.isArray(o))
+        return [...o];
     return o;
 }
 function numKeys(data) {
@@ -52942,6 +54657,11 @@ exports.BIGINT_FORMAT_RANGES = {
 };
 function pick(schema, mask) {
     const currDef = schema._zod.def;
+    const checks = currDef.checks;
+    const hasChecks = checks && checks.length > 0;
+    if (hasChecks) {
+        throw new Error(".pick() cannot be used on object schemas containing refinements");
+    }
     const def = mergeDefs(schema._zod.def, {
         get shape() {
             const newShape = {};
@@ -52962,6 +54682,11 @@ function pick(schema, mask) {
 }
 function omit(schema, mask) {
     const currDef = schema._zod.def;
+    const checks = currDef.checks;
+    const hasChecks = checks && checks.length > 0;
+    if (hasChecks) {
+        throw new Error(".omit() cannot be used on object schemas containing refinements");
+    }
     const def = mergeDefs(schema._zod.def, {
         get shape() {
             const newShape = { ...schema._zod.def.shape };
@@ -52984,13 +54709,37 @@ function extend(schema, shape) {
     if (!isPlainObject(shape)) {
         throw new Error("Invalid input to extend: expected a plain object");
     }
+    const checks = schema._zod.def.checks;
+    const hasChecks = checks && checks.length > 0;
+    if (hasChecks) {
+        // Only throw if new shape overlaps with existing shape
+        // Use getOwnPropertyDescriptor to check key existence without accessing values
+        const existingShape = schema._zod.def.shape;
+        for (const key in shape) {
+            if (Object.getOwnPropertyDescriptor(existingShape, key) !== undefined) {
+                throw new Error("Cannot overwrite keys on object schemas containing refinements. Use `.safeExtend()` instead.");
+            }
+        }
+    }
     const def = mergeDefs(schema._zod.def, {
         get shape() {
             const _shape = { ...schema._zod.def.shape, ...shape };
             assignProp(this, "shape", _shape); // self-caching
             return _shape;
         },
-        checks: [],
+    });
+    return clone(schema, def);
+}
+function safeExtend(schema, shape) {
+    if (!isPlainObject(shape)) {
+        throw new Error("Invalid input to safeExtend: expected a plain object");
+    }
+    const def = mergeDefs(schema._zod.def, {
+        get shape() {
+            const _shape = { ...schema._zod.def.shape, ...shape };
+            assignProp(this, "shape", _shape); // self-caching
+            return _shape;
+        },
     });
     return clone(schema, def);
 }
@@ -53009,6 +54758,12 @@ function merge(a, b) {
     return clone(a, def);
 }
 function partial(Class, schema, mask) {
+    const currDef = schema._zod.def;
+    const checks = currDef.checks;
+    const hasChecks = checks && checks.length > 0;
+    if (hasChecks) {
+        throw new Error(".partial() cannot be used on object schemas containing refinements");
+    }
     const def = mergeDefs(schema._zod.def, {
         get shape() {
             const oldShape = schema._zod.def.shape;
@@ -53078,12 +54833,13 @@ function required(Class, schema, mask) {
             assignProp(this, "shape", shape); // self-caching
             return shape;
         },
-        checks: [],
     });
     return clone(schema, def);
 }
 // invalid_type | too_big | too_small | invalid_format | not_multiple_of | unrecognized_keys | invalid_union | invalid_key | invalid_element | invalid_value | custom
 function aborted(x, startIndex = 0) {
+    if (x.aborted === true)
+        return true;
     for (let i = startIndex; i < x.issues.length; i++) {
         if (x.issues[i]?.continue !== true) {
             return true;
@@ -53138,6 +54894,27 @@ function getLengthableOrigin(input) {
         return "string";
     return "unknown";
 }
+function parsedType(data) {
+    const t = typeof data;
+    switch (t) {
+        case "number": {
+            return Number.isNaN(data) ? "nan" : "number";
+        }
+        case "object": {
+            if (data === null) {
+                return "null";
+            }
+            if (Array.isArray(data)) {
+                return "array";
+            }
+            const obj = data;
+            if (obj && Object.getPrototypeOf(obj) !== Object.prototype && "constructor" in obj && obj.constructor) {
+                return obj.constructor.name;
+            }
+        }
+    }
+    return t;
+}
 function issue(...args) {
     const [iss, input, inst] = args;
     if (typeof iss === "string") {
@@ -53158,6 +54935,46 @@ function cleanEnum(obj) {
     })
         .map((el) => el[1]);
 }
+// Codec utility functions
+function base64ToUint8Array(base64) {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+}
+function uint8ArrayToBase64(bytes) {
+    let binaryString = "";
+    for (let i = 0; i < bytes.length; i++) {
+        binaryString += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binaryString);
+}
+function base64urlToUint8Array(base64url) {
+    const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+    const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+    return base64ToUint8Array(base64 + padding);
+}
+function uint8ArrayToBase64url(bytes) {
+    return uint8ArrayToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+function hexToUint8Array(hex) {
+    const cleanHex = hex.replace(/^0x/, "");
+    if (cleanHex.length % 2 !== 0) {
+        throw new Error("Invalid hex string length");
+    }
+    const bytes = new Uint8Array(cleanHex.length / 2);
+    for (let i = 0; i < cleanHex.length; i += 2) {
+        bytes[i / 2] = Number.parseInt(cleanHex.slice(i, i + 2), 16);
+    }
+    return bytes;
+}
+function uint8ArrayToHex(bytes) {
+    return Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+}
 // instanceof
 class Class {
     constructor(..._args) { }
@@ -53176,8 +54993,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.version = void 0;
 exports.version = {
     major: 4,
-    minor: 0,
-    patch: 17,
+    minor: 3,
+    patch: 6,
 };
 
 
@@ -53224,27 +55041,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "مدخل",
         email: "بريد إلكتروني",
         url: "رابط",
@@ -53274,10 +55071,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "مدخل",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `مدخلات غير مقبولة: يفترض إدخال ${issue.expected}، ولكن تم إدخال ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `مدخلات غير مقبولة: يفترض إدخال instanceof ${issue.expected}، ولكن تم إدخال ${received}`;
+                }
+                return `مدخلات غير مقبولة: يفترض إدخال ${expected}، ولكن تم إدخال ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `مدخلات غير مقبولة: يفترض إدخال ${util.stringifyPrimitive(issue.values[0])}`;
@@ -53307,7 +55114,7 @@ const error = () => {
                     return `نَص غير مقبول: يجب أن يتضمَّن "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `نَص غير مقبول: يجب أن يطابق النمط ${_issue.pattern}`;
-                return `${Nouns[_issue.format] ?? issue.format} غير مقبول`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} غير مقبول`;
             }
             case "not_multiple_of":
                 return `رقم غير مقبول: يجب أن يكون من مضاعفات ${issue.divisor}`;
@@ -53375,27 +55182,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "input",
         email: "email address",
         url: "URL",
@@ -53425,10 +55212,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "input",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Yanlış dəyər: gözlənilən ${issue.expected}, daxil olan ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Yanlış dəyər: gözlənilən instanceof ${issue.expected}, daxil olan ${received}`;
+                }
+                return `Yanlış dəyər: gözlənilən ${expected}, daxil olan ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Yanlış dəyər: gözlənilən ${util.stringifyPrimitive(issue.values[0])}`;
@@ -53457,7 +55254,7 @@ const error = () => {
                     return `Yanlış mətn: "${_issue.includes}" daxil olmalıdır`;
                 if (_issue.format === "regex")
                     return `Yanlış mətn: ${_issue.pattern} şablonuna uyğun olmalıdır`;
-                return `Yanlış ${Nouns[_issue.format] ?? issue.format}`;
+                return `Yanlış ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Yanlış ədəd: ${issue.divisor} ilə bölünə bilən olmalıdır`;
@@ -53568,27 +55365,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "лік";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "масіў";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "увод",
         email: "email адрас",
         url: "URL",
@@ -53618,10 +55395,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "увод",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "лік",
+        array: "масіў",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Няправільны ўвод: чакаўся ${issue.expected}, атрымана ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Няправільны ўвод: чакаўся instanceof ${issue.expected}, атрымана ${received}`;
+                }
+                return `Няправільны ўвод: чакаўся ${expected}, атрымана ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Няправільны ўвод: чакалася ${util.stringifyPrimitive(issue.values[0])}`;
@@ -53656,7 +55445,7 @@ const error = () => {
                     return `Няправільны радок: павінен змяшчаць "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Няправільны радок: павінен адпавядаць шаблону ${_issue.pattern}`;
-                return `Няправільны ${Nouns[_issue.format] ?? issue.format}`;
+                return `Няправільны ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Няправільны лік: павінен быць кратным ${issue.divisor}`;
@@ -53670,6 +55459,161 @@ const error = () => {
                 return `Няправільнае значэнне ў ${issue.origin}`;
             default:
                 return `Няправільны ўвод`;
+        }
+    };
+};
+function default_1() {
+    return {
+        localeError: error(),
+    };
+}
+module.exports = exports.default;
+
+
+/***/ }),
+
+/***/ 5228:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = default_1;
+const util = __importStar(__nccwpck_require__(1327));
+const error = () => {
+    const Sizable = {
+        string: { unit: "символа", verb: "да съдържа" },
+        file: { unit: "байта", verb: "да съдържа" },
+        array: { unit: "елемента", verb: "да съдържа" },
+        set: { unit: "елемента", verb: "да съдържа" },
+    };
+    function getSizing(origin) {
+        return Sizable[origin] ?? null;
+    }
+    const FormatDictionary = {
+        regex: "вход",
+        email: "имейл адрес",
+        url: "URL",
+        emoji: "емоджи",
+        uuid: "UUID",
+        uuidv4: "UUIDv4",
+        uuidv6: "UUIDv6",
+        nanoid: "nanoid",
+        guid: "GUID",
+        cuid: "cuid",
+        cuid2: "cuid2",
+        ulid: "ULID",
+        xid: "XID",
+        ksuid: "KSUID",
+        datetime: "ISO време",
+        date: "ISO дата",
+        time: "ISO време",
+        duration: "ISO продължителност",
+        ipv4: "IPv4 адрес",
+        ipv6: "IPv6 адрес",
+        cidrv4: "IPv4 диапазон",
+        cidrv6: "IPv6 диапазон",
+        base64: "base64-кодиран низ",
+        base64url: "base64url-кодиран низ",
+        json_string: "JSON низ",
+        e164: "E.164 номер",
+        jwt: "JWT",
+        template_literal: "вход",
+    };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "число",
+        array: "масив",
+    };
+    return (issue) => {
+        switch (issue.code) {
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Невалиден вход: очакван instanceof ${issue.expected}, получен ${received}`;
+                }
+                return `Невалиден вход: очакван ${expected}, получен ${received}`;
+            }
+            case "invalid_value":
+                if (issue.values.length === 1)
+                    return `Невалиден вход: очакван ${util.stringifyPrimitive(issue.values[0])}`;
+                return `Невалидна опция: очаквано едно от ${util.joinValues(issue.values, "|")}`;
+            case "too_big": {
+                const adj = issue.inclusive ? "<=" : "<";
+                const sizing = getSizing(issue.origin);
+                if (sizing)
+                    return `Твърде голямо: очаква се ${issue.origin ?? "стойност"} да съдържа ${adj}${issue.maximum.toString()} ${sizing.unit ?? "елемента"}`;
+                return `Твърде голямо: очаква се ${issue.origin ?? "стойност"} да бъде ${adj}${issue.maximum.toString()}`;
+            }
+            case "too_small": {
+                const adj = issue.inclusive ? ">=" : ">";
+                const sizing = getSizing(issue.origin);
+                if (sizing) {
+                    return `Твърде малко: очаква се ${issue.origin} да съдържа ${adj}${issue.minimum.toString()} ${sizing.unit}`;
+                }
+                return `Твърде малко: очаква се ${issue.origin} да бъде ${adj}${issue.minimum.toString()}`;
+            }
+            case "invalid_format": {
+                const _issue = issue;
+                if (_issue.format === "starts_with") {
+                    return `Невалиден низ: трябва да започва с "${_issue.prefix}"`;
+                }
+                if (_issue.format === "ends_with")
+                    return `Невалиден низ: трябва да завършва с "${_issue.suffix}"`;
+                if (_issue.format === "includes")
+                    return `Невалиден низ: трябва да включва "${_issue.includes}"`;
+                if (_issue.format === "regex")
+                    return `Невалиден низ: трябва да съвпада с ${_issue.pattern}`;
+                let invalid_adj = "Невалиден";
+                if (_issue.format === "emoji")
+                    invalid_adj = "Невалидно";
+                if (_issue.format === "datetime")
+                    invalid_adj = "Невалидно";
+                if (_issue.format === "date")
+                    invalid_adj = "Невалидна";
+                if (_issue.format === "time")
+                    invalid_adj = "Невалидно";
+                if (_issue.format === "duration")
+                    invalid_adj = "Невалидна";
+                return `${invalid_adj} ${FormatDictionary[_issue.format] ?? issue.format}`;
+            }
+            case "not_multiple_of":
+                return `Невалидно число: трябва да бъде кратно на ${issue.divisor}`;
+            case "unrecognized_keys":
+                return `Неразпознат${issue.keys.length > 1 ? "и" : ""} ключ${issue.keys.length > 1 ? "ове" : ""}: ${util.joinValues(issue.keys, ", ")}`;
+            case "invalid_key":
+                return `Невалиден ключ в ${issue.origin}`;
+            case "invalid_union":
+                return "Невалиден вход";
+            case "invalid_element":
+                return `Невалидна стойност в ${issue.origin}`;
+            default:
+                return `Невалиден вход`;
         }
     };
 };
@@ -53724,27 +55668,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "entrada",
         email: "adreça electrònica",
         url: "URL",
@@ -53774,11 +55698,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "entrada",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Tipus invàlid: s'esperava ${issue.expected}, s'ha rebut ${parsedType(issue.input)}`;
-            // return `Tipus invàlid: s'esperava ${issue.expected}, s'ha rebut ${util.getParsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Tipus invàlid: s'esperava instanceof ${issue.expected}, s'ha rebut ${received}`;
+                }
+                return `Tipus invàlid: s'esperava ${expected}, s'ha rebut ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Valor invàlid: s'esperava ${util.stringifyPrimitive(issue.values[0])}`;
@@ -53809,7 +55742,7 @@ const error = () => {
                     return `Format invàlid: ha d'incloure "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Format invàlid: ha de coincidir amb el patró ${_issue.pattern}`;
-                return `Format invàlid per a ${Nouns[_issue.format] ?? issue.format}`;
+                return `Format invàlid per a ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Número invàlid: ha de ser múltiple de ${issue.divisor}`;
@@ -53877,45 +55810,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "číslo";
-            }
-            case "string": {
-                return "řetězec";
-            }
-            case "boolean": {
-                return "boolean";
-            }
-            case "bigint": {
-                return "bigint";
-            }
-            case "function": {
-                return "funkce";
-            }
-            case "symbol": {
-                return "symbol";
-            }
-            case "undefined": {
-                return "undefined";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "pole";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "regulární výraz",
         email: "e-mailová adresa",
         url: "URL",
@@ -53945,10 +55840,24 @@ const error = () => {
         jwt: "JWT",
         template_literal: "vstup",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "číslo",
+        string: "řetězec",
+        function: "funkce",
+        array: "pole",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Neplatný vstup: očekáváno ${issue.expected}, obdrženo ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Neplatný vstup: očekáváno instanceof ${issue.expected}, obdrženo ${received}`;
+                }
+                return `Neplatný vstup: očekáváno ${expected}, obdrženo ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Neplatný vstup: očekáváno ${util.stringifyPrimitive(issue.values[0])}`;
@@ -53979,7 +55888,7 @@ const error = () => {
                     return `Neplatný řetězec: musí obsahovat "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Neplatný řetězec: musí odpovídat vzoru ${_issue.pattern}`;
-                return `Neplatný formát ${Nouns[_issue.format] ?? issue.format}`;
+                return `Neplatný formát ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Neplatné číslo: musí být násobkem ${issue.divisor}`;
@@ -54044,43 +55953,10 @@ const error = () => {
         array: { unit: "elementer", verb: "indeholdt" },
         set: { unit: "elementer", verb: "indeholdt" },
     };
-    const TypeNames = {
-        string: "streng",
-        number: "tal",
-        boolean: "boolean",
-        array: "liste",
-        object: "objekt",
-        set: "sæt",
-        file: "fil",
-    };
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    function getTypeName(type) {
-        return TypeNames[type] ?? type;
-    }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "tal";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "liste";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-                return "objekt";
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "input",
         email: "e-mailadresse",
         url: "URL",
@@ -54110,10 +55986,27 @@ const error = () => {
         jwt: "JWT",
         template_literal: "input",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        string: "streng",
+        number: "tal",
+        boolean: "boolean",
+        array: "liste",
+        object: "objekt",
+        set: "sæt",
+        file: "fil",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Ugyldigt input: forventede ${getTypeName(issue.expected)}, fik ${getTypeName(parsedType(issue.input))}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Ugyldigt input: forventede instanceof ${issue.expected}, fik ${received}`;
+                }
+                return `Ugyldigt input: forventede ${expected}, fik ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Ugyldig værdi: forventede ${util.stringifyPrimitive(issue.values[0])}`;
@@ -54121,7 +56014,7 @@ const error = () => {
             case "too_big": {
                 const adj = issue.inclusive ? "<=" : "<";
                 const sizing = getSizing(issue.origin);
-                const origin = getTypeName(issue.origin);
+                const origin = TypeDictionary[issue.origin] ?? issue.origin;
                 if (sizing)
                     return `For stor: forventede ${origin ?? "value"} ${sizing.verb} ${adj} ${issue.maximum.toString()} ${sizing.unit ?? "elementer"}`;
                 return `For stor: forventede ${origin ?? "value"} havde ${adj} ${issue.maximum.toString()}`;
@@ -54129,7 +56022,7 @@ const error = () => {
             case "too_small": {
                 const adj = issue.inclusive ? ">=" : ">";
                 const sizing = getSizing(issue.origin);
-                const origin = getTypeName(issue.origin);
+                const origin = TypeDictionary[issue.origin] ?? issue.origin;
                 if (sizing) {
                     return `For lille: forventede ${origin} ${sizing.verb} ${adj} ${issue.minimum.toString()} ${sizing.unit}`;
                 }
@@ -54145,7 +56038,7 @@ const error = () => {
                     return `Ugyldig streng: skal indeholde "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Ugyldig streng: skal matche mønsteret ${_issue.pattern}`;
-                return `Ugyldig ${Nouns[_issue.format] ?? issue.format}`;
+                return `Ugyldig ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Ugyldigt tal: skal være deleligt med ${issue.divisor}`;
@@ -54213,27 +56106,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "Zahl";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "Array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "Eingabe",
         email: "E-Mail-Adresse",
         url: "URL",
@@ -54263,10 +56136,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "Eingabe",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "Zahl",
+        array: "Array",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Ungültige Eingabe: erwartet ${issue.expected}, erhalten ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Ungültige Eingabe: erwartet instanceof ${issue.expected}, erhalten ${received}`;
+                }
+                return `Ungültige Eingabe: erwartet ${expected}, erhalten ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Ungültige Eingabe: erwartet ${util.stringifyPrimitive(issue.values[0])}`;
@@ -54296,7 +56181,7 @@ const error = () => {
                     return `Ungültiger String: muss "${_issue.includes}" enthalten`;
                 if (_issue.format === "regex")
                     return `Ungültiger String: muss dem Muster ${_issue.pattern} entsprechen`;
-                return `Ungültig: ${Nouns[_issue.format] ?? issue.format}`;
+                return `Ungültig: ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Ungültige Zahl: muss ein Vielfaches von ${issue.divisor} sein`;
@@ -54324,7 +56209,7 @@ module.exports = exports.default;
 /***/ }),
 
 /***/ 4948:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ (function(module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -54352,41 +56237,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parsedType = void 0;
 exports["default"] = default_1;
 const util = __importStar(__nccwpck_require__(1327));
-const parsedType = (data) => {
-    const t = typeof data;
-    switch (t) {
-        case "number": {
-            return Number.isNaN(data) ? "NaN" : "number";
-        }
-        case "object": {
-            if (Array.isArray(data)) {
-                return "array";
-            }
-            if (data === null) {
-                return "null";
-            }
-            if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                return data.constructor.name;
-            }
-        }
-    }
-    return t;
-};
-exports.parsedType = parsedType;
 const error = () => {
     const Sizable = {
         string: { unit: "characters", verb: "to have" },
         file: { unit: "bytes", verb: "to have" },
         array: { unit: "items", verb: "to have" },
         set: { unit: "items", verb: "to have" },
+        map: { unit: "entries", verb: "to have" },
     };
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const Nouns = {
+    const FormatDictionary = {
         regex: "input",
         email: "email address",
         url: "URL",
@@ -54407,6 +56271,7 @@ const error = () => {
         duration: "ISO duration",
         ipv4: "IPv4 address",
         ipv6: "IPv6 address",
+        mac: "MAC address",
         cidrv4: "IPv4 range",
         cidrv6: "IPv6 range",
         base64: "base64-encoded string",
@@ -54416,10 +56281,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "input",
     };
+    // type names: missing keys = do not translate (use raw value via ?? fallback)
+    const TypeDictionary = {
+        // Compatibility: "nan" -> "NaN" for display
+        nan: "NaN",
+        // All other type names omitted - they fall back to raw values via ?? operator
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Invalid input: expected ${issue.expected}, received ${(0, exports.parsedType)(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                return `Invalid input: expected ${expected}, received ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Invalid input: expected ${util.stringifyPrimitive(issue.values[0])}`;
@@ -54450,7 +56325,7 @@ const error = () => {
                     return `Invalid string: must include "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Invalid string: must match pattern ${_issue.pattern}`;
-                return `Invalid ${Nouns[_issue.format] ?? issue.format}`;
+                return `Invalid ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Invalid number: must be a multiple of ${issue.divisor}`;
@@ -54472,12 +56347,13 @@ function default_1() {
         localeError: error(),
     };
 }
+module.exports = exports.default;
 
 
 /***/ }),
 
 /***/ 5389:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ (function(module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -54505,30 +56381,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parsedType = void 0;
 exports["default"] = default_1;
 const util = __importStar(__nccwpck_require__(1327));
-const parsedType = (data) => {
-    const t = typeof data;
-    switch (t) {
-        case "number": {
-            return Number.isNaN(data) ? "NaN" : "nombro";
-        }
-        case "object": {
-            if (Array.isArray(data)) {
-                return "tabelo";
-            }
-            if (data === null) {
-                return "senvalora";
-            }
-            if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                return data.constructor.name;
-            }
-        }
-    }
-    return t;
-};
-exports.parsedType = parsedType;
 const error = () => {
     const Sizable = {
         string: { unit: "karaktrojn", verb: "havi" },
@@ -54539,7 +56393,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const Nouns = {
+    const FormatDictionary = {
         regex: "enigo",
         email: "retadreso",
         url: "URL",
@@ -54569,10 +56423,23 @@ const error = () => {
         jwt: "JWT",
         template_literal: "enigo",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "nombro",
+        array: "tabelo",
+        null: "senvalora",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Nevalida enigo: atendiĝis ${issue.expected}, riceviĝis ${(0, exports.parsedType)(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Nevalida enigo: atendiĝis instanceof ${issue.expected}, riceviĝis ${received}`;
+                }
+                return `Nevalida enigo: atendiĝis ${expected}, riceviĝis ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Nevalida enigo: atendiĝis ${util.stringifyPrimitive(issue.values[0])}`;
@@ -54602,7 +56469,7 @@ const error = () => {
                     return `Nevalida karaktraro: devas inkluzivi "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Nevalida karaktraro: devas kongrui kun la modelo ${_issue.pattern}`;
-                return `Nevalida ${Nouns[_issue.format] ?? issue.format}`;
+                return `Nevalida ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Nevalida nombro: devas esti oblo de ${issue.divisor}`;
@@ -54624,6 +56491,7 @@ function default_1() {
         localeError: error(),
     };
 }
+module.exports = exports.default;
 
 
 /***/ }),
@@ -54669,27 +56537,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "número";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "arreglo";
-                }
-                if (data === null) {
-                    return "nulo";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "entrada",
         email: "dirección de correo electrónico",
         url: "URL",
@@ -54719,11 +56567,44 @@ const error = () => {
         jwt: "JWT",
         template_literal: "entrada",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        string: "texto",
+        number: "número",
+        boolean: "booleano",
+        array: "arreglo",
+        object: "objeto",
+        set: "conjunto",
+        file: "archivo",
+        date: "fecha",
+        bigint: "número grande",
+        symbol: "símbolo",
+        undefined: "indefinido",
+        null: "nulo",
+        function: "función",
+        map: "mapa",
+        record: "registro",
+        tuple: "tupla",
+        enum: "enumeración",
+        union: "unión",
+        literal: "literal",
+        promise: "promesa",
+        void: "vacío",
+        never: "nunca",
+        unknown: "desconocido",
+        any: "cualquiera",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Entrada inválida: se esperaba ${issue.expected}, recibido ${parsedType(issue.input)}`;
-            // return `Entrada inválida: se esperaba ${issue.expected}, recibido ${util.getParsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Entrada inválida: se esperaba instanceof ${issue.expected}, recibido ${received}`;
+                }
+                return `Entrada inválida: se esperaba ${expected}, recibido ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Entrada inválida: se esperaba ${util.stringifyPrimitive(issue.values[0])}`;
@@ -54731,17 +56612,19 @@ const error = () => {
             case "too_big": {
                 const adj = issue.inclusive ? "<=" : "<";
                 const sizing = getSizing(issue.origin);
+                const origin = TypeDictionary[issue.origin] ?? issue.origin;
                 if (sizing)
-                    return `Demasiado grande: se esperaba que ${issue.origin ?? "valor"} tuviera ${adj}${issue.maximum.toString()} ${sizing.unit ?? "elementos"}`;
-                return `Demasiado grande: se esperaba que ${issue.origin ?? "valor"} fuera ${adj}${issue.maximum.toString()}`;
+                    return `Demasiado grande: se esperaba que ${origin ?? "valor"} tuviera ${adj}${issue.maximum.toString()} ${sizing.unit ?? "elementos"}`;
+                return `Demasiado grande: se esperaba que ${origin ?? "valor"} fuera ${adj}${issue.maximum.toString()}`;
             }
             case "too_small": {
                 const adj = issue.inclusive ? ">=" : ">";
                 const sizing = getSizing(issue.origin);
+                const origin = TypeDictionary[issue.origin] ?? issue.origin;
                 if (sizing) {
-                    return `Demasiado pequeño: se esperaba que ${issue.origin} tuviera ${adj}${issue.minimum.toString()} ${sizing.unit}`;
+                    return `Demasiado pequeño: se esperaba que ${origin} tuviera ${adj}${issue.minimum.toString()} ${sizing.unit}`;
                 }
-                return `Demasiado pequeño: se esperaba que ${issue.origin} fuera ${adj}${issue.minimum.toString()}`;
+                return `Demasiado pequeño: se esperaba que ${origin} fuera ${adj}${issue.minimum.toString()}`;
             }
             case "invalid_format": {
                 const _issue = issue;
@@ -54753,18 +56636,18 @@ const error = () => {
                     return `Cadena inválida: debe incluir "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Cadena inválida: debe coincidir con el patrón ${_issue.pattern}`;
-                return `Inválido ${Nouns[_issue.format] ?? issue.format}`;
+                return `Inválido ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Número inválido: debe ser múltiplo de ${issue.divisor}`;
             case "unrecognized_keys":
                 return `Llave${issue.keys.length > 1 ? "s" : ""} desconocida${issue.keys.length > 1 ? "s" : ""}: ${util.joinValues(issue.keys, ", ")}`;
             case "invalid_key":
-                return `Llave inválida en ${issue.origin}`;
+                return `Llave inválida en ${TypeDictionary[issue.origin] ?? issue.origin}`;
             case "invalid_union":
                 return "Entrada inválida";
             case "invalid_element":
-                return `Valor inválido en ${issue.origin}`;
+                return `Valor inválido en ${TypeDictionary[issue.origin] ?? issue.origin}`;
             default:
                 return `Entrada inválida`;
         }
@@ -54821,27 +56704,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "عدد";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "آرایه";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "ورودی",
         email: "آدرس ایمیل",
         url: "URL",
@@ -54871,10 +56734,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "ورودی",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "عدد",
+        array: "آرایه",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `ورودی نامعتبر: می‌بایست ${issue.expected} می‌بود، ${parsedType(issue.input)} دریافت شد`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `ورودی نامعتبر: می‌بایست instanceof ${issue.expected} می‌بود، ${received} دریافت شد`;
+                }
+                return `ورودی نامعتبر: می‌بایست ${expected} می‌بود، ${received} دریافت شد`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1) {
                     return `ورودی نامعتبر: می‌بایست ${util.stringifyPrimitive(issue.values[0])} می‌بود`;
@@ -54910,7 +56785,7 @@ const error = () => {
                 if (_issue.format === "regex") {
                     return `رشته نامعتبر: باید با الگوی ${_issue.pattern} مطابقت داشته باشد`;
                 }
-                return `${Nouns[_issue.format] ?? issue.format} نامعتبر`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} نامعتبر`;
             }
             case "not_multiple_of":
                 return `عدد نامعتبر: باید مضرب ${issue.divisor} باشد`;
@@ -54982,27 +56857,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "säännöllinen lauseke",
         email: "sähköpostiosoite",
         url: "URL-osoite",
@@ -55032,10 +56887,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "templaattimerkkijono",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Virheellinen tyyppi: odotettiin ${issue.expected}, oli ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Virheellinen tyyppi: odotettiin instanceof ${issue.expected}, oli ${received}`;
+                }
+                return `Virheellinen tyyppi: odotettiin ${expected}, oli ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Virheellinen syöte: täytyy olla ${util.stringifyPrimitive(issue.values[0])}`;
@@ -55067,7 +56932,7 @@ const error = () => {
                 if (_issue.format === "regex") {
                     return `Virheellinen syöte: täytyy vastata säännöllistä lauseketta ${_issue.pattern}`;
                 }
-                return `Virheellinen ${Nouns[_issue.format] ?? issue.format}`;
+                return `Virheellinen ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Virheellinen luku: täytyy olla luvun ${issue.divisor} monikerta`;
@@ -55135,27 +57000,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "entrée",
         email: "adresse courriel",
         url: "URL",
@@ -55185,10 +57030,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "entrée",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Entrée invalide : attendu ${issue.expected}, reçu ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Entrée invalide : attendu instanceof ${issue.expected}, reçu ${received}`;
+                }
+                return `Entrée invalide : attendu ${expected}, reçu ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Entrée invalide : attendu ${util.stringifyPrimitive(issue.values[0])}`;
@@ -55219,7 +57074,7 @@ const error = () => {
                     return `Chaîne invalide : doit inclure "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Chaîne invalide : doit correspondre au motif ${_issue.pattern}`;
-                return `${Nouns[_issue.format] ?? issue.format} invalide`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} invalide`;
             }
             case "not_multiple_of":
                 return `Nombre invalide : doit être un multiple de ${issue.divisor}`;
@@ -55287,27 +57142,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "nombre";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "tableau";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "entrée",
         email: "adresse e-mail",
         url: "URL",
@@ -55337,10 +57172,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "entrée",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "nombre",
+        array: "tableau",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Entrée invalide : ${issue.expected} attendu, ${parsedType(issue.input)} reçu`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Entrée invalide : instanceof ${issue.expected} attendu, ${received} reçu`;
+                }
+                return `Entrée invalide : ${expected} attendu, ${received} reçu`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Entrée invalide : ${util.stringifyPrimitive(issue.values[0])} attendu`;
@@ -55370,7 +57217,7 @@ const error = () => {
                     return `Chaîne invalide : doit inclure "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Chaîne invalide : doit correspondre au modèle ${_issue.pattern}`;
-                return `${Nouns[_issue.format] ?? issue.format} invalide`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} invalide`;
             }
             case "not_multiple_of":
                 return `Nombre invalide : doit être un multiple de ${issue.divisor}`;
@@ -55429,111 +57276,208 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports["default"] = default_1;
 const util = __importStar(__nccwpck_require__(1327));
 const error = () => {
+    // Hebrew labels + grammatical gender
+    const TypeNames = {
+        string: { label: "מחרוזת", gender: "f" },
+        number: { label: "מספר", gender: "m" },
+        boolean: { label: "ערך בוליאני", gender: "m" },
+        bigint: { label: "BigInt", gender: "m" },
+        date: { label: "תאריך", gender: "m" },
+        array: { label: "מערך", gender: "m" },
+        object: { label: "אובייקט", gender: "m" },
+        null: { label: "ערך ריק (null)", gender: "m" },
+        undefined: { label: "ערך לא מוגדר (undefined)", gender: "m" },
+        symbol: { label: "סימבול (Symbol)", gender: "m" },
+        function: { label: "פונקציה", gender: "f" },
+        map: { label: "מפה (Map)", gender: "f" },
+        set: { label: "קבוצה (Set)", gender: "f" },
+        file: { label: "קובץ", gender: "m" },
+        promise: { label: "Promise", gender: "m" },
+        NaN: { label: "NaN", gender: "m" },
+        unknown: { label: "ערך לא ידוע", gender: "m" },
+        value: { label: "ערך", gender: "m" },
+    };
+    // Sizing units for size-related messages + localized origin labels
     const Sizable = {
-        string: { unit: "אותיות", verb: "לכלול" },
-        file: { unit: "בייטים", verb: "לכלול" },
-        array: { unit: "פריטים", verb: "לכלול" },
-        set: { unit: "פריטים", verb: "לכלול" },
+        string: { unit: "תווים", shortLabel: "קצר", longLabel: "ארוך" },
+        file: { unit: "בייטים", shortLabel: "קטן", longLabel: "גדול" },
+        array: { unit: "פריטים", shortLabel: "קטן", longLabel: "גדול" },
+        set: { unit: "פריטים", shortLabel: "קטן", longLabel: "גדול" },
+        number: { unit: "", shortLabel: "קטן", longLabel: "גדול" }, // no unit
     };
-    function getSizing(origin) {
+    // Helpers — labels, articles, and verbs
+    const typeEntry = (t) => (t ? TypeNames[t] : undefined);
+    const typeLabel = (t) => {
+        const e = typeEntry(t);
+        if (e)
+            return e.label;
+        // fallback: show raw string if unknown
+        return t ?? TypeNames.unknown.label;
+    };
+    const withDefinite = (t) => `ה${typeLabel(t)}`;
+    const verbFor = (t) => {
+        const e = typeEntry(t);
+        const gender = e?.gender ?? "m";
+        return gender === "f" ? "צריכה להיות" : "צריך להיות";
+    };
+    const getSizing = (origin) => {
+        if (!origin)
+            return null;
         return Sizable[origin] ?? null;
-    }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
     };
-    const Nouns = {
-        regex: "קלט",
-        email: "כתובת אימייל",
-        url: "כתובת רשת",
-        emoji: "אימוג'י",
-        uuid: "UUID",
-        uuidv4: "UUIDv4",
-        uuidv6: "UUIDv6",
-        nanoid: "nanoid",
-        guid: "GUID",
-        cuid: "cuid",
-        cuid2: "cuid2",
-        ulid: "ULID",
-        xid: "XID",
-        ksuid: "KSUID",
-        datetime: "תאריך וזמן ISO",
-        date: "תאריך ISO",
-        time: "זמן ISO",
-        duration: "משך זמן ISO",
-        ipv4: "כתובת IPv4",
-        ipv6: "כתובת IPv6",
-        cidrv4: "טווח IPv4",
-        cidrv6: "טווח IPv6",
-        base64: "מחרוזת בבסיס 64",
-        base64url: "מחרוזת בבסיס 64 לכתובות רשת",
-        json_string: "מחרוזת JSON",
-        e164: "מספר E.164",
-        jwt: "JWT",
-        template_literal: "קלט",
+    const FormatDictionary = {
+        regex: { label: "קלט", gender: "m" },
+        email: { label: "כתובת אימייל", gender: "f" },
+        url: { label: "כתובת רשת", gender: "f" },
+        emoji: { label: "אימוג'י", gender: "m" },
+        uuid: { label: "UUID", gender: "m" },
+        nanoid: { label: "nanoid", gender: "m" },
+        guid: { label: "GUID", gender: "m" },
+        cuid: { label: "cuid", gender: "m" },
+        cuid2: { label: "cuid2", gender: "m" },
+        ulid: { label: "ULID", gender: "m" },
+        xid: { label: "XID", gender: "m" },
+        ksuid: { label: "KSUID", gender: "m" },
+        datetime: { label: "תאריך וזמן ISO", gender: "m" },
+        date: { label: "תאריך ISO", gender: "m" },
+        time: { label: "זמן ISO", gender: "m" },
+        duration: { label: "משך זמן ISO", gender: "m" },
+        ipv4: { label: "כתובת IPv4", gender: "f" },
+        ipv6: { label: "כתובת IPv6", gender: "f" },
+        cidrv4: { label: "טווח IPv4", gender: "m" },
+        cidrv6: { label: "טווח IPv6", gender: "m" },
+        base64: { label: "מחרוזת בבסיס 64", gender: "f" },
+        base64url: { label: "מחרוזת בבסיס 64 לכתובות רשת", gender: "f" },
+        json_string: { label: "מחרוזת JSON", gender: "f" },
+        e164: { label: "מספר E.164", gender: "m" },
+        jwt: { label: "JWT", gender: "m" },
+        ends_with: { label: "קלט", gender: "m" },
+        includes: { label: "קלט", gender: "m" },
+        lowercase: { label: "קלט", gender: "m" },
+        starts_with: { label: "קלט", gender: "m" },
+        uppercase: { label: "קלט", gender: "m" },
+    };
+    const TypeDictionary = {
+        nan: "NaN",
     };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `קלט לא תקין: צריך ${issue.expected}, התקבל ${parsedType(issue.input)}`;
-            // return `Invalid input: expected ${issue.expected}, received ${util.getParsedType(issue.input)}`;
-            case "invalid_value":
-                if (issue.values.length === 1)
-                    return `קלט לא תקין: צריך ${util.stringifyPrimitive(issue.values[0])}`;
-                return `קלט לא תקין: צריך אחת מהאפשרויות  ${util.joinValues(issue.values, "|")}`;
+            case "invalid_type": {
+                // Expected type: show without definite article for clearer Hebrew
+                const expectedKey = issue.expected;
+                const expected = TypeDictionary[expectedKey ?? ""] ?? typeLabel(expectedKey);
+                // Received: show localized label if known, otherwise constructor/raw
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? TypeNames[receivedType]?.label ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `קלט לא תקין: צריך להיות instanceof ${issue.expected}, התקבל ${received}`;
+                }
+                return `קלט לא תקין: צריך להיות ${expected}, התקבל ${received}`;
+            }
+            case "invalid_value": {
+                if (issue.values.length === 1) {
+                    return `ערך לא תקין: הערך חייב להיות ${util.stringifyPrimitive(issue.values[0])}`;
+                }
+                // Join values with proper Hebrew formatting
+                const stringified = issue.values.map((v) => util.stringifyPrimitive(v));
+                if (issue.values.length === 2) {
+                    return `ערך לא תקין: האפשרויות המתאימות הן ${stringified[0]} או ${stringified[1]}`;
+                }
+                // For 3+ values: "a", "b" או "c"
+                const lastValue = stringified[stringified.length - 1];
+                const restValues = stringified.slice(0, -1).join(", ");
+                return `ערך לא תקין: האפשרויות המתאימות הן ${restValues} או ${lastValue}`;
+            }
             case "too_big": {
-                const adj = issue.inclusive ? "<=" : "<";
                 const sizing = getSizing(issue.origin);
-                if (sizing)
-                    return `גדול מדי: ${issue.origin ?? "value"} צריך להיות ${adj}${issue.maximum.toString()} ${sizing.unit ?? "elements"}`;
-                return `גדול מדי: ${issue.origin ?? "value"} צריך להיות ${adj}${issue.maximum.toString()}`;
+                const subject = withDefinite(issue.origin ?? "value");
+                if (issue.origin === "string") {
+                    // Special handling for strings - more natural Hebrew
+                    return `${sizing?.longLabel ?? "ארוך"} מדי: ${subject} צריכה להכיל ${issue.maximum.toString()} ${sizing?.unit ?? ""} ${issue.inclusive ? "או פחות" : "לכל היותר"}`.trim();
+                }
+                if (issue.origin === "number") {
+                    // Natural Hebrew for numbers
+                    const comparison = issue.inclusive ? `קטן או שווה ל-${issue.maximum}` : `קטן מ-${issue.maximum}`;
+                    return `גדול מדי: ${subject} צריך להיות ${comparison}`;
+                }
+                if (issue.origin === "array" || issue.origin === "set") {
+                    // Natural Hebrew for arrays and sets
+                    const verb = issue.origin === "set" ? "צריכה" : "צריך";
+                    const comparison = issue.inclusive
+                        ? `${issue.maximum} ${sizing?.unit ?? ""} או פחות`
+                        : `פחות מ-${issue.maximum} ${sizing?.unit ?? ""}`;
+                    return `גדול מדי: ${subject} ${verb} להכיל ${comparison}`.trim();
+                }
+                const adj = issue.inclusive ? "<=" : "<";
+                const be = verbFor(issue.origin ?? "value");
+                if (sizing?.unit) {
+                    return `${sizing.longLabel} מדי: ${subject} ${be} ${adj}${issue.maximum.toString()} ${sizing.unit}`;
+                }
+                return `${sizing?.longLabel ?? "גדול"} מדי: ${subject} ${be} ${adj}${issue.maximum.toString()}`;
             }
             case "too_small": {
-                const adj = issue.inclusive ? ">=" : ">";
                 const sizing = getSizing(issue.origin);
-                if (sizing) {
-                    return `קטן מדי: ${issue.origin} צריך להיות ${adj}${issue.minimum.toString()} ${sizing.unit}`;
+                const subject = withDefinite(issue.origin ?? "value");
+                if (issue.origin === "string") {
+                    // Special handling for strings - more natural Hebrew
+                    return `${sizing?.shortLabel ?? "קצר"} מדי: ${subject} צריכה להכיל ${issue.minimum.toString()} ${sizing?.unit ?? ""} ${issue.inclusive ? "או יותר" : "לפחות"}`.trim();
                 }
-                return `קטן מדי: ${issue.origin} צריך להיות ${adj}${issue.minimum.toString()}`;
+                if (issue.origin === "number") {
+                    // Natural Hebrew for numbers
+                    const comparison = issue.inclusive ? `גדול או שווה ל-${issue.minimum}` : `גדול מ-${issue.minimum}`;
+                    return `קטן מדי: ${subject} צריך להיות ${comparison}`;
+                }
+                if (issue.origin === "array" || issue.origin === "set") {
+                    // Natural Hebrew for arrays and sets
+                    const verb = issue.origin === "set" ? "צריכה" : "צריך";
+                    // Special case for singular (minimum === 1)
+                    if (issue.minimum === 1 && issue.inclusive) {
+                        const singularPhrase = issue.origin === "set" ? "לפחות פריט אחד" : "לפחות פריט אחד";
+                        return `קטן מדי: ${subject} ${verb} להכיל ${singularPhrase}`;
+                    }
+                    const comparison = issue.inclusive
+                        ? `${issue.minimum} ${sizing?.unit ?? ""} או יותר`
+                        : `יותר מ-${issue.minimum} ${sizing?.unit ?? ""}`;
+                    return `קטן מדי: ${subject} ${verb} להכיל ${comparison}`.trim();
+                }
+                const adj = issue.inclusive ? ">=" : ">";
+                const be = verbFor(issue.origin ?? "value");
+                if (sizing?.unit) {
+                    return `${sizing.shortLabel} מדי: ${subject} ${be} ${adj}${issue.minimum.toString()} ${sizing.unit}`;
+                }
+                return `${sizing?.shortLabel ?? "קטן"} מדי: ${subject} ${be} ${adj}${issue.minimum.toString()}`;
             }
             case "invalid_format": {
                 const _issue = issue;
+                // These apply to strings — use feminine grammar + ה׳ הידיעה
                 if (_issue.format === "starts_with")
-                    return `מחרוזת לא תקינה: חייבת להתחיל ב"${_issue.prefix}"`;
+                    return `המחרוזת חייבת להתחיל ב "${_issue.prefix}"`;
                 if (_issue.format === "ends_with")
-                    return `מחרוזת לא תקינה: חייבת להסתיים ב "${_issue.suffix}"`;
+                    return `המחרוזת חייבת להסתיים ב "${_issue.suffix}"`;
                 if (_issue.format === "includes")
-                    return `מחרוזת לא תקינה: חייבת לכלול "${_issue.includes}"`;
+                    return `המחרוזת חייבת לכלול "${_issue.includes}"`;
                 if (_issue.format === "regex")
-                    return `מחרוזת לא תקינה: חייבת להתאים לתבנית ${_issue.pattern}`;
-                return `${Nouns[_issue.format] ?? issue.format} לא תקין`;
+                    return `המחרוזת חייבת להתאים לתבנית ${_issue.pattern}`;
+                // Handle gender agreement for formats
+                const nounEntry = FormatDictionary[_issue.format];
+                const noun = nounEntry?.label ?? _issue.format;
+                const gender = nounEntry?.gender ?? "m";
+                const adjective = gender === "f" ? "תקינה" : "תקין";
+                return `${noun} לא ${adjective}`;
             }
             case "not_multiple_of":
                 return `מספר לא תקין: חייב להיות מכפלה של ${issue.divisor}`;
             case "unrecognized_keys":
                 return `מפתח${issue.keys.length > 1 ? "ות" : ""} לא מזוה${issue.keys.length > 1 ? "ים" : "ה"}: ${util.joinValues(issue.keys, ", ")}`;
-            case "invalid_key":
-                return `מפתח לא תקין ב${issue.origin}`;
+            case "invalid_key": {
+                return `שדה לא תקין באובייקט`;
+            }
             case "invalid_union":
                 return "קלט לא תקין";
-            case "invalid_element":
-                return `ערך לא תקין ב${issue.origin}`;
+            case "invalid_element": {
+                const place = withDefinite(issue.origin ?? "array");
+                return `ערך לא תקין ב${place}`;
+            }
             default:
                 return `קלט לא תקין`;
         }
@@ -55590,27 +57534,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "szám";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "tömb";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "bemenet",
         email: "email cím",
         url: "URL",
@@ -55640,11 +57564,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "bemenet",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "szám",
+        array: "tömb",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Érvénytelen bemenet: a várt érték ${issue.expected}, a kapott érték ${parsedType(issue.input)}`;
-            // return `Invalid input: expected ${issue.expected}, received ${util.getParsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Érvénytelen bemenet: a várt érték instanceof ${issue.expected}, a kapott érték ${received}`;
+                }
+                return `Érvénytelen bemenet: a várt érték ${expected}, a kapott érték ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Érvénytelen bemenet: a várt érték ${util.stringifyPrimitive(issue.values[0])}`;
@@ -55674,7 +57609,7 @@ const error = () => {
                     return `Érvénytelen string: "${_issue.includes}" értéket kell tartalmaznia`;
                 if (_issue.format === "regex")
                     return `Érvénytelen string: ${_issue.pattern} mintának kell megfelelnie`;
-                return `Érvénytelen ${Nouns[_issue.format] ?? issue.format}`;
+                return `Érvénytelen ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Érvénytelen szám: ${issue.divisor} többszörösének kell lennie`;
@@ -55688,6 +57623,188 @@ const error = () => {
                 return `Érvénytelen érték: ${issue.origin}`;
             default:
                 return `Érvénytelen bemenet`;
+        }
+    };
+};
+function default_1() {
+    return {
+        localeError: error(),
+    };
+}
+module.exports = exports.default;
+
+
+/***/ }),
+
+/***/ 968:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = default_1;
+const util = __importStar(__nccwpck_require__(1327));
+function getArmenianPlural(count, one, many) {
+    return Math.abs(count) === 1 ? one : many;
+}
+function withDefiniteArticle(word) {
+    if (!word)
+        return "";
+    const vowels = ["ա", "ե", "ը", "ի", "ո", "ու", "օ"];
+    const lastChar = word[word.length - 1];
+    return word + (vowels.includes(lastChar) ? "ն" : "ը");
+}
+const error = () => {
+    const Sizable = {
+        string: {
+            unit: {
+                one: "նշան",
+                many: "նշաններ",
+            },
+            verb: "ունենալ",
+        },
+        file: {
+            unit: {
+                one: "բայթ",
+                many: "բայթեր",
+            },
+            verb: "ունենալ",
+        },
+        array: {
+            unit: {
+                one: "տարր",
+                many: "տարրեր",
+            },
+            verb: "ունենալ",
+        },
+        set: {
+            unit: {
+                one: "տարր",
+                many: "տարրեր",
+            },
+            verb: "ունենալ",
+        },
+    };
+    function getSizing(origin) {
+        return Sizable[origin] ?? null;
+    }
+    const FormatDictionary = {
+        regex: "մուտք",
+        email: "էլ. հասցե",
+        url: "URL",
+        emoji: "էմոջի",
+        uuid: "UUID",
+        uuidv4: "UUIDv4",
+        uuidv6: "UUIDv6",
+        nanoid: "nanoid",
+        guid: "GUID",
+        cuid: "cuid",
+        cuid2: "cuid2",
+        ulid: "ULID",
+        xid: "XID",
+        ksuid: "KSUID",
+        datetime: "ISO ամսաթիվ և ժամ",
+        date: "ISO ամսաթիվ",
+        time: "ISO ժամ",
+        duration: "ISO տևողություն",
+        ipv4: "IPv4 հասցե",
+        ipv6: "IPv6 հասցե",
+        cidrv4: "IPv4 միջակայք",
+        cidrv6: "IPv6 միջակայք",
+        base64: "base64 ձևաչափով տող",
+        base64url: "base64url ձևաչափով տող",
+        json_string: "JSON տող",
+        e164: "E.164 համար",
+        jwt: "JWT",
+        template_literal: "մուտք",
+    };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "թիվ",
+        array: "զանգված",
+    };
+    return (issue) => {
+        switch (issue.code) {
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Սխալ մուտքագրում․ սպասվում էր instanceof ${issue.expected}, ստացվել է ${received}`;
+                }
+                return `Սխալ մուտքագրում․ սպասվում էր ${expected}, ստացվել է ${received}`;
+            }
+            case "invalid_value":
+                if (issue.values.length === 1)
+                    return `Սխալ մուտքագրում․ սպասվում էր ${util.stringifyPrimitive(issue.values[1])}`;
+                return `Սխալ տարբերակ․ սպասվում էր հետևյալներից մեկը՝ ${util.joinValues(issue.values, "|")}`;
+            case "too_big": {
+                const adj = issue.inclusive ? "<=" : "<";
+                const sizing = getSizing(issue.origin);
+                if (sizing) {
+                    const maxValue = Number(issue.maximum);
+                    const unit = getArmenianPlural(maxValue, sizing.unit.one, sizing.unit.many);
+                    return `Չափազանց մեծ արժեք․ սպասվում է, որ ${withDefiniteArticle(issue.origin ?? "արժեք")} կունենա ${adj}${issue.maximum.toString()} ${unit}`;
+                }
+                return `Չափազանց մեծ արժեք․ սպասվում է, որ ${withDefiniteArticle(issue.origin ?? "արժեք")} լինի ${adj}${issue.maximum.toString()}`;
+            }
+            case "too_small": {
+                const adj = issue.inclusive ? ">=" : ">";
+                const sizing = getSizing(issue.origin);
+                if (sizing) {
+                    const minValue = Number(issue.minimum);
+                    const unit = getArmenianPlural(minValue, sizing.unit.one, sizing.unit.many);
+                    return `Չափազանց փոքր արժեք․ սպասվում է, որ ${withDefiniteArticle(issue.origin)} կունենա ${adj}${issue.minimum.toString()} ${unit}`;
+                }
+                return `Չափազանց փոքր արժեք․ սպասվում է, որ ${withDefiniteArticle(issue.origin)} լինի ${adj}${issue.minimum.toString()}`;
+            }
+            case "invalid_format": {
+                const _issue = issue;
+                if (_issue.format === "starts_with")
+                    return `Սխալ տող․ պետք է սկսվի "${_issue.prefix}"-ով`;
+                if (_issue.format === "ends_with")
+                    return `Սխալ տող․ պետք է ավարտվի "${_issue.suffix}"-ով`;
+                if (_issue.format === "includes")
+                    return `Սխալ տող․ պետք է պարունակի "${_issue.includes}"`;
+                if (_issue.format === "regex")
+                    return `Սխալ տող․ պետք է համապատասխանի ${_issue.pattern} ձևաչափին`;
+                return `Սխալ ${FormatDictionary[_issue.format] ?? issue.format}`;
+            }
+            case "not_multiple_of":
+                return `Սխալ թիվ․ պետք է բազմապատիկ լինի ${issue.divisor}-ի`;
+            case "unrecognized_keys":
+                return `Չճանաչված բանալի${issue.keys.length > 1 ? "ներ" : ""}. ${util.joinValues(issue.keys, ", ")}`;
+            case "invalid_key":
+                return `Սխալ բանալի ${withDefiniteArticle(issue.origin)}-ում`;
+            case "invalid_union":
+                return "Սխալ մուտքագրում";
+            case "invalid_element":
+                return `Սխալ արժեք ${withDefiniteArticle(issue.origin)}-ում`;
+            default:
+                return `Սխալ մուտքագրում`;
         }
     };
 };
@@ -55742,27 +57859,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "input",
         email: "alamat email",
         url: "URL",
@@ -55792,10 +57889,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "input",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Input tidak valid: diharapkan ${issue.expected}, diterima ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Input tidak valid: diharapkan instanceof ${issue.expected}, diterima ${received}`;
+                }
+                return `Input tidak valid: diharapkan ${expected}, diterima ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Input tidak valid: diharapkan ${util.stringifyPrimitive(issue.values[0])}`;
@@ -55825,7 +57932,7 @@ const error = () => {
                     return `String tidak valid: harus menyertakan "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `String tidak valid: harus sesuai pola ${_issue.pattern}`;
-                return `${Nouns[_issue.format] ?? issue.format} tidak valid`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} tidak valid`;
             }
             case "not_multiple_of":
                 return `Angka tidak valid: harus kelipatan dari ${issue.divisor}`;
@@ -55861,13 +57968,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.yo = exports.zhTW = exports.zhCN = exports.vi = exports.ur = exports.ua = exports.tr = exports.th = exports.ta = exports.sv = exports.sl = exports.ru = exports.pt = exports.pl = exports.ps = exports.ota = exports.no = exports.nl = exports.ms = exports.mk = exports.ko = exports.kh = exports.ja = exports.it = exports.is = exports.id = exports.hu = exports.he = exports.frCA = exports.fr = exports.fi = exports.fa = exports.es = exports.eo = exports.en = exports.de = exports.da = exports.cs = exports.ca = exports.be = exports.az = exports.ar = void 0;
+exports.yo = exports.zhTW = exports.zhCN = exports.vi = exports.uz = exports.ur = exports.uk = exports.ua = exports.tr = exports.th = exports.ta = exports.sv = exports.sl = exports.ru = exports.pt = exports.pl = exports.ps = exports.ota = exports.no = exports.nl = exports.ms = exports.mk = exports.lt = exports.ko = exports.km = exports.kh = exports.ka = exports.ja = exports.it = exports.is = exports.id = exports.hy = exports.hu = exports.he = exports.frCA = exports.fr = exports.fi = exports.fa = exports.es = exports.eo = exports.en = exports.de = exports.da = exports.cs = exports.ca = exports.bg = exports.be = exports.az = exports.ar = void 0;
 var ar_js_1 = __nccwpck_require__(2284);
 Object.defineProperty(exports, "ar", ({ enumerable: true, get: function () { return __importDefault(ar_js_1).default; } }));
 var az_js_1 = __nccwpck_require__(6964);
 Object.defineProperty(exports, "az", ({ enumerable: true, get: function () { return __importDefault(az_js_1).default; } }));
 var be_js_1 = __nccwpck_require__(6302);
 Object.defineProperty(exports, "be", ({ enumerable: true, get: function () { return __importDefault(be_js_1).default; } }));
+var bg_js_1 = __nccwpck_require__(5228);
+Object.defineProperty(exports, "bg", ({ enumerable: true, get: function () { return __importDefault(bg_js_1).default; } }));
 var ca_js_1 = __nccwpck_require__(3561);
 Object.defineProperty(exports, "ca", ({ enumerable: true, get: function () { return __importDefault(ca_js_1).default; } }));
 var cs_js_1 = __nccwpck_require__(5747);
@@ -55894,6 +58003,8 @@ var he_js_1 = __nccwpck_require__(8268);
 Object.defineProperty(exports, "he", ({ enumerable: true, get: function () { return __importDefault(he_js_1).default; } }));
 var hu_js_1 = __nccwpck_require__(124);
 Object.defineProperty(exports, "hu", ({ enumerable: true, get: function () { return __importDefault(hu_js_1).default; } }));
+var hy_js_1 = __nccwpck_require__(968);
+Object.defineProperty(exports, "hy", ({ enumerable: true, get: function () { return __importDefault(hy_js_1).default; } }));
 var id_js_1 = __nccwpck_require__(4602);
 Object.defineProperty(exports, "id", ({ enumerable: true, get: function () { return __importDefault(id_js_1).default; } }));
 var is_js_1 = __nccwpck_require__(6493);
@@ -55902,10 +58013,16 @@ var it_js_1 = __nccwpck_require__(8570);
 Object.defineProperty(exports, "it", ({ enumerable: true, get: function () { return __importDefault(it_js_1).default; } }));
 var ja_js_1 = __nccwpck_require__(986);
 Object.defineProperty(exports, "ja", ({ enumerable: true, get: function () { return __importDefault(ja_js_1).default; } }));
+var ka_js_1 = __nccwpck_require__(1665);
+Object.defineProperty(exports, "ka", ({ enumerable: true, get: function () { return __importDefault(ka_js_1).default; } }));
 var kh_js_1 = __nccwpck_require__(5968);
 Object.defineProperty(exports, "kh", ({ enumerable: true, get: function () { return __importDefault(kh_js_1).default; } }));
+var km_js_1 = __nccwpck_require__(498);
+Object.defineProperty(exports, "km", ({ enumerable: true, get: function () { return __importDefault(km_js_1).default; } }));
 var ko_js_1 = __nccwpck_require__(7215);
 Object.defineProperty(exports, "ko", ({ enumerable: true, get: function () { return __importDefault(ko_js_1).default; } }));
+var lt_js_1 = __nccwpck_require__(6257);
+Object.defineProperty(exports, "lt", ({ enumerable: true, get: function () { return __importDefault(lt_js_1).default; } }));
 var mk_js_1 = __nccwpck_require__(4233);
 Object.defineProperty(exports, "mk", ({ enumerable: true, get: function () { return __importDefault(mk_js_1).default; } }));
 var ms_js_1 = __nccwpck_require__(4417);
@@ -55936,8 +58053,12 @@ var tr_js_1 = __nccwpck_require__(847);
 Object.defineProperty(exports, "tr", ({ enumerable: true, get: function () { return __importDefault(tr_js_1).default; } }));
 var ua_js_1 = __nccwpck_require__(2723);
 Object.defineProperty(exports, "ua", ({ enumerable: true, get: function () { return __importDefault(ua_js_1).default; } }));
+var uk_js_1 = __nccwpck_require__(1825);
+Object.defineProperty(exports, "uk", ({ enumerable: true, get: function () { return __importDefault(uk_js_1).default; } }));
 var ur_js_1 = __nccwpck_require__(2144);
 Object.defineProperty(exports, "ur", ({ enumerable: true, get: function () { return __importDefault(ur_js_1).default; } }));
+var uz_js_1 = __nccwpck_require__(7464);
+Object.defineProperty(exports, "uz", ({ enumerable: true, get: function () { return __importDefault(uz_js_1).default; } }));
 var vi_js_1 = __nccwpck_require__(5390);
 Object.defineProperty(exports, "vi", ({ enumerable: true, get: function () { return __importDefault(vi_js_1).default; } }));
 var zh_CN_js_1 = __nccwpck_require__(9331);
@@ -55951,7 +58072,7 @@ Object.defineProperty(exports, "yo", ({ enumerable: true, get: function () { ret
 /***/ }),
 
 /***/ 6493:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ (function(module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -55979,30 +58100,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parsedType = void 0;
 exports["default"] = default_1;
 const util = __importStar(__nccwpck_require__(1327));
-const parsedType = (data) => {
-    const t = typeof data;
-    switch (t) {
-        case "number": {
-            return Number.isNaN(data) ? "NaN" : "númer";
-        }
-        case "object": {
-            if (Array.isArray(data)) {
-                return "fylki";
-            }
-            if (data === null) {
-                return "null";
-            }
-            if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                return data.constructor.name;
-            }
-        }
-    }
-    return t;
-};
-exports.parsedType = parsedType;
 const error = () => {
     const Sizable = {
         string: { unit: "stafi", verb: "að hafa" },
@@ -56013,7 +58112,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const Nouns = {
+    const FormatDictionary = {
         regex: "gildi",
         email: "netfang",
         url: "vefslóð",
@@ -56043,10 +58142,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "gildi",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "númer",
+        array: "fylki",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Rangt gildi: Þú slóst inn ${(0, exports.parsedType)(issue.input)} þar sem á að vera ${issue.expected}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Rangt gildi: Þú slóst inn ${received} þar sem á að vera instanceof ${issue.expected}`;
+                }
+                return `Rangt gildi: Þú slóst inn ${received} þar sem á að vera ${expected}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Rangt gildi: gert ráð fyrir ${util.stringifyPrimitive(issue.values[0])}`;
@@ -56077,7 +58188,7 @@ const error = () => {
                     return `Ógildur strengur: verður að innihalda "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Ógildur strengur: verður að fylgja mynstri ${_issue.pattern}`;
-                return `Rangt ${Nouns[_issue.format] ?? issue.format}`;
+                return `Rangt ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Röng tala: verður að vera margfeldi af ${issue.divisor}`;
@@ -56099,6 +58210,7 @@ function default_1() {
         localeError: error(),
     };
 }
+module.exports = exports.default;
 
 
 /***/ }),
@@ -56144,27 +58256,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "numero";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "vettore";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "input",
         email: "indirizzo email",
         url: "URL",
@@ -56194,11 +58286,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "input",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "numero",
+        array: "vettore",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Input non valido: atteso ${issue.expected}, ricevuto ${parsedType(issue.input)}`;
-            // return `Input non valido: atteso ${issue.expected}, ricevuto ${util.getParsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Input non valido: atteso instanceof ${issue.expected}, ricevuto ${received}`;
+                }
+                return `Input non valido: atteso ${expected}, ricevuto ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Input non valido: atteso ${util.stringifyPrimitive(issue.values[0])}`;
@@ -56228,7 +58331,7 @@ const error = () => {
                     return `Stringa non valida: deve includere "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Stringa non valida: deve corrispondere al pattern ${_issue.pattern}`;
-                return `Invalid ${Nouns[_issue.format] ?? issue.format}`;
+                return `Invalid ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Numero non valido: deve essere un multiplo di ${issue.divisor}`;
@@ -56296,27 +58399,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "数値";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "配列";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "入力値",
         email: "メールアドレス",
         url: "URL",
@@ -56346,10 +58429,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "入力値",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "数値",
+        array: "配列",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `無効な入力: ${issue.expected}が期待されましたが、${parsedType(issue.input)}が入力されました`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `無効な入力: instanceof ${issue.expected}が期待されましたが、${received}が入力されました`;
+                }
+                return `無効な入力: ${expected}が期待されましたが、${received}が入力されました`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `無効な入力: ${util.stringifyPrimitive(issue.values[0])}が期待されました`;
@@ -56378,7 +58473,7 @@ const error = () => {
                     return `無効な文字列: "${_issue.includes}"を含む必要があります`;
                 if (_issue.format === "regex")
                     return `無効な文字列: パターン${_issue.pattern}に一致する必要があります`;
-                return `無効な${Nouns[_issue.format] ?? issue.format}`;
+                return `無効な${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `無効な数値: ${issue.divisor}の倍数である必要があります`;
@@ -56405,7 +58500,174 @@ module.exports = exports.default;
 
 /***/ }),
 
+/***/ 1665:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = default_1;
+const util = __importStar(__nccwpck_require__(1327));
+const error = () => {
+    const Sizable = {
+        string: { unit: "სიმბოლო", verb: "უნდა შეიცავდეს" },
+        file: { unit: "ბაიტი", verb: "უნდა შეიცავდეს" },
+        array: { unit: "ელემენტი", verb: "უნდა შეიცავდეს" },
+        set: { unit: "ელემენტი", verb: "უნდა შეიცავდეს" },
+    };
+    function getSizing(origin) {
+        return Sizable[origin] ?? null;
+    }
+    const FormatDictionary = {
+        regex: "შეყვანა",
+        email: "ელ-ფოსტის მისამართი",
+        url: "URL",
+        emoji: "ემოჯი",
+        uuid: "UUID",
+        uuidv4: "UUIDv4",
+        uuidv6: "UUIDv6",
+        nanoid: "nanoid",
+        guid: "GUID",
+        cuid: "cuid",
+        cuid2: "cuid2",
+        ulid: "ULID",
+        xid: "XID",
+        ksuid: "KSUID",
+        datetime: "თარიღი-დრო",
+        date: "თარიღი",
+        time: "დრო",
+        duration: "ხანგრძლივობა",
+        ipv4: "IPv4 მისამართი",
+        ipv6: "IPv6 მისამართი",
+        cidrv4: "IPv4 დიაპაზონი",
+        cidrv6: "IPv6 დიაპაზონი",
+        base64: "base64-კოდირებული სტრინგი",
+        base64url: "base64url-კოდირებული სტრინგი",
+        json_string: "JSON სტრინგი",
+        e164: "E.164 ნომერი",
+        jwt: "JWT",
+        template_literal: "შეყვანა",
+    };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "რიცხვი",
+        string: "სტრინგი",
+        boolean: "ბულეანი",
+        function: "ფუნქცია",
+        array: "მასივი",
+    };
+    return (issue) => {
+        switch (issue.code) {
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `არასწორი შეყვანა: მოსალოდნელი instanceof ${issue.expected}, მიღებული ${received}`;
+                }
+                return `არასწორი შეყვანა: მოსალოდნელი ${expected}, მიღებული ${received}`;
+            }
+            case "invalid_value":
+                if (issue.values.length === 1)
+                    return `არასწორი შეყვანა: მოსალოდნელი ${util.stringifyPrimitive(issue.values[0])}`;
+                return `არასწორი ვარიანტი: მოსალოდნელია ერთ-ერთი ${util.joinValues(issue.values, "|")}-დან`;
+            case "too_big": {
+                const adj = issue.inclusive ? "<=" : "<";
+                const sizing = getSizing(issue.origin);
+                if (sizing)
+                    return `ზედმეტად დიდი: მოსალოდნელი ${issue.origin ?? "მნიშვნელობა"} ${sizing.verb} ${adj}${issue.maximum.toString()} ${sizing.unit}`;
+                return `ზედმეტად დიდი: მოსალოდნელი ${issue.origin ?? "მნიშვნელობა"} იყოს ${adj}${issue.maximum.toString()}`;
+            }
+            case "too_small": {
+                const adj = issue.inclusive ? ">=" : ">";
+                const sizing = getSizing(issue.origin);
+                if (sizing) {
+                    return `ზედმეტად პატარა: მოსალოდნელი ${issue.origin} ${sizing.verb} ${adj}${issue.minimum.toString()} ${sizing.unit}`;
+                }
+                return `ზედმეტად პატარა: მოსალოდნელი ${issue.origin} იყოს ${adj}${issue.minimum.toString()}`;
+            }
+            case "invalid_format": {
+                const _issue = issue;
+                if (_issue.format === "starts_with") {
+                    return `არასწორი სტრინგი: უნდა იწყებოდეს "${_issue.prefix}"-ით`;
+                }
+                if (_issue.format === "ends_with")
+                    return `არასწორი სტრინგი: უნდა მთავრდებოდეს "${_issue.suffix}"-ით`;
+                if (_issue.format === "includes")
+                    return `არასწორი სტრინგი: უნდა შეიცავდეს "${_issue.includes}"-ს`;
+                if (_issue.format === "regex")
+                    return `არასწორი სტრინგი: უნდა შეესაბამებოდეს შაბლონს ${_issue.pattern}`;
+                return `არასწორი ${FormatDictionary[_issue.format] ?? issue.format}`;
+            }
+            case "not_multiple_of":
+                return `არასწორი რიცხვი: უნდა იყოს ${issue.divisor}-ის ჯერადი`;
+            case "unrecognized_keys":
+                return `უცნობი გასაღებ${issue.keys.length > 1 ? "ები" : "ი"}: ${util.joinValues(issue.keys, ", ")}`;
+            case "invalid_key":
+                return `არასწორი გასაღები ${issue.origin}-ში`;
+            case "invalid_union":
+                return "არასწორი შეყვანა";
+            case "invalid_element":
+                return `არასწორი მნიშვნელობა ${issue.origin}-ში`;
+            default:
+                return `არასწორი შეყვანა`;
+        }
+    };
+};
+function default_1() {
+    return {
+        localeError: error(),
+    };
+}
+module.exports = exports.default;
+
+
+/***/ }),
+
 /***/ 5968:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = default_1;
+const km_js_1 = __importDefault(__nccwpck_require__(498));
+/** @deprecated Use `km` instead. */
+function default_1() {
+    return (0, km_js_1.default)();
+}
+module.exports = exports.default;
+
+
+/***/ }),
+
+/***/ 498:
 /***/ (function(module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -56446,27 +58708,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "មិនមែនជាលេខ (NaN)" : "លេខ";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "អារេ (Array)";
-                }
-                if (data === null) {
-                    return "គ្មានតម្លៃ (null)";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "ទិន្នន័យបញ្ចូល",
         email: "អាសយដ្ឋានអ៊ីមែល",
         url: "URL",
@@ -56496,10 +58738,23 @@ const error = () => {
         jwt: "JWT",
         template_literal: "ទិន្នន័យបញ្ចូល",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "លេខ",
+        array: "អារេ (Array)",
+        null: "គ្មានតម្លៃ (null)",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `ទិន្នន័យបញ្ចូលមិនត្រឹមត្រូវ៖ ត្រូវការ ${issue.expected} ប៉ុន្តែទទួលបាន ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `ទិន្នន័យបញ្ចូលមិនត្រឹមត្រូវ៖ ត្រូវការ instanceof ${issue.expected} ប៉ុន្តែទទួលបាន ${received}`;
+                }
+                return `ទិន្នន័យបញ្ចូលមិនត្រឹមត្រូវ៖ ត្រូវការ ${expected} ប៉ុន្តែទទួលបាន ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `ទិន្នន័យបញ្ចូលមិនត្រឹមត្រូវ៖ ត្រូវការ ${util.stringifyPrimitive(issue.values[0])}`;
@@ -56530,7 +58785,7 @@ const error = () => {
                     return `ខ្សែអក្សរមិនត្រឹមត្រូវ៖ ត្រូវមាន "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `ខ្សែអក្សរមិនត្រឹមត្រូវ៖ ត្រូវតែផ្គូផ្គងនឹងទម្រង់ដែលបានកំណត់ ${_issue.pattern}`;
-                return `មិនត្រឹមត្រូវ៖ ${Nouns[_issue.format] ?? issue.format}`;
+                return `មិនត្រឹមត្រូវ៖ ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `លេខមិនត្រឹមត្រូវ៖ ត្រូវតែជាពហុគុណនៃ ${issue.divisor}`;
@@ -56598,27 +58853,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "입력",
         email: "이메일 주소",
         url: "URL",
@@ -56648,10 +58883,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "입력",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `잘못된 입력: 예상 타입은 ${issue.expected}, 받은 타입은 ${parsedType(issue.input)}입니다`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `잘못된 입력: 예상 타입은 instanceof ${issue.expected}, 받은 타입은 ${received}입니다`;
+                }
+                return `잘못된 입력: 예상 타입은 ${expected}, 받은 타입은 ${received}입니다`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `잘못된 입력: 값은 ${util.stringifyPrimitive(issue.values[0])} 이어야 합니다`;
@@ -56686,7 +58931,7 @@ const error = () => {
                     return `잘못된 문자열: "${_issue.includes}"을(를) 포함해야 합니다`;
                 if (_issue.format === "regex")
                     return `잘못된 문자열: 정규식 ${_issue.pattern} 패턴과 일치해야 합니다`;
-                return `잘못된 ${Nouns[_issue.format] ?? issue.format}`;
+                return `잘못된 ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `잘못된 숫자: ${issue.divisor}의 배수여야 합니다`;
@@ -56700,6 +58945,244 @@ const error = () => {
                 return `잘못된 값: ${issue.origin}`;
             default:
                 return `잘못된 입력`;
+        }
+    };
+};
+function default_1() {
+    return {
+        localeError: error(),
+    };
+}
+module.exports = exports.default;
+
+
+/***/ }),
+
+/***/ 6257:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = default_1;
+const util = __importStar(__nccwpck_require__(1327));
+const capitalizeFirstCharacter = (text) => {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+};
+function getUnitTypeFromNumber(number) {
+    const abs = Math.abs(number);
+    const last = abs % 10;
+    const last2 = abs % 100;
+    if ((last2 >= 11 && last2 <= 19) || last === 0)
+        return "many";
+    if (last === 1)
+        return "one";
+    return "few";
+}
+const error = () => {
+    const Sizable = {
+        string: {
+            unit: {
+                one: "simbolis",
+                few: "simboliai",
+                many: "simbolių",
+            },
+            verb: {
+                smaller: {
+                    inclusive: "turi būti ne ilgesnė kaip",
+                    notInclusive: "turi būti trumpesnė kaip",
+                },
+                bigger: {
+                    inclusive: "turi būti ne trumpesnė kaip",
+                    notInclusive: "turi būti ilgesnė kaip",
+                },
+            },
+        },
+        file: {
+            unit: {
+                one: "baitas",
+                few: "baitai",
+                many: "baitų",
+            },
+            verb: {
+                smaller: {
+                    inclusive: "turi būti ne didesnis kaip",
+                    notInclusive: "turi būti mažesnis kaip",
+                },
+                bigger: {
+                    inclusive: "turi būti ne mažesnis kaip",
+                    notInclusive: "turi būti didesnis kaip",
+                },
+            },
+        },
+        array: {
+            unit: {
+                one: "elementą",
+                few: "elementus",
+                many: "elementų",
+            },
+            verb: {
+                smaller: {
+                    inclusive: "turi turėti ne daugiau kaip",
+                    notInclusive: "turi turėti mažiau kaip",
+                },
+                bigger: {
+                    inclusive: "turi turėti ne mažiau kaip",
+                    notInclusive: "turi turėti daugiau kaip",
+                },
+            },
+        },
+        set: {
+            unit: {
+                one: "elementą",
+                few: "elementus",
+                many: "elementų",
+            },
+            verb: {
+                smaller: {
+                    inclusive: "turi turėti ne daugiau kaip",
+                    notInclusive: "turi turėti mažiau kaip",
+                },
+                bigger: {
+                    inclusive: "turi turėti ne mažiau kaip",
+                    notInclusive: "turi turėti daugiau kaip",
+                },
+            },
+        },
+    };
+    function getSizing(origin, unitType, inclusive, targetShouldBe) {
+        const result = Sizable[origin] ?? null;
+        if (result === null)
+            return result;
+        return {
+            unit: result.unit[unitType],
+            verb: result.verb[targetShouldBe][inclusive ? "inclusive" : "notInclusive"],
+        };
+    }
+    const FormatDictionary = {
+        regex: "įvestis",
+        email: "el. pašto adresas",
+        url: "URL",
+        emoji: "jaustukas",
+        uuid: "UUID",
+        uuidv4: "UUIDv4",
+        uuidv6: "UUIDv6",
+        nanoid: "nanoid",
+        guid: "GUID",
+        cuid: "cuid",
+        cuid2: "cuid2",
+        ulid: "ULID",
+        xid: "XID",
+        ksuid: "KSUID",
+        datetime: "ISO data ir laikas",
+        date: "ISO data",
+        time: "ISO laikas",
+        duration: "ISO trukmė",
+        ipv4: "IPv4 adresas",
+        ipv6: "IPv6 adresas",
+        cidrv4: "IPv4 tinklo prefiksas (CIDR)",
+        cidrv6: "IPv6 tinklo prefiksas (CIDR)",
+        base64: "base64 užkoduota eilutė",
+        base64url: "base64url užkoduota eilutė",
+        json_string: "JSON eilutė",
+        e164: "E.164 numeris",
+        jwt: "JWT",
+        template_literal: "įvestis",
+    };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "skaičius",
+        bigint: "sveikasis skaičius",
+        string: "eilutė",
+        boolean: "loginė reikšmė",
+        undefined: "neapibrėžta reikšmė",
+        function: "funkcija",
+        symbol: "simbolis",
+        array: "masyvas",
+        object: "objektas",
+        null: "nulinė reikšmė",
+    };
+    return (issue) => {
+        switch (issue.code) {
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Gautas tipas ${received}, o tikėtasi - instanceof ${issue.expected}`;
+                }
+                return `Gautas tipas ${received}, o tikėtasi - ${expected}`;
+            }
+            case "invalid_value":
+                if (issue.values.length === 1)
+                    return `Privalo būti ${util.stringifyPrimitive(issue.values[0])}`;
+                return `Privalo būti vienas iš ${util.joinValues(issue.values, "|")} pasirinkimų`;
+            case "too_big": {
+                const origin = TypeDictionary[issue.origin] ?? issue.origin;
+                const sizing = getSizing(issue.origin, getUnitTypeFromNumber(Number(issue.maximum)), issue.inclusive ?? false, "smaller");
+                if (sizing?.verb)
+                    return `${capitalizeFirstCharacter(origin ?? issue.origin ?? "reikšmė")} ${sizing.verb} ${issue.maximum.toString()} ${sizing.unit ?? "elementų"}`;
+                const adj = issue.inclusive ? "ne didesnis kaip" : "mažesnis kaip";
+                return `${capitalizeFirstCharacter(origin ?? issue.origin ?? "reikšmė")} turi būti ${adj} ${issue.maximum.toString()} ${sizing?.unit}`;
+            }
+            case "too_small": {
+                const origin = TypeDictionary[issue.origin] ?? issue.origin;
+                const sizing = getSizing(issue.origin, getUnitTypeFromNumber(Number(issue.minimum)), issue.inclusive ?? false, "bigger");
+                if (sizing?.verb)
+                    return `${capitalizeFirstCharacter(origin ?? issue.origin ?? "reikšmė")} ${sizing.verb} ${issue.minimum.toString()} ${sizing.unit ?? "elementų"}`;
+                const adj = issue.inclusive ? "ne mažesnis kaip" : "didesnis kaip";
+                return `${capitalizeFirstCharacter(origin ?? issue.origin ?? "reikšmė")} turi būti ${adj} ${issue.minimum.toString()} ${sizing?.unit}`;
+            }
+            case "invalid_format": {
+                const _issue = issue;
+                if (_issue.format === "starts_with") {
+                    return `Eilutė privalo prasidėti "${_issue.prefix}"`;
+                }
+                if (_issue.format === "ends_with")
+                    return `Eilutė privalo pasibaigti "${_issue.suffix}"`;
+                if (_issue.format === "includes")
+                    return `Eilutė privalo įtraukti "${_issue.includes}"`;
+                if (_issue.format === "regex")
+                    return `Eilutė privalo atitikti ${_issue.pattern}`;
+                return `Neteisingas ${FormatDictionary[_issue.format] ?? issue.format}`;
+            }
+            case "not_multiple_of":
+                return `Skaičius privalo būti ${issue.divisor} kartotinis.`;
+            case "unrecognized_keys":
+                return `Neatpažint${issue.keys.length > 1 ? "i" : "as"} rakt${issue.keys.length > 1 ? "ai" : "as"}: ${util.joinValues(issue.keys, ", ")}`;
+            case "invalid_key":
+                return "Rastas klaidingas raktas";
+            case "invalid_union":
+                return "Klaidinga įvestis";
+            case "invalid_element": {
+                const origin = TypeDictionary[issue.origin] ?? issue.origin;
+                return `${capitalizeFirstCharacter(origin ?? issue.origin ?? "reikšmė")} turi klaidingą įvestį`;
+            }
+            default:
+                return "Klaidinga įvestis";
         }
     };
 };
@@ -56754,27 +59237,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "број";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "низа";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "внес",
         email: "адреса на е-пошта",
         url: "URL",
@@ -56804,11 +59267,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "внес",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "број",
+        array: "низа",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Грешен внес: се очекува ${issue.expected}, примено ${parsedType(issue.input)}`;
-            // return `Invalid input: expected ${issue.expected}, received ${util.getParsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Грешен внес: се очекува instanceof ${issue.expected}, примено ${received}`;
+                }
+                return `Грешен внес: се очекува ${expected}, примено ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Invalid input: expected ${util.stringifyPrimitive(issue.values[0])}`;
@@ -56839,7 +59313,7 @@ const error = () => {
                     return `Неважечка низа: мора да вклучува "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Неважечка низа: мора да одгоара на патернот ${_issue.pattern}`;
-                return `Invalid ${Nouns[_issue.format] ?? issue.format}`;
+                return `Invalid ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Грешен број: мора да биде делив со ${issue.divisor}`;
@@ -56907,27 +59381,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "nombor";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "input",
         email: "alamat e-mel",
         url: "URL",
@@ -56957,10 +59411,21 @@ const error = () => {
         jwt: "JWT",
         template_literal: "input",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "nombor",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Input tidak sah: dijangka ${issue.expected}, diterima ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Input tidak sah: dijangka instanceof ${issue.expected}, diterima ${received}`;
+                }
+                return `Input tidak sah: dijangka ${expected}, diterima ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Input tidak sah: dijangka ${util.stringifyPrimitive(issue.values[0])}`;
@@ -56990,7 +59455,7 @@ const error = () => {
                     return `String tidak sah: mesti mengandungi "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `String tidak sah: mesti sepadan dengan corak ${_issue.pattern}`;
-                return `${Nouns[_issue.format] ?? issue.format} tidak sah`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} tidak sah`;
             }
             case "not_multiple_of":
                 return `Nombor tidak sah: perlu gandaan ${issue.divisor}`;
@@ -57050,35 +59515,15 @@ exports["default"] = default_1;
 const util = __importStar(__nccwpck_require__(1327));
 const error = () => {
     const Sizable = {
-        string: { unit: "tekens" },
-        file: { unit: "bytes" },
-        array: { unit: "elementen" },
-        set: { unit: "elementen" },
+        string: { unit: "tekens", verb: "heeft" },
+        file: { unit: "bytes", verb: "heeft" },
+        array: { unit: "elementen", verb: "heeft" },
+        set: { unit: "elementen", verb: "heeft" },
     };
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "getal";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "invoer",
         email: "emailadres",
         url: "URL",
@@ -57108,10 +59553,21 @@ const error = () => {
         jwt: "JWT",
         template_literal: "invoer",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "getal",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Ongeldige invoer: verwacht ${issue.expected}, ontving ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Ongeldige invoer: verwacht instanceof ${issue.expected}, ontving ${received}`;
+                }
+                return `Ongeldige invoer: verwacht ${expected}, ontving ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Ongeldige invoer: verwacht ${util.stringifyPrimitive(issue.values[0])}`;
@@ -57119,17 +59575,19 @@ const error = () => {
             case "too_big": {
                 const adj = issue.inclusive ? "<=" : "<";
                 const sizing = getSizing(issue.origin);
+                const longName = issue.origin === "date" ? "laat" : issue.origin === "string" ? "lang" : "groot";
                 if (sizing)
-                    return `Te lang: verwacht dat ${issue.origin ?? "waarde"} ${adj}${issue.maximum.toString()} ${sizing.unit ?? "elementen"} bevat`;
-                return `Te lang: verwacht dat ${issue.origin ?? "waarde"} ${adj}${issue.maximum.toString()} is`;
+                    return `Te ${longName}: verwacht dat ${issue.origin ?? "waarde"} ${adj}${issue.maximum.toString()} ${sizing.unit ?? "elementen"} ${sizing.verb}`;
+                return `Te ${longName}: verwacht dat ${issue.origin ?? "waarde"} ${adj}${issue.maximum.toString()} is`;
             }
             case "too_small": {
                 const adj = issue.inclusive ? ">=" : ">";
                 const sizing = getSizing(issue.origin);
+                const shortName = issue.origin === "date" ? "vroeg" : issue.origin === "string" ? "kort" : "klein";
                 if (sizing) {
-                    return `Te kort: verwacht dat ${issue.origin} ${adj}${issue.minimum.toString()} ${sizing.unit} bevat`;
+                    return `Te ${shortName}: verwacht dat ${issue.origin} ${adj}${issue.minimum.toString()} ${sizing.unit} ${sizing.verb}`;
                 }
-                return `Te kort: verwacht dat ${issue.origin} ${adj}${issue.minimum.toString()} is`;
+                return `Te ${shortName}: verwacht dat ${issue.origin} ${adj}${issue.minimum.toString()} is`;
             }
             case "invalid_format": {
                 const _issue = issue;
@@ -57142,7 +59600,7 @@ const error = () => {
                     return `Ongeldige tekst: moet "${_issue.includes}" bevatten`;
                 if (_issue.format === "regex")
                     return `Ongeldige tekst: moet overeenkomen met patroon ${_issue.pattern}`;
-                return `Ongeldig: ${Nouns[_issue.format] ?? issue.format}`;
+                return `Ongeldig: ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Ongeldig getal: moet een veelvoud van ${issue.divisor} zijn`;
@@ -57210,27 +59668,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "tall";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "liste";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "input",
         email: "e-postadresse",
         url: "URL",
@@ -57260,10 +59698,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "input",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "tall",
+        array: "liste",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Ugyldig input: forventet ${issue.expected}, fikk ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Ugyldig input: forventet instanceof ${issue.expected}, fikk ${received}`;
+                }
+                return `Ugyldig input: forventet ${expected}, fikk ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Ugyldig verdi: forventet ${util.stringifyPrimitive(issue.values[0])}`;
@@ -57293,7 +59743,7 @@ const error = () => {
                     return `Ugyldig streng: må inneholde "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Ugyldig streng: må matche mønsteret ${_issue.pattern}`;
-                return `Ugyldig ${Nouns[_issue.format] ?? issue.format}`;
+                return `Ugyldig ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Ugyldig tall: må være et multiplum av ${issue.divisor}`;
@@ -57361,27 +59811,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "numara";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "saf";
-                }
-                if (data === null) {
-                    return "gayb";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "giren",
         email: "epostagâh",
         url: "URL",
@@ -57411,11 +59841,23 @@ const error = () => {
         jwt: "JWT",
         template_literal: "giren",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "numara",
+        array: "saf",
+        null: "gayb",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Fâsit giren: umulan ${issue.expected}, alınan ${parsedType(issue.input)}`;
-            // return `Fâsit giren: umulan ${issue.expected}, alınan ${util.getParsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Fâsit giren: umulan instanceof ${issue.expected}, alınan ${received}`;
+                }
+                return `Fâsit giren: umulan ${expected}, alınan ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Fâsit giren: umulan ${util.stringifyPrimitive(issue.values[0])}`;
@@ -57445,7 +59887,7 @@ const error = () => {
                     return `Fâsit metin: "${_issue.includes}" ihtivâ etmeli.`;
                 if (_issue.format === "regex")
                     return `Fâsit metin: ${_issue.pattern} nakşına uymalı.`;
-                return `Fâsit ${Nouns[_issue.format] ?? issue.format}`;
+                return `Fâsit ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Fâsit sayı: ${issue.divisor} katı olmalıydı.`;
@@ -57513,27 +59955,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "liczba";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "tablica";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "wyrażenie",
         email: "adres email",
         url: "URL",
@@ -57563,10 +59985,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "wejście",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "liczba",
+        array: "tablica",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Nieprawidłowe dane wejściowe: oczekiwano ${issue.expected}, otrzymano ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Nieprawidłowe dane wejściowe: oczekiwano instanceof ${issue.expected}, otrzymano ${received}`;
+                }
+                return `Nieprawidłowe dane wejściowe: oczekiwano ${expected}, otrzymano ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Nieprawidłowe dane wejściowe: oczekiwano ${util.stringifyPrimitive(issue.values[0])}`;
@@ -57597,7 +60031,7 @@ const error = () => {
                     return `Nieprawidłowy ciąg znaków: musi zawierać "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Nieprawidłowy ciąg znaków: musi odpowiadać wzorcowi ${_issue.pattern}`;
-                return `Nieprawidłow(y/a/e) ${Nouns[_issue.format] ?? issue.format}`;
+                return `Nieprawidłow(y/a/e) ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Nieprawidłowa liczba: musi być wielokrotnością ${issue.divisor}`;
@@ -57665,27 +60099,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "عدد";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "ارې";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "ورودي",
         email: "بریښنالیک",
         url: "یو آر ال",
@@ -57715,10 +60129,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "ورودي",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "عدد",
+        array: "ارې",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `ناسم ورودي: باید ${issue.expected} وای, مګر ${parsedType(issue.input)} ترلاسه شو`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `ناسم ورودي: باید instanceof ${issue.expected} وای, مګر ${received} ترلاسه شو`;
+                }
+                return `ناسم ورودي: باید ${expected} وای, مګر ${received} ترلاسه شو`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1) {
                     return `ناسم ورودي: باید ${util.stringifyPrimitive(issue.values[0])} وای`;
@@ -57754,7 +60180,7 @@ const error = () => {
                 if (_issue.format === "regex") {
                     return `ناسم متن: باید د ${_issue.pattern} سره مطابقت ولري`;
                 }
-                return `${Nouns[_issue.format] ?? issue.format} ناسم دی`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} ناسم دی`;
             }
             case "not_multiple_of":
                 return `ناسم عدد: باید د ${issue.divisor} مضرب وي`;
@@ -57822,27 +60248,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "número";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "nulo";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "padrão",
         email: "endereço de e-mail",
         url: "URL",
@@ -57872,10 +60278,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "entrada",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "número",
+        null: "nulo",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Tipo inválido: esperado ${issue.expected}, recebido ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Tipo inválido: esperado instanceof ${issue.expected}, recebido ${received}`;
+                }
+                return `Tipo inválido: esperado ${expected}, recebido ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Entrada inválida: esperado ${util.stringifyPrimitive(issue.values[0])}`;
@@ -57905,7 +60323,7 @@ const error = () => {
                     return `Texto inválido: deve incluir "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Texto inválido: deve corresponder ao padrão ${_issue.pattern}`;
-                return `${Nouns[_issue.format] ?? issue.format} inválido`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} inválido`;
             }
             case "not_multiple_of":
                 return `Número inválido: deve ser múltiplo de ${issue.divisor}`;
@@ -58016,27 +60434,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "число";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "массив";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "ввод",
         email: "email адрес",
         url: "URL",
@@ -58066,10 +60464,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "ввод",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "число",
+        array: "массив",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Неверный ввод: ожидалось ${issue.expected}, получено ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Неверный ввод: ожидалось instanceof ${issue.expected}, получено ${received}`;
+                }
+                return `Неверный ввод: ожидалось ${expected}, получено ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Неверный ввод: ожидалось ${util.stringifyPrimitive(issue.values[0])}`;
@@ -58104,7 +60514,7 @@ const error = () => {
                     return `Неверная строка: должна содержать "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Неверная строка: должна соответствовать шаблону ${_issue.pattern}`;
-                return `Неверный ${Nouns[_issue.format] ?? issue.format}`;
+                return `Неверный ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Неверное число: должно быть кратным ${issue.divisor}`;
@@ -58172,27 +60582,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "število";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "tabela";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "vnos",
         email: "e-poštni naslov",
         url: "URL",
@@ -58222,10 +60612,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "vnos",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "število",
+        array: "tabela",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Neveljaven vnos: pričakovano ${issue.expected}, prejeto ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Neveljaven vnos: pričakovano instanceof ${issue.expected}, prejeto ${received}`;
+                }
+                return `Neveljaven vnos: pričakovano ${expected}, prejeto ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Neveljaven vnos: pričakovano ${util.stringifyPrimitive(issue.values[0])}`;
@@ -58256,7 +60658,7 @@ const error = () => {
                     return `Neveljaven niz: mora vsebovati "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Neveljaven niz: mora ustrezati vzorcu ${_issue.pattern}`;
-                return `Neveljaven ${Nouns[_issue.format] ?? issue.format}`;
+                return `Neveljaven ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Neveljavno število: mora biti večkratnik ${issue.divisor}`;
@@ -58324,27 +60726,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "antal";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "lista";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "reguljärt uttryck",
         email: "e-postadress",
         url: "URL",
@@ -58374,10 +60756,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "mall-literal",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "antal",
+        array: "lista",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Ogiltig inmatning: förväntat ${issue.expected}, fick ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Ogiltig inmatning: förväntat instanceof ${issue.expected}, fick ${received}`;
+                }
+                return `Ogiltig inmatning: förväntat ${expected}, fick ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Ogiltig inmatning: förväntat ${util.stringifyPrimitive(issue.values[0])}`;
@@ -58409,7 +60803,7 @@ const error = () => {
                     return `Ogiltig sträng: måste innehålla "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Ogiltig sträng: måste matcha mönstret "${_issue.pattern}"`;
-                return `Ogiltig(t) ${Nouns[_issue.format] ?? issue.format}`;
+                return `Ogiltig(t) ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Ogiltigt tal: måste vara en multipel av ${issue.divisor}`;
@@ -58477,27 +60871,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "எண் அல்லாதது" : "எண்";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "அணி";
-                }
-                if (data === null) {
-                    return "வெறுமை";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "உள்ளீடு",
         email: "மின்னஞ்சல் முகவரி",
         url: "URL",
@@ -58527,10 +60901,23 @@ const error = () => {
         jwt: "JWT",
         template_literal: "input",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "எண்",
+        array: "அணி",
+        null: "வெறுமை",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `தவறான உள்ளீடு: எதிர்பார்க்கப்பட்டது ${issue.expected}, பெறப்பட்டது ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `தவறான உள்ளீடு: எதிர்பார்க்கப்பட்டது instanceof ${issue.expected}, பெறப்பட்டது ${received}`;
+                }
+                return `தவறான உள்ளீடு: எதிர்பார்க்கப்பட்டது ${expected}, பெறப்பட்டது ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `தவறான உள்ளீடு: எதிர்பார்க்கப்பட்டது ${util.stringifyPrimitive(issue.values[0])}`;
@@ -58561,7 +60948,7 @@ const error = () => {
                     return `தவறான சரம்: "${_issue.includes}" ஐ உள்ளடக்க வேண்டும்`;
                 if (_issue.format === "regex")
                     return `தவறான சரம்: ${_issue.pattern} முறைபாட்டுடன் பொருந்த வேண்டும்`;
-                return `தவறான ${Nouns[_issue.format] ?? issue.format}`;
+                return `தவறான ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `தவறான எண்: ${issue.divisor} இன் பலமாக இருக்க வேண்டும்`;
@@ -58629,27 +61016,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "ไม่ใช่ตัวเลข (NaN)" : "ตัวเลข";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "อาร์เรย์ (Array)";
-                }
-                if (data === null) {
-                    return "ไม่มีค่า (null)";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "ข้อมูลที่ป้อน",
         email: "ที่อยู่อีเมล",
         url: "URL",
@@ -58679,10 +61046,23 @@ const error = () => {
         jwt: "โทเคน JWT",
         template_literal: "ข้อมูลที่ป้อน",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "ตัวเลข",
+        array: "อาร์เรย์ (Array)",
+        null: "ไม่มีค่า (null)",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `ประเภทข้อมูลไม่ถูกต้อง: ควรเป็น ${issue.expected} แต่ได้รับ ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `ประเภทข้อมูลไม่ถูกต้อง: ควรเป็น instanceof ${issue.expected} แต่ได้รับ ${received}`;
+                }
+                return `ประเภทข้อมูลไม่ถูกต้อง: ควรเป็น ${expected} แต่ได้รับ ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `ค่าไม่ถูกต้อง: ควรเป็น ${util.stringifyPrimitive(issue.values[0])}`;
@@ -58713,7 +61093,7 @@ const error = () => {
                     return `รูปแบบไม่ถูกต้อง: ข้อความต้องมี "${_issue.includes}" อยู่ในข้อความ`;
                 if (_issue.format === "regex")
                     return `รูปแบบไม่ถูกต้อง: ต้องตรงกับรูปแบบที่กำหนด ${_issue.pattern}`;
-                return `รูปแบบไม่ถูกต้อง: ${Nouns[_issue.format] ?? issue.format}`;
+                return `รูปแบบไม่ถูกต้อง: ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `ตัวเลขไม่ถูกต้อง: ต้องเป็นจำนวนที่หารด้วย ${issue.divisor} ได้ลงตัว`;
@@ -58741,7 +61121,7 @@ module.exports = exports.default;
 /***/ }),
 
 /***/ 847:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ (function(module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -58769,30 +61149,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parsedType = void 0;
 exports["default"] = default_1;
 const util = __importStar(__nccwpck_require__(1327));
-const parsedType = (data) => {
-    const t = typeof data;
-    switch (t) {
-        case "number": {
-            return Number.isNaN(data) ? "NaN" : "number";
-        }
-        case "object": {
-            if (Array.isArray(data)) {
-                return "array";
-            }
-            if (data === null) {
-                return "null";
-            }
-            if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                return data.constructor.name;
-            }
-        }
-    }
-    return t;
-};
-exports.parsedType = parsedType;
 const error = () => {
     const Sizable = {
         string: { unit: "karakter", verb: "olmalı" },
@@ -58803,7 +61161,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const Nouns = {
+    const FormatDictionary = {
         regex: "girdi",
         email: "e-posta adresi",
         url: "URL",
@@ -58833,10 +61191,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "Şablon dizesi",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Geçersiz değer: beklenen ${issue.expected}, alınan ${(0, exports.parsedType)(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Geçersiz değer: beklenen instanceof ${issue.expected}, alınan ${received}`;
+                }
+                return `Geçersiz değer: beklenen ${expected}, alınan ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Geçersiz değer: beklenen ${util.stringifyPrimitive(issue.values[0])}`;
@@ -58865,7 +61233,7 @@ const error = () => {
                     return `Geçersiz metin: "${_issue.includes}" içermeli`;
                 if (_issue.format === "regex")
                     return `Geçersiz metin: ${_issue.pattern} desenine uymalı`;
-                return `Geçersiz ${Nouns[_issue.format] ?? issue.format}`;
+                return `Geçersiz ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Geçersiz sayı: ${issue.divisor} ile tam bölünebilmeli`;
@@ -58887,11 +61255,32 @@ function default_1() {
         localeError: error(),
     };
 }
+module.exports = exports.default;
 
 
 /***/ }),
 
 /***/ 2723:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = default_1;
+const uk_js_1 = __importDefault(__nccwpck_require__(1825));
+/** @deprecated Use `uk` instead. */
+function default_1() {
+    return (0, uk_js_1.default)();
+}
+module.exports = exports.default;
+
+
+/***/ }),
+
+/***/ 1825:
 /***/ (function(module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -58932,27 +61321,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "число";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "масив";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "вхідні дані",
         email: "адреса електронної пошти",
         url: "URL",
@@ -58982,11 +61351,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "вхідні дані",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "число",
+        array: "масив",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Неправильні вхідні дані: очікується ${issue.expected}, отримано ${parsedType(issue.input)}`;
-            // return `Неправильні вхідні дані: очікується ${issue.expected}, отримано ${util.getParsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Неправильні вхідні дані: очікується instanceof ${issue.expected}, отримано ${received}`;
+                }
+                return `Неправильні вхідні дані: очікується ${expected}, отримано ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Неправильні вхідні дані: очікується ${util.stringifyPrimitive(issue.values[0])}`;
@@ -59016,7 +61396,7 @@ const error = () => {
                     return `Неправильний рядок: повинен містити "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Неправильний рядок: повинен відповідати шаблону ${_issue.pattern}`;
-                return `Неправильний ${Nouns[_issue.format] ?? issue.format}`;
+                return `Неправильний ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Неправильне число: повинно бути кратним ${issue.divisor}`;
@@ -59084,27 +61464,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "نمبر";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "آرے";
-                }
-                if (data === null) {
-                    return "نل";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "ان پٹ",
         email: "ای میل ایڈریس",
         url: "یو آر ایل",
@@ -59134,10 +61494,23 @@ const error = () => {
         jwt: "جے ڈبلیو ٹی",
         template_literal: "ان پٹ",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "نمبر",
+        array: "آرے",
+        null: "نل",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `غلط ان پٹ: ${issue.expected} متوقع تھا، ${parsedType(issue.input)} موصول ہوا`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `غلط ان پٹ: instanceof ${issue.expected} متوقع تھا، ${received} موصول ہوا`;
+                }
+                return `غلط ان پٹ: ${expected} متوقع تھا، ${received} موصول ہوا`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `غلط ان پٹ: ${util.stringifyPrimitive(issue.values[0])} متوقع تھا`;
@@ -59168,7 +61541,7 @@ const error = () => {
                     return `غلط سٹرنگ: "${_issue.includes}" شامل ہونا چاہیے`;
                 if (_issue.format === "regex")
                     return `غلط سٹرنگ: پیٹرن ${_issue.pattern} سے میچ ہونا چاہیے`;
-                return `غلط ${Nouns[_issue.format] ?? issue.format}`;
+                return `غلط ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `غلط نمبر: ${issue.divisor} کا مضاعف ہونا چاہیے`;
@@ -59182,6 +61555,150 @@ const error = () => {
                 return `${issue.origin} میں غلط ویلیو`;
             default:
                 return `غلط ان پٹ`;
+        }
+    };
+};
+function default_1() {
+    return {
+        localeError: error(),
+    };
+}
+module.exports = exports.default;
+
+
+/***/ }),
+
+/***/ 7464:
+/***/ (function(module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports["default"] = default_1;
+const util = __importStar(__nccwpck_require__(1327));
+const error = () => {
+    const Sizable = {
+        string: { unit: "belgi", verb: "bo‘lishi kerak" },
+        file: { unit: "bayt", verb: "bo‘lishi kerak" },
+        array: { unit: "element", verb: "bo‘lishi kerak" },
+        set: { unit: "element", verb: "bo‘lishi kerak" },
+    };
+    function getSizing(origin) {
+        return Sizable[origin] ?? null;
+    }
+    const FormatDictionary = {
+        regex: "kirish",
+        email: "elektron pochta manzili",
+        url: "URL",
+        emoji: "emoji",
+        uuid: "UUID",
+        uuidv4: "UUIDv4",
+        uuidv6: "UUIDv6",
+        nanoid: "nanoid",
+        guid: "GUID",
+        cuid: "cuid",
+        cuid2: "cuid2",
+        ulid: "ULID",
+        xid: "XID",
+        ksuid: "KSUID",
+        datetime: "ISO sana va vaqti",
+        date: "ISO sana",
+        time: "ISO vaqt",
+        duration: "ISO davomiylik",
+        ipv4: "IPv4 manzil",
+        ipv6: "IPv6 manzil",
+        mac: "MAC manzil",
+        cidrv4: "IPv4 diapazon",
+        cidrv6: "IPv6 diapazon",
+        base64: "base64 kodlangan satr",
+        base64url: "base64url kodlangan satr",
+        json_string: "JSON satr",
+        e164: "E.164 raqam",
+        jwt: "JWT",
+        template_literal: "kirish",
+    };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "raqam",
+        array: "massiv",
+    };
+    return (issue) => {
+        switch (issue.code) {
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Noto‘g‘ri kirish: kutilgan instanceof ${issue.expected}, qabul qilingan ${received}`;
+                }
+                return `Noto‘g‘ri kirish: kutilgan ${expected}, qabul qilingan ${received}`;
+            }
+            case "invalid_value":
+                if (issue.values.length === 1)
+                    return `Noto‘g‘ri kirish: kutilgan ${util.stringifyPrimitive(issue.values[0])}`;
+                return `Noto‘g‘ri variant: quyidagilardan biri kutilgan ${util.joinValues(issue.values, "|")}`;
+            case "too_big": {
+                const adj = issue.inclusive ? "<=" : "<";
+                const sizing = getSizing(issue.origin);
+                if (sizing)
+                    return `Juda katta: kutilgan ${issue.origin ?? "qiymat"} ${adj}${issue.maximum.toString()} ${sizing.unit} ${sizing.verb}`;
+                return `Juda katta: kutilgan ${issue.origin ?? "qiymat"} ${adj}${issue.maximum.toString()}`;
+            }
+            case "too_small": {
+                const adj = issue.inclusive ? ">=" : ">";
+                const sizing = getSizing(issue.origin);
+                if (sizing) {
+                    return `Juda kichik: kutilgan ${issue.origin} ${adj}${issue.minimum.toString()} ${sizing.unit} ${sizing.verb}`;
+                }
+                return `Juda kichik: kutilgan ${issue.origin} ${adj}${issue.minimum.toString()}`;
+            }
+            case "invalid_format": {
+                const _issue = issue;
+                if (_issue.format === "starts_with")
+                    return `Noto‘g‘ri satr: "${_issue.prefix}" bilan boshlanishi kerak`;
+                if (_issue.format === "ends_with")
+                    return `Noto‘g‘ri satr: "${_issue.suffix}" bilan tugashi kerak`;
+                if (_issue.format === "includes")
+                    return `Noto‘g‘ri satr: "${_issue.includes}" ni o‘z ichiga olishi kerak`;
+                if (_issue.format === "regex")
+                    return `Noto‘g‘ri satr: ${_issue.pattern} shabloniga mos kelishi kerak`;
+                return `Noto‘g‘ri ${FormatDictionary[_issue.format] ?? issue.format}`;
+            }
+            case "not_multiple_of":
+                return `Noto‘g‘ri raqam: ${issue.divisor} ning karralisi bo‘lishi kerak`;
+            case "unrecognized_keys":
+                return `Noma’lum kalit${issue.keys.length > 1 ? "lar" : ""}: ${util.joinValues(issue.keys, ", ")}`;
+            case "invalid_key":
+                return `${issue.origin} dagi kalit noto‘g‘ri`;
+            case "invalid_union":
+                return "Noto‘g‘ri kirish";
+            case "invalid_element":
+                return `${issue.origin} da noto‘g‘ri qiymat`;
+            default:
+                return `Noto‘g‘ri kirish`;
         }
     };
 };
@@ -59236,27 +61753,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "số";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "mảng";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "đầu vào",
         email: "địa chỉ email",
         url: "URL",
@@ -59286,10 +61783,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "đầu vào",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "số",
+        array: "mảng",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Đầu vào không hợp lệ: mong đợi ${issue.expected}, nhận được ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Đầu vào không hợp lệ: mong đợi instanceof ${issue.expected}, nhận được ${received}`;
+                }
+                return `Đầu vào không hợp lệ: mong đợi ${expected}, nhận được ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Đầu vào không hợp lệ: mong đợi ${util.stringifyPrimitive(issue.values[0])}`;
@@ -59319,7 +61828,7 @@ const error = () => {
                     return `Chuỗi không hợp lệ: phải bao gồm "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Chuỗi không hợp lệ: phải khớp với mẫu ${_issue.pattern}`;
-                return `${Nouns[_issue.format] ?? issue.format} không hợp lệ`;
+                return `${FormatDictionary[_issue.format] ?? issue.format} không hợp lệ`;
             }
             case "not_multiple_of":
                 return `Số không hợp lệ: phải là bội số của ${issue.divisor}`;
@@ -59387,27 +61896,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "nọ́mbà";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "akopọ";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "ẹ̀rọ ìbáwọlé",
         email: "àdírẹ́sì ìmẹ́lì",
         url: "URL",
@@ -59437,10 +61926,22 @@ const error = () => {
         jwt: "JWT",
         template_literal: "ẹ̀rọ ìbáwọlé",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "nọ́mbà",
+        array: "akopọ",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `Ìbáwọlé aṣìṣe: a ní láti fi ${issue.expected}, àmọ̀ a rí ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `Ìbáwọlé aṣìṣe: a ní láti fi instanceof ${issue.expected}, àmọ̀ a rí ${received}`;
+                }
+                return `Ìbáwọlé aṣìṣe: a ní láti fi ${expected}, àmọ̀ a rí ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `Ìbáwọlé aṣìṣe: a ní láti fi ${util.stringifyPrimitive(issue.values[0])}`;
@@ -59469,7 +61970,7 @@ const error = () => {
                     return `Ọ̀rọ̀ aṣìṣe: gbọ́dọ̀ ní "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `Ọ̀rọ̀ aṣìṣe: gbọ́dọ̀ bá àpẹẹrẹ mu ${_issue.pattern}`;
-                return `Aṣìṣe: ${Nouns[_issue.format] ?? issue.format}`;
+                return `Aṣìṣe: ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `Nọ́mbà aṣìṣe: gbọ́dọ̀ jẹ́ èyà pípín ti ${issue.divisor}`;
@@ -59537,27 +62038,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "非数字(NaN)" : "数字";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "数组";
-                }
-                if (data === null) {
-                    return "空值(null)";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "输入",
         email: "电子邮件",
         url: "URL",
@@ -59587,10 +62068,23 @@ const error = () => {
         jwt: "JWT",
         template_literal: "输入",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+        number: "数字",
+        array: "数组",
+        null: "空值(null)",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `无效输入：期望 ${issue.expected}，实际接收 ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `无效输入：期望 instanceof ${issue.expected}，实际接收 ${received}`;
+                }
+                return `无效输入：期望 ${expected}，实际接收 ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `无效输入：期望 ${util.stringifyPrimitive(issue.values[0])}`;
@@ -59620,7 +62114,7 @@ const error = () => {
                     return `无效字符串：必须包含 "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `无效字符串：必须满足正则表达式 ${_issue.pattern}`;
-                return `无效${Nouns[_issue.format] ?? issue.format}`;
+                return `无效${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `无效数字：必须是 ${issue.divisor} 的倍数`;
@@ -59688,27 +62182,7 @@ const error = () => {
     function getSizing(origin) {
         return Sizable[origin] ?? null;
     }
-    const parsedType = (data) => {
-        const t = typeof data;
-        switch (t) {
-            case "number": {
-                return Number.isNaN(data) ? "NaN" : "number";
-            }
-            case "object": {
-                if (Array.isArray(data)) {
-                    return "array";
-                }
-                if (data === null) {
-                    return "null";
-                }
-                if (Object.getPrototypeOf(data) !== Object.prototype && data.constructor) {
-                    return data.constructor.name;
-                }
-            }
-        }
-        return t;
-    };
-    const Nouns = {
+    const FormatDictionary = {
         regex: "輸入",
         email: "郵件地址",
         url: "URL",
@@ -59738,10 +62212,20 @@ const error = () => {
         jwt: "JWT",
         template_literal: "輸入",
     };
+    const TypeDictionary = {
+        nan: "NaN",
+    };
     return (issue) => {
         switch (issue.code) {
-            case "invalid_type":
-                return `無效的輸入值：預期為 ${issue.expected}，但收到 ${parsedType(issue.input)}`;
+            case "invalid_type": {
+                const expected = TypeDictionary[issue.expected] ?? issue.expected;
+                const receivedType = util.parsedType(issue.input);
+                const received = TypeDictionary[receivedType] ?? receivedType;
+                if (/^[A-Z]/.test(issue.expected)) {
+                    return `無效的輸入值：預期為 instanceof ${issue.expected}，但收到 ${received}`;
+                }
+                return `無效的輸入值：預期為 ${expected}，但收到 ${received}`;
+            }
             case "invalid_value":
                 if (issue.values.length === 1)
                     return `無效的輸入值：預期為 ${util.stringifyPrimitive(issue.values[0])}`;
@@ -59772,7 +62256,7 @@ const error = () => {
                     return `無效的字串：必須包含 "${_issue.includes}"`;
                 if (_issue.format === "regex")
                     return `無效的字串：必須符合格式 ${_issue.pattern}`;
-                return `無效的 ${Nouns[_issue.format] ?? issue.format}`;
+                return `無效的 ${FormatDictionary[_issue.format] ?? issue.format}`;
             }
             case "not_multiple_of":
                 return `無效的數字：必須為 ${issue.divisor} 的倍數`;
