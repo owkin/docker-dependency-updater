@@ -4,22 +4,20 @@ import * as dockerfile from './dockerfile.js'
 
 async function run(): Promise<void> {
   try {
-    const dockerfile_path = core.getInput('dockerfile')
-    const dependencies_path = core.getInput('dependencies')
+    const dockerfilePath = core.getInput('dockerfile')
+    const dependenciesPath = core.getInput('dependencies')
     const apply = core.getBooleanInput('apply')
 
-    const image = await dockerfile.load(dockerfile_path)
-    const dependencies_info = dependencies.load(dependencies_path)
-    const packages_update = dependencies_info.map(
-      async function (installed_pkg) {
-        return image.get_latest_version(installed_pkg)
-      }
+    const image = await dockerfile.load(dockerfilePath)
+    const dependenciesInfo = dependencies.load(dependenciesPath)
+    const packagesUpdate = dependenciesInfo.map(pkg =>
+      image.getLatestVersion(pkg)
     )
 
-    const updated_packages = await Promise.all(packages_update)
-    core.exportVariable('updatedDependencies', updated_packages)
+    const updatedPackages = await Promise.all(packagesUpdate)
+    core.exportVariable('updatedDependencies', updatedPackages)
     if (apply) {
-      dependencies.save(dependencies_path, updated_packages)
+      dependencies.save(dependenciesPath, updatedPackages)
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)

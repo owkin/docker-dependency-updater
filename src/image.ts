@@ -35,7 +35,7 @@ export class Image {
     )
     this.docker = new Docker(options)
   }
-  async init_package_manager(): Promise<void> {
+  async initPackageManager(): Promise<void> {
     for (const manager of packageManagers) {
       try {
         await this.docker.command(
@@ -47,55 +47,51 @@ export class Image {
         // Continue to the next iteration if the current one fails
       }
     }
-    throw Error('Unable to find supported package manager')
+    throw new Error('Unable to find supported package manager')
   }
 
-  async get_latest_version(installed_package: Package): Promise<Package> {
+  async getLatestVersion(installedPackage: Package): Promise<Package> {
     switch (this.pkgManager) {
       case 'apk':
-        return this.get_latest_version_apk(installed_package)
+        return this.getLatestVersionApk(installedPackage)
       case 'apt':
-        return this.get_latest_version_apt(installed_package)
+        return this.getLatestVersionApt(installedPackage)
       default:
-        throw Error('Unable to get package manager')
+        throw new Error('Unable to get package manager')
     }
   }
 
-  async get_latest_version_apk(installed_package: Package): Promise<Package> {
+  async getLatestVersionApk(installedPackage: Package): Promise<Package> {
     const response = DockerResponse.parse(
       await this.docker.command(
-        `run --user root ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`
+        `run --user root ${this.name} sh -c "apk update > /dev/null && apk info ${installedPackage.name}"`
       )
     )
-    const updated_version = remove_prefix(
+    const updatedVersion = removePrefix(
       response.raw.split(' ')[0],
-      `${installed_package.name}-`
+      `${installedPackage.name}-`
     )
-    return {...installed_package, version: updated_version}
+    return {...installedPackage, version: updatedVersion}
   }
 
-  async get_latest_version_apt(installed_package: Package): Promise<Package> {
+  async getLatestVersionApt(installedPackage: Package): Promise<Package> {
     const response = DockerResponse.parse(
       await this.docker.command(
-        `run --user root ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`
+        `run --user root ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installedPackage.name}"`
       )
     )
-    let updated_version = undefined
-    for (const info of response.raw.split('\n')) {
-      if (info.includes('Candidate')) {
-        // must handle case of multiple : in the line i.e. Candidate: 1:8.9p1-3ubuntu0.4
-        updated_version = info.split(':').slice(1).join(':').trim()
-        break
-      }
-    }
-    if (updated_version !== undefined) {
-      return {...installed_package, version: updated_version}
-    }
-    throw Error('Unable to extract new version from package infos')
+    const candidateLine = response.raw
+      .split('\n')
+      .find(line => line.includes('Candidate'))
+    if (!candidateLine)
+      throw new Error('Unable to extract new version from package infos')
+    // must handle case of multiple : in the line i.e. Candidate: 1:8.9p1-3ubuntu0.4
+    const updatedVersion = candidateLine.split(':').slice(1).join(':').trim()
+    return {...installedPackage, version: updatedVersion}
   }
 }
 
-function remove_prefix(text: string, prefix: string): string {
+function removePrefix(text: string, prefix: string): string {
   if (text.startsWith(prefix)) {
     return text.substring(prefix.length)
   }

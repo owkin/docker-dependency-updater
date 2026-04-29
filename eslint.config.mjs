@@ -65,6 +65,30 @@ export default defineConfig([
       "@typescript-eslint/explicit-member-accessibility": ["error", {
         accessibility: "no-public",
       }],
+
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          selector: "variable",
+          format: ["camelCase", "UPPER_CASE", "PascalCase"],
+        },
+        {
+          selector: "function",
+          format: ["camelCase"],
+        },
+        {
+          selector: "parameter",
+          format: ["camelCase"],
+        },
+        {
+          selector: "classMethod",
+          format: ["camelCase"],
+        },
+        {
+          selector: "typeLike",
+          format: ["PascalCase"],
+        },
+      ],
     },
   },
   eslintConfigPrettier,

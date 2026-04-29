@@ -63118,8 +63118,24 @@ config(en());
 
 
 
+;// CONCATENATED MODULE: ./lib/path-utils.js
+ // eslint-disable-line import/no-nodejs-modules
+function sanitizePath(inputPath) {
+    // Sanitize: reject traversal sequences before any path operation
+    if (inputPath.includes('..')) {
+        throw new Error(`Path "${inputPath}" contains traversal sequences`);
+    }
+    const baseDir = external_path_namespaceObject.resolve(process.env.GITHUB_WORKSPACE ?? process.cwd());
+    const fullPath = external_path_namespaceObject.normalize(external_path_namespaceObject.isAbsolute(inputPath) ? inputPath : external_path_namespaceObject.join(baseDir, inputPath));
+    if (fullPath !== baseDir && !fullPath.startsWith(baseDir + external_path_namespaceObject.sep)) {
+        throw new Error(`Path "${inputPath}" is outside the workspace`);
+    }
+    return fullPath;
+}
+
 ;// CONCATENATED MODULE: ./lib/dependencies.js
  // eslint-disable-line import/no-nodejs-modules
+
 
 const PackageSchema = object({
     name: schemas_string(),
@@ -63127,13 +63143,13 @@ const PackageSchema = object({
     extra: schemas_string().optional()
 });
 const PackagesSchema = array(PackageSchema);
-function load(dependencies_path) {
-    const content = external_fs_namespaceObject.readFileSync(dependencies_path).toString('utf-8');
+function load(dependenciesPath) {
+    const content = external_fs_namespaceObject.readFileSync(sanitizePath(dependenciesPath), 'utf-8');
     return PackagesSchema.parse(JSON.parse(content));
 }
-function save(dependencies_path, dependencies) {
+function save(dependenciesPath, dependencies) {
     const jsonContent = JSON.stringify(dependencies, null, 2);
-    external_fs_namespaceObject.writeFileSync(dependencies_path, jsonContent);
+    external_fs_namespaceObject.writeFileSync(sanitizePath(dependenciesPath), jsonContent);
 }
 
 // EXTERNAL MODULE: ./node_modules/docker-cli-js/dist/index.js
@@ -63158,7 +63174,7 @@ class Image {
         const options = new dist.Options(undefined, undefined, false, undefined, undefined);
         this.docker = new dist.Docker(options);
     }
-    async init_package_manager() {
+    async initPackageManager() {
         for (const manager of packageManagers) {
             try {
                 await this.docker.command(`run --user root ${this.name} sh -c "${manager.command} > /dev/null"`);
@@ -63169,40 +63185,36 @@ class Image {
                 // Continue to the next iteration if the current one fails
             }
         }
-        throw Error('Unable to find supported package manager');
+        throw new Error('Unable to find supported package manager');
     }
-    async get_latest_version(installed_package) {
+    async getLatestVersion(installedPackage) {
         switch (this.pkgManager) {
             case 'apk':
-                return this.get_latest_version_apk(installed_package);
+                return this.getLatestVersionApk(installedPackage);
             case 'apt':
-                return this.get_latest_version_apt(installed_package);
+                return this.getLatestVersionApt(installedPackage);
             default:
-                throw Error('Unable to get package manager');
+                throw new Error('Unable to get package manager');
         }
     }
-    async get_latest_version_apk(installed_package) {
-        const response = DockerResponse.parse(await this.docker.command(`run --user root ${this.name} sh -c "apk update > /dev/null && apk info ${installed_package.name}"`));
-        const updated_version = remove_prefix(response.raw.split(' ')[0], `${installed_package.name}-`);
-        return { ...installed_package, version: updated_version };
+    async getLatestVersionApk(installedPackage) {
+        const response = DockerResponse.parse(await this.docker.command(`run --user root ${this.name} sh -c "apk update > /dev/null && apk info ${installedPackage.name}"`));
+        const updatedVersion = removePrefix(response.raw.split(' ')[0], `${installedPackage.name}-`);
+        return { ...installedPackage, version: updatedVersion };
     }
-    async get_latest_version_apt(installed_package) {
-        const response = DockerResponse.parse(await this.docker.command(`run --user root ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installed_package.name}"`));
-        let updated_version = undefined;
-        for (const info of response.raw.split('\n')) {
-            if (info.includes('Candidate')) {
-                // must handle case of multiple : in the line i.e. Candidate: 1:8.9p1-3ubuntu0.4
-                updated_version = info.split(':').slice(1).join(':').trim();
-                break;
-            }
-        }
-        if (updated_version !== undefined) {
-            return { ...installed_package, version: updated_version };
-        }
-        throw Error('Unable to extract new version from package infos');
+    async getLatestVersionApt(installedPackage) {
+        const response = DockerResponse.parse(await this.docker.command(`run --user root ${this.name} sh -c "apt-get update > /dev/null && apt-cache policy ${installedPackage.name}"`));
+        const candidateLine = response.raw
+            .split('\n')
+            .find(line => line.includes('Candidate'));
+        if (!candidateLine)
+            throw new Error('Unable to extract new version from package infos');
+        // must handle case of multiple : in the line i.e. Candidate: 1:8.9p1-3ubuntu0.4
+        const updatedVersion = candidateLine.split(':').slice(1).join(':').trim();
+        return { ...installedPackage, version: updatedVersion };
     }
 }
-function remove_prefix(text, prefix) {
+function removePrefix(text, prefix) {
     if (text.startsWith(prefix)) {
         return text.substring(prefix.length);
     }
@@ -63212,15 +63224,16 @@ function remove_prefix(text, prefix) {
 ;// CONCATENATED MODULE: ./lib/dockerfile.js
 
  // eslint-disable-line import/no-nodejs-modules
+
 async function dockerfile_load(dockerfile) {
-    const content = external_fs_namespaceObject.readFileSync(dockerfile).toString('utf-8');
-    const extractedImage = extract_docker_image(content);
-    await extractedImage.init_package_manager();
+    const content = external_fs_namespaceObject.readFileSync(sanitizePath(dockerfile), 'utf-8');
+    const extractedImage = extractDockerImage(content);
+    await extractedImage.initPackageManager();
     return extractedImage;
 }
-function extract_docker_image(dockerfile_content) {
+function extractDockerImage(dockerfileContent) {
     let imageName = '';
-    const dockerfileLines = dockerfile_content.split('\n');
+    const dockerfileLines = dockerfileContent.split('\n');
     for (const line of dockerfileLines) {
         if (line.includes('FROM')) {
             imageName = line.split(' ')[1].trim();
@@ -63236,18 +63249,16 @@ function extract_docker_image(dockerfile_content) {
 
 async function run() {
     try {
-        const dockerfile_path = getInput('dockerfile');
-        const dependencies_path = getInput('dependencies');
+        const dockerfilePath = getInput('dockerfile');
+        const dependenciesPath = getInput('dependencies');
         const apply = getBooleanInput('apply');
-        const image = await dockerfile_load(dockerfile_path);
-        const dependencies_info = load(dependencies_path);
-        const packages_update = dependencies_info.map(async function (installed_pkg) {
-            return image.get_latest_version(installed_pkg);
-        });
-        const updated_packages = await Promise.all(packages_update);
-        exportVariable('updatedDependencies', updated_packages);
+        const image = await dockerfile_load(dockerfilePath);
+        const dependenciesInfo = load(dependenciesPath);
+        const packagesUpdate = dependenciesInfo.map(pkg => image.getLatestVersion(pkg));
+        const updatedPackages = await Promise.all(packagesUpdate);
+        exportVariable('updatedDependencies', updatedPackages);
         if (apply) {
-            save(dependencies_path, updated_packages);
+            save(dependenciesPath, updatedPackages);
         }
     }
     catch (error) {

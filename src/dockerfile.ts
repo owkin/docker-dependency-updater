@@ -1,18 +1,19 @@
 import * as image from './image.js'
 import fs from 'fs' // eslint-disable-line import/no-nodejs-modules
+import {sanitizePath} from './path-utils.js'
 
 export async function load(dockerfile: string): Promise<image.Image> {
-  const content = fs.readFileSync(dockerfile).toString('utf-8')
-  const extractedImage = extract_docker_image(content)
+  const content = fs.readFileSync(sanitizePath(dockerfile), 'utf-8')
+  const extractedImage = extractDockerImage(content)
 
-  await extractedImage.init_package_manager()
+  await extractedImage.initPackageManager()
 
   return extractedImage
 }
 
-function extract_docker_image(dockerfile_content: string): image.Image {
+function extractDockerImage(dockerfileContent: string): image.Image {
   let imageName = ''
-  const dockerfileLines = dockerfile_content.split('\n')
+  const dockerfileLines = dockerfileContent.split('\n')
   for (const line of dockerfileLines) {
     if (line.includes('FROM')) {
       imageName = line.split(' ')[1].trim()
