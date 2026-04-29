@@ -1,5 +1,5 @@
 import {Docker, Options} from 'docker-cli-js'
-import {Package} from './dependencies'
+import {Package} from './dependencies.js'
 import {z} from 'zod'
 
 export type PackageManagerName = 'apk' | 'apt'

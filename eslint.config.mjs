@@ -19,7 +19,7 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-  globalIgnores(["**/dist/", "**/lib/", "**/node_modules/", "**/jest.config.js"]),
+  globalIgnores(["**/dist/", "**/lib/", "**/node_modules/"]),
   github.getFlatConfigs().browser,
   github.getFlatConfigs().recommended,
   github.getFlatConfigs().react,
@@ -31,6 +31,12 @@ export default defineConfig([
       jest,
       "@typescript-eslint": typescriptEslint,
     },
+    settings: {
+      'import/resolver': {
+        typescript: { alwaysTryTypes: true },
+      },
+    },
+
     languageOptions: {
       globals: {
         ...globals.node,
@@ -38,7 +44,7 @@ export default defineConfig([
       },
 
       parser: tsParser,
-      ecmaVersion: 9,
+      ecmaVersion: 2022,
       sourceType: "module",
 
       parserOptions: {

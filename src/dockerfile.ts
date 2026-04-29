@@ -1,4 +1,4 @@
-import * as image from './image'
+import * as image from './image.js'
 import fs from 'fs' // eslint-disable-line import/no-nodejs-modules
 
 export async function load(dockerfile: string): Promise<image.Image> {

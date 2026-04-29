@@ -1,6 +1,9 @@
 import {test, expect} from '@jest/globals'
 import * as path from 'path'
-import {load} from '../src/dockerfile'
+import { fileURLToPath } from 'url'
+import {load} from '../src/dockerfile.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 test('load alpine dockerfile', async () => {
   const dockerfilePath = path.join(__dirname, 'data', 'Dockerfile.apk')
