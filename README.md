@@ -57,6 +57,12 @@ Note the `workflow_dispatch` trigger that will enable you to run this workflow i
 | `dependencies` | String | Path to the dependencies.json file where you keep your dependencies pinned |
 | `apply`        | Bool   | If true the action will apply changes directly to the files checked out |
 
+### Action outputs
+
+| Name                   | Type   | Description |
+| ---                    | ---    | ---         |
+| `updatedDependencies`  | String | JSON representing the updated dependencies |
+
 ## Recommendations
 
 Before using this Action you will need to update your Dockerfile in order to extract the dependencies you install.

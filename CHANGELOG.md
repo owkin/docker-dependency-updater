@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [3.0.0] - 2026-04-29
+
+### Added
+
+- CI now enforces file format checks (#552)
+
+### Changed
+
+- Migrated codebase to ESM modules (#545)
+- Updated Node.js runtime to Node 24 (#546)
+- Minor code improvements for more idiomatic TypeScript/JavaScript (#553)
+
+### Security
+
+- Improved dependencies security posture (#547)
+- Bumped dependencies to address Dependabot security advisories (#551)
+- Updated all dependencies to their latest available versions (#544)
+
+
 ## [2.0.5] - 2024-06-03
 
 ### Fixed
