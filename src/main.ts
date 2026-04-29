@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
-import * as dependencies from './dependencies'
-import * as dockerfile from './dockerfile'
+import * as dependencies from './dependencies.js'
+import * as dockerfile from './dockerfile.js'
 
 async function run(): Promise<void> {
   try {
