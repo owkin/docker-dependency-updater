@@ -63141,7 +63141,8 @@ const PackageSchema = object({
     name: schemas_string(),
     version: schemas_string(),
     extra: schemas_string().optional()
-});
+})
+    .passthrough();
 const PackagesSchema = array(PackageSchema);
 function load(dependenciesPath) {
     const content = external_fs_namespaceObject.readFileSync(sanitizePath(dependenciesPath), 'utf-8');

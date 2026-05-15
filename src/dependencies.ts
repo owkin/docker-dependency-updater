@@ -2,11 +2,13 @@ import fs from 'fs' // eslint-disable-line import/no-nodejs-modules
 import {z} from 'zod'
 import {sanitizePath} from './path-utils.js'
 
-const PackageSchema = z.object({
-  name: z.string(),
-  version: z.string(),
-  extra: z.string().optional()
-})
+const PackageSchema = z
+  .object({
+    name: z.string(),
+    version: z.string(),
+    extra: z.string().optional()
+  })
+  .passthrough()
 
 const PackagesSchema = z.array(PackageSchema)
 
