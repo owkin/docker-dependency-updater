@@ -29,7 +29,6 @@ export default defineConfig([
     files: ['**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}'],
     plugins: {
       jest,
-      "@typescript-eslint": typescriptEslint,
     },
     settings: {
       'import/resolver': {
